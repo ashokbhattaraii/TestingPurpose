@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-
 import { useAuth } from "@/lib/auth-context";
 import { useCreateRequest } from "@/lib/queries";
 import { useRouter } from "next/navigation";
@@ -9,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -19,42 +17,68 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import type { RequestCategory } from "@/lib/types";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { requestSchema, type RequestFormValues } from "@/schemas";
+
+// Extract categories and priorities from schema for consistency
+const CATEGORIES = requestSchema._def.schema.shape.category._def.values;
+const PRIORITIES = requestSchema._def.schema.shape.priority._def.values;
 
 export default function NewRequestPage() {
   const { user } = useAuth();
   const router = useRouter();
   const createRequest = useCreateRequest();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [otherCategory, setOtherCategory] = useState("");
-  const [category, setCategory] =
-    useState<RequestCategory>("Food and Supplies");
-  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim() || !description.trim()) {
-      toast.error("Please fill in all fields.");
+  const form = useForm<RequestFormValues>({
+    resolver: zodResolver(requestSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      category: "Food and Supplies",
+      priority: "medium",
+      otherCategory: "",
+    },
+  });
+
+  const category = form.watch("category");
+
+  const handleSubmit = (values: RequestFormValues) => {
+    if (!user?.id || !user?.name) {
+      toast.error("User information is missing. Please log in again.");
       return;
     }
+
     createRequest.mutate(
       {
-        title,
-        description,
-        category,
-        priority,
-        otherCategory: category === "Other" ? otherCategory : undefined,
+        title: values.title,
+        description: values.description,
+        category: values.category,
+        priority: values.priority,
+        otherCategory:
+          values.category === "Other" ? values.otherCategory : undefined,
         status: "pending",
-        createdBy: user?.id || "",
-        createdByName: user?.name || "",
+        createdBy: user.id,
+        createdByName: user.name,
       },
       {
         onSuccess: () => {
           toast.success("Request submitted successfully.");
+          form.reset();
           router.push("/dashboard/requests");
+        },
+        onError: (error) => {
+          console.error("Failed to submit request:", error);
+          toast.error("Failed to submit request. Please try again.");
         },
       },
     );
@@ -78,91 +102,137 @@ export default function NewRequestPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                placeholder="Brief description of your request"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="flex flex-col gap-4"
+            >
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Brief description of your request"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Provide details about your request..."
-                rows={4}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Provide details about your request..."
+                        rows={4}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <Label>Category</Label>
-                <Select
-                  value={category}
-                  onValueChange={(v) => setCategory(v as RequestCategory)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Food and Supplies">
-                      Food and Supplies
-                    </SelectItem>
-                    <SelectItem value="Office Maintenance">
-                      Office Maintenance
-                    </SelectItem>
-                    <SelectItem value="Cleaning">Cleaning</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {CATEGORIES.map(
+                            (cat: RequestFormValues["category"]) => (
+                              <SelectItem key={cat} value={cat}>
+                                {cat}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className="flex flex-col gap-2">
-                <Label>Priority</Label>
-                <Select
-                  value={priority}
-                  onValueChange={(v) =>
-                    setPriority(v as "low" | "medium" | "high")
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {category === "Other" && (
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="otherCategory">Specify Category</Label>
-                <Input
-                  id="otherCategory"
-                  placeholder="Please specify your category"
-                  value={otherCategory}
-                  onChange={(e) => setOtherCategory(e.target.value)}
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Priority</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {PRIORITIES.map(
+                            (priority: RequestFormValues["priority"]) => (
+                              <SelectItem key={priority} value={priority}>
+                                {priority.charAt(0).toUpperCase() +
+                                  priority.slice(1)}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            )}
 
-            <Button
-              type="submit"
-              className="mt-2"
-              disabled={createRequest.isPending}
-            >
-              {createRequest.isPending ? "Submitting..." : "Submit Request"}
-            </Button>
-          </form>
+              {category === "Other" && (
+                <FormField
+                  control={form.control}
+                  name="otherCategory"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Specify Category</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Please specify your category (3-15 characters)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <Button
+                type="submit"
+                className="mt-2"
+                disabled={createRequest.isPending}
+              >
+                {createRequest.isPending ? "Submitting..." : "Submit Request"}
+              </Button>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
