@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth-context"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Building2,
   BarChart3,
@@ -12,21 +12,21 @@ import {
   Shield,
   CheckCircle,
   ArrowRight,
-} from "lucide-react"
-import Link from "next/link"
+} from "lucide-react";
+import Link from "next/link";
 
 export default function HomePage() {
-  const { isAuthenticated, user } = useAuth()
-  const router = useRouter()
-  let activeSection = null
+  const { isAuthenticated, user } = useAuth();
+  const router = useRouter();
+  let activeSection = null;
 
-  const setActiveSection = (section) => {
-    activeSection = section
-  }
+  const setActiveSection = (section: any) => {
+    activeSection = section;
+  };
 
   if (isAuthenticated && user) {
-    router.push("/dashboard")
-    return null
+    router.push("/dashboard");
+    return null;
   }
 
   return (
@@ -102,7 +102,10 @@ export default function HomePage() {
                 Streamline Your Office Operations
               </h1>
               <p className="text-xl text-slate-600 leading-relaxed text-balance">
-                WorkOps is the all-in-one platform for managing office utilities, service requests, and facility coordination. Keep your workplace running smoothly with centralized control and real-time insights.
+                WorkOps is the all-in-one platform for managing office
+                utilities, service requests, and facility coordination. Keep
+                your workplace running smoothly with centralized control and
+                real-time insights.
               </p>
             </div>
 
@@ -116,7 +119,11 @@ export default function HomePage() {
                 Get Started
                 <ArrowRight className="h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-primary text-primary hover:bg-primary/5 bg-transparent">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-primary text-primary hover:bg-primary/5 bg-transparent"
+              >
                 Learn More
               </Button>
             </div>
@@ -155,7 +162,9 @@ export default function HomePage() {
                       <BarChart3 className="h-6 w-6 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-slate-900">{item.title}</p>
+                      <p className="font-semibold text-slate-900">
+                        {item.title}
+                      </p>
                       <p className="text-sm text-slate-600">{item.desc}</p>
                     </div>
                   </div>
@@ -167,14 +176,18 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="border-t border-primary/10 bg-gradient-to-b from-white via-purple-50/20 to-white py-24">
+      <section
+        id="features"
+        className="border-t border-primary/10 bg-gradient-to-b from-white via-purple-50/20 to-white py-24"
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
               Powerful Features for Modern Workplaces
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Everything you need to manage your office efficiently with real-time updates, team collaboration, and comprehensive analytics
+              Everything you need to manage your office efficiently with
+              real-time updates, team collaboration, and comprehensive analytics
             </p>
           </div>
 
@@ -183,17 +196,20 @@ export default function HomePage() {
               {
                 icon: Clock,
                 title: "Real-Time Updates",
-                description: "Get instant notifications about service requests and facility issues",
+                description:
+                  "Get instant notifications about service requests and facility issues",
               },
               {
                 icon: Users,
                 title: "Team Collaboration",
-                description: "Keep your entire team synchronized with shared announcements",
+                description:
+                  "Keep your entire team synchronized with shared announcements",
               },
               {
                 icon: BarChart3,
                 title: "Analytics Dashboard",
-                description: "Track metrics and gain insights into office utilization",
+                description:
+                  "Track metrics and gain insights into office utilization",
               },
               {
                 icon: Zap,
@@ -203,7 +219,8 @@ export default function HomePage() {
               {
                 icon: Shield,
                 title: "Role-Based Access",
-                description: "Secure permissions for employees, admins, and super admins",
+                description:
+                  "Secure permissions for employees, admins, and super admins",
               },
               {
                 icon: Building2,
@@ -238,9 +255,18 @@ export default function HomePage() {
               <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-white via-primary/5 to-white p-12 shadow-2xl">
                 <div className="space-y-6">
                   {[
-                    { title: "Improved Efficiency", desc: "Streamline operations and reduce overhead" },
-                    { title: "Better Communication", desc: "Keep teams synchronized in real-time" },
-                    { title: "Cost Savings", desc: "Reduce waste and optimize resource usage" },
+                    {
+                      title: "Improved Efficiency",
+                      desc: "Streamline operations and reduce overhead",
+                    },
+                    {
+                      title: "Better Communication",
+                      desc: "Keep teams synchronized in real-time",
+                    },
+                    {
+                      title: "Cost Savings",
+                      desc: "Reduce waste and optimize resource usage",
+                    },
                   ].map((benefit, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <CheckCircle className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
@@ -264,7 +290,9 @@ export default function HomePage() {
                   Why Choose WorkOps?
                 </h2>
                 <p className="text-lg text-slate-600 leading-relaxed">
-                  Transform how your organization manages office operations with our intuitive and comprehensive platform designed for modern workplaces.
+                  Transform how your organization manages office operations with
+                  our intuitive and comprehensive platform designed for modern
+                  workplaces.
                 </p>
               </div>
 
@@ -284,9 +312,9 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <Button 
-                size="lg" 
-                onClick={() => router.push("/login")} 
+              <Button
+                size="lg"
+                onClick={() => router.push("/login")}
                 className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all gap-2"
               >
                 Start Using WorkOps
@@ -304,7 +332,8 @@ export default function HomePage() {
             Ready to Transform Your Office?
           </h2>
           <p className="text-lg text-slate-600 mb-10">
-            Join hundreds of companies that trust WorkOps for their facility management needs.
+            Join hundreds of companies that trust WorkOps for their facility
+            management needs.
           </p>
           <Button
             size="lg"
@@ -353,5 +382,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

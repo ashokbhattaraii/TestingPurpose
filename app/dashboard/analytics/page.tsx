@@ -1,15 +1,10 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth-context"
-import { useAnalytics } from "@/lib/queries"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import {
-  ClipboardList,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react"
+import { useAuth } from "@/lib/auth-context";
+import { useAnalytics } from "@/lib/queries";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ClipboardList, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -21,29 +16,29 @@ import {
   Pie,
   Cell,
   Legend,
-} from "recharts"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+} from "recharts";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const PIE_COLORS = [
   "hsl(217, 91%, 50%)",
   "hsl(142, 71%, 45%)",
   "hsl(38, 92%, 50%)",
   "hsl(0, 84%, 60%)",
-]
+];
 
 export default function AnalyticsPage() {
-  const { user } = useAuth()
-  const router = useRouter()
-  const { data: analytics, isLoading } = useAnalytics()
+  const { user } = useAuth();
+  const router = useRouter();
+  const { data: analytics, isLoading } = useAnalytics();
 
   useEffect(() => {
     if (user && user.role === "employee") {
-      router.push("/dashboard")
+      router.push("/dashboard");
     }
-  }, [user, router])
+  }, [user, router]);
 
-  if (user?.role === "employee") return null
+  if (user?.role === "employee") return null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -201,9 +196,7 @@ export default function AnalyticsPage() {
                       fontSize: "12px",
                     }}
                   />
-                  <Legend
-                    wrapperStyle={{ fontSize: "12px" }}
-                  />
+                  <Legend wrapperStyle={{ fontSize: "12px" }} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -261,5 +254,5 @@ export default function AnalyticsPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
