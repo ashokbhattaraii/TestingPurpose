@@ -9,7 +9,6 @@ export type RequestCategory =
   | "Other";
 
 export type SocialProvider = "google" | "github" | "linkedin";
-
 export interface SocialAccount {
   provider: SocialProvider;
   email: string;
