@@ -49,7 +49,6 @@ export interface ServiceRequest {
   createdAt: string;
   updatedAt: string;
 }
-
 export interface Announcement {
   id: string;
   title: string;
