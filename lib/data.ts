@@ -10,6 +10,7 @@ import type {
 export const users: User[] = [
   {
     id: "u1",
+
     name: "Aarav Sharma",
     email: "aarav@rumsan.com",
     avatar: "",
