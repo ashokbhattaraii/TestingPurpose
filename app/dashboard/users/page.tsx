@@ -14,10 +14,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { format } from "date-fns"
 import type { UserRole } from "@/lib/types"
-import { Shield } from "lucide-react"
+import { Shield, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 function getInitials(name: string) {
   return name
@@ -45,12 +47,38 @@ export default function UsersPage() {
   const router = useRouter()
   const { data: allUsers, isLoading } = useUsers()
   const updateRole = useUpdateUserRole()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   useEffect(() => {
     if (user && user.role !== "superadmin") {
       router.push("/dashboard")
     }
   }, [user, router])
+
+  // Filter users based on search query
+  const filteredUsers = useMemo(() => {
+    if (!allUsers) return []
+    return allUsers.filter((u) =>
+      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.department.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  }, [allUsers, searchQuery])
+
+  // Pagination
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedUsers = filteredUsers.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  )
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
 
   if (user?.role !== "superadmin") return null
 
@@ -77,11 +105,37 @@ export default function UsersPage() {
         </p>
       </div>
 
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search by name, email, or department..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9 bg-card"
+        />
+      </div>
+
+      {/* Users Count */}
+      <div className="text-xs text-muted-foreground">
+        Showing {paginatedUsers.length > 0 ? startIndex + 1 : 0} to{" "}
+        {Math.min(startIndex + itemsPerPage, filteredUsers.length)} of{" "}
+        {filteredUsers.length} users
+      </div>
+
       {isLoading ? (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-20" />
           ))}
+        </div>
+      ) : paginatedUsers.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">
+            {filteredUsers.length === 0 && searchQuery
+              ? "No users found matching your search."
+              : "No users available."}
+          </p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -101,7 +155,7 @@ export default function UsersPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            {allUsers?.map((u) => {
+            {paginatedUsers.map((u) => {
               const isSelf = u.id === user.id
               return (
                 <Card key={u.id} className="overflow-hidden hover:shadow-sm transition-shadow">
@@ -244,6 +298,66 @@ export default function UsersPage() {
               )
             })}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between gap-2 mt-6 px-4 py-3 bg-muted/30 rounded-lg border border-border">
+              <div className="text-xs text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </div>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="h-8 w-8 p-0"
+                  title="Previous page"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span className="sr-only">Previous page</span>
+                </Button>
+
+                {/* Page numbers */}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((page) => {
+                      const diff = Math.abs(page - currentPage)
+                      return diff === 0 || diff <= 1 || page === 1 || page === totalPages
+                    })
+                    .map((page, idx, arr) => (
+                      <div key={page}>
+                        {idx > 0 && arr[idx - 1] !== page - 1 && (
+                          <span className="px-2 text-xs text-muted-foreground">
+                            ...
+                          </span>
+                        )}
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="h-8 w-8 p-0 text-xs"
+                        >
+                          {page}
+                        </Button>
+                      </div>
+                    ))}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="h-8 w-8 p-0"
+                  title="Next page"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                  <span className="sr-only">Next page</span>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
