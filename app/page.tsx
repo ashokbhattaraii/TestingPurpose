@@ -102,6 +102,7 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
+
       <section className="relative mx-auto w-full max-w-7xl flex-1 px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid gap-16 lg:grid-cols-2 lg:gap-12 items-center">
           {/* Left Content */}
