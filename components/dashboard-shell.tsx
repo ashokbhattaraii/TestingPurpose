@@ -30,6 +30,7 @@ import {
   ExternalLink,
   Settings,
   PanelLeft,
+  ArrowLeft,
 } from "lucide-react"
 import Link from "next/link"
 import type { ReactNode } from "react"
@@ -126,16 +127,25 @@ function getRoleLabel(role: string) {
 }
 
 function NotificationPopover({ userId }: { userId: string }) {
+  const router = useRouter()
   const { data: notifications, isLoading } = useNotifications(userId)
   const markRead = useMarkNotificationRead()
+  const [open, setOpen] = useState(false)
   const unreadCount = notifications?.filter((n) => !n.read).length || 0
 
-  const handleMarkRead = (id: string) => {
-    markRead.mutate(id)
+  // Click notification to mark as read and navigate to its detail link
+  const handleNotificationClick = (notif: { id: string; read: boolean; link?: string }) => {
+    if (!notif.read) {
+      markRead.mutate(notif.id)
+    }
+    if (notif.link) {
+      setOpen(false)
+      router.push(notif.link)
+    }
   }
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -175,8 +185,10 @@ function NotificationPopover({ userId }: { userId: string }) {
               {notifications.map((notif) => (
                 <div
                   key={notif.id}
+                  onClick={() => handleNotificationClick(notif)}
                   className={cn(
                     "border-b border-border p-3 text-xs last:border-b-0 transition-colors",
+                    notif.link ? "cursor-pointer hover:bg-muted/50" : "",
                     notif.read ? "bg-background" : "bg-primary/5"
                   )}
                 >
@@ -197,30 +209,9 @@ function NotificationPopover({ userId }: { userId: string }) {
                       <p className="text-muted-foreground line-clamp-2 mt-0.5">
                         {notif.message}
                       </p>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <span className="text-[10px] text-muted-foreground">
-                          {format(new Date(notif.createdAt), "MMM d, h:mm a")}
-                        </span>
-                        {notif.link && (
-                          <Link
-                            href={notif.link}
-                            className="text-primary hover:underline text-[10px] flex items-center gap-0.5"
-                          >
-                            View
-                            <ExternalLink className="h-2.5 w-2.5" />
-                          </Link>
-                        )}
-                        {!notif.read && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-auto px-1 py-0 text-[10px] text-muted-foreground hover:text-foreground"
-                            onClick={() => handleMarkRead(notif.id)}
-                          >
-                            Mark read
-                          </Button>
-                        )}
-                      </div>
+                      <span className="text-[10px] text-muted-foreground mt-1.5 block">
+                        {format(new Date(notif.createdAt), "MMM d, h:mm a")}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -231,6 +222,7 @@ function NotificationPopover({ userId }: { userId: string }) {
         <div className="flex border-t border-border">
           <Link
             href="/dashboard/notifications"
+            onClick={() => setOpen(false)}
             className="flex-1 flex items-center justify-center gap-1 py-2 px-4 text-xs font-medium text-primary hover:bg-muted transition-colors"
           >
             View all notifications
@@ -456,6 +448,7 @@ function MobileSidebarContent({ onLinkClick, badges }: { onLinkClick?: () => voi
 export function DashboardShell({ children }: { children: ReactNode }) {
   const { user, isAuthenticated, logout } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
@@ -582,6 +575,24 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 <MobileSidebarContent onLinkClick={() => setMobileOpen(false)} badges={badges} />
               </SheetContent>
             </Sheet>
+            {pathname !== "/dashboard" && (
+              <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => router.push("/dashboard")}
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      <span className="sr-only">Back to Dashboard</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Back to Dashboard</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
             <h1 className="text-sm font-medium text-foreground lg:hidden">
               WorkOps
             </h1>
