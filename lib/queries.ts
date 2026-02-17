@@ -320,3 +320,50 @@ export function usePinAnnouncement() {
     },
   });
 }
+
+// --- Delete Request Hook ---
+
+export function useDeleteRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (requestId: string) => {
+      const index = serviceRequests.findIndex((r) => r.id === requestId);
+      if (index > -1) {
+        serviceRequests.splice(index, 1);
+      }
+      return delay(null);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    },
+  });
+}
+
+// --- Update Request Hook ---
+
+export function useUpdateRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (
+      updates: Omit<ServiceRequest, "id" | "createdBy" | "createdAt">,
+    ) => {
+      const request = serviceRequests.find((r) => r.id === updates.id);
+      if (request) {
+        request.title = updates.title;
+        request.description = updates.description;
+        request.category = updates.category;
+        request.priority = updates.priority;
+        request.otherCategory = updates.otherCategory;
+        request.updatedAt = new Date().toISOString();
+      }
+      return delay(request);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    },
+  });
+}
