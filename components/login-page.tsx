@@ -43,6 +43,10 @@ export function LoginPage() {
     login(userId);
   };
 
+  async function OAuthHandle() {
+    alert("Login in cliecked");
+  }
+
   const demoUser = users[0];
   const otherUsers = users.slice(1);
 
@@ -85,7 +89,7 @@ export function LoginPage() {
               <div className="w-full">
                 <button
                   type="button"
-                  onClick={() => console.log("Google sign in")}
+                  onClick={() => OAuthHandle()}
                   className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-slate-200 bg-white py-3 px-4 text-center transition-all hover:border-primary hover:bg-primary/5 hover:shadow-md"
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
