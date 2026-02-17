@@ -237,13 +237,16 @@ export function useCollectLunchToken() {
 
 // --- Notification Hooks ---
 
-export function useNotifications(userId?: string) {
+export function useNotifications(userId?: string, includeRead = false) {
   return useQuery({
-    queryKey: ["notifications", userId],
+    queryKey: ["notifications", userId, includeRead],
     queryFn: () => {
-      const filtered = userId
-        ? notifications.filter((n) => n.userId === userId && !n.read)
-        : notifications.filter((n) => !n.read);
+      let filtered = userId
+        ? notifications.filter((n) => n.userId === userId)
+        : [...notifications];
+      if (!includeRead) {
+        filtered = filtered.filter((n) => !n.read);
+      }
       return delay([...filtered]);
     },
   });
@@ -258,6 +261,23 @@ export function useMarkNotificationRead() {
         notif.read = true;
       }
       return delay(notif);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+
+export function useMarkAllNotificationsRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => {
+      notifications.forEach((n) => {
+        if (n.userId === userId && !n.read) {
+          n.read = true;
+        }
+      });
+      return delay(null);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -317,6 +337,53 @@ export function usePinAnnouncement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["announcements"] });
+    },
+  });
+}
+
+// --- Delete Request Hook ---
+
+export function useDeleteRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (requestId: string) => {
+      const index = serviceRequests.findIndex((r) => r.id === requestId);
+      if (index > -1) {
+        serviceRequests.splice(index, 1);
+      }
+      return delay(null);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
+    },
+  });
+}
+
+// --- Update Request Hook ---
+
+export function useUpdateRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (
+      updates: Omit<ServiceRequest, "id" | "createdBy" | "createdAt">,
+    ) => {
+      const request = serviceRequests.find((r) => r.id === updates.id);
+      if (request) {
+        request.title = updates.title;
+        request.description = updates.description;
+        request.category = updates.category;
+        request.priority = updates.priority;
+        request.otherCategory = updates.otherCategory;
+        request.updatedAt = new Date().toISOString();
+      }
+      return delay(request);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
     },
   });
 }
