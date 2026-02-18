@@ -60,7 +60,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { format, subDays, subMonths, isAfter, parseISO } from "date-fns";
 import type { ServiceRequest, RequestStatus } from "@/lib/types";
-
 const PIE_COLORS = [
   "hsl(330, 100%, 70%)",
   "hsl(142, 71%, 45%)",
