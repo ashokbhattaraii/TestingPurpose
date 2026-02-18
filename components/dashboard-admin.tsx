@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useServiceRequests, useAnnouncements, useLunchTokens } from "@/lib/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,22 +48,33 @@ export function AdminDashboard() {
   const tokenCount = todayTokens?.length ?? 0;
 
   const pending = requests?.filter((r) => r.status === "pending").length ?? 0;
-  const inProgress =
-    requests?.filter((r) => r.status === "in-progress").length ?? 0;
+  const inProgress = requests?.filter((r) => r.status === "in-progress").length ?? 0;
   const resolved = requests?.filter((r) => r.status === "resolved").length ?? 0;
   const total = requests?.length ?? 0;
 
-  const urgentRequests =
+  const [search, setSearch] = useState("");
+
+  // ✅ Filter requests by title or ID, case-insensitive
+  const filteredRequests =
     requests
+      ?.filter((r) =>
+        r.title.toLowerCase().includes(search.toLowerCase()) ||
+        r.id.toString().toLowerCase().includes(search.toLowerCase())
+      ) ?? [];
+
+  // Urgent requests based on status and sorted by creation date
+  const urgentRequests =
+    filteredRequests
       ?.filter((r) => r.status === "pending" || r.status === "in-progress")
       .sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
       .slice(0, 6) ?? [];
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-foreground">
@@ -86,6 +98,19 @@ export function AdminDashboard() {
             </Link>
           </Button>
         </div>
+      </div>
+
+      {/* ✅ Search Bar */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <form onSubmit={(e) => e.preventDefault()} className="flex-1">
+          <input
+            type="text"
+            placeholder="Search requests by title or ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </form>
       </div>
 
       {/* Stats */}
@@ -119,9 +144,7 @@ export function AdminDashboard() {
                   <AlertCircle className="h-5 w-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {pending}
-                  </p>
+                  <p className="text-2xl font-bold text-foreground">{pending}</p>
                   <p className="text-xs text-muted-foreground">Pending</p>
                 </div>
               </CardContent>
@@ -132,9 +155,7 @@ export function AdminDashboard() {
                   <Clock className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {inProgress}
-                  </p>
+                  <p className="text-2xl font-bold text-foreground">{inProgress}</p>
                   <p className="text-xs text-muted-foreground">In Progress</p>
                 </div>
               </CardContent>
@@ -145,9 +166,7 @@ export function AdminDashboard() {
                   <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {resolved}
-                  </p>
+                  <p className="text-2xl font-bold text-foreground">{resolved}</p>
                   <p className="text-xs text-muted-foreground">Resolved</p>
                 </div>
               </CardContent>
