@@ -16,7 +16,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Paperclip, X, FileText, ImageIcon, File } from "lucide-react";
+import {
+  ArrowLeft,
+  Paperclip,
+  X,
+  FileText,
+  ImageIcon,
+  File,
+} from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -54,8 +61,10 @@ function formatFileSize(bytes: number) {
 }
 
 function getFileIcon(type: string) {
-  if (type.startsWith("image/")) return <ImageIcon className="h-4 w-4 text-muted-foreground" />;
-  if (type === "application/pdf") return <FileText className="h-4 w-4 text-red-500" />;
+  if (type.startsWith("image/"))
+    return <ImageIcon className="h-4 w-4 text-muted-foreground" />;
+  if (type === "application/pdf")
+    return <FileText className="h-4 w-4 text-red-500" />;
   return <File className="h-4 w-4 text-muted-foreground" />;
 }
 
@@ -192,21 +201,28 @@ export default function NewRequestPage() {
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="flex gap-4"
+                        className="flex justify-between gap-4"
                       >
                         <label
                           htmlFor="type-issue"
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
                           <RadioGroupItem value="issue" id="type-issue" />
-                          <span className="font-medium text-foreground">Issue</span>
+                          <span className="font-medium text-foreground">
+                            Issue
+                          </span>
                         </label>
                         <label
                           htmlFor="type-asset"
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
-                          <RadioGroupItem value="asset-request" id="type-asset" />
-                          <span className="font-medium text-foreground">Asset Request</span>
+                          <RadioGroupItem
+                            value="asset-request"
+                            id="type-asset"
+                          />
+                          <span className="font-medium text-foreground">
+                            Asset Request
+                          </span>
                         </label>
                       </RadioGroup>
                     </FormControl>
@@ -356,7 +372,8 @@ export default function NewRequestPage() {
                   Add Attachment
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  Max {MAX_FILES} files, up to 5MB each. Supported: images, PDF, Word, text.
+                  Max {MAX_FILES} files, up to 5MB each. Supported: images, PDF,
+                  Word, text.
                 </p>
 
                 {attachments.length > 0 && (

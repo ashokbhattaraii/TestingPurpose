@@ -20,9 +20,25 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, Search, ChevronLeft, ChevronRight, ArrowUp, ArrowRight, ArrowDown, CalendarIcon, X } from "lucide-react";
+import {
+  Plus,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUp,
+  ArrowRight,
+  ArrowDown,
+  CalendarIcon,
+  X,
+} from "lucide-react";
 import Link from "next/link";
-import { format, isWithinInterval, startOfDay, endOfDay, isSameDay } from "date-fns";
+import {
+  format,
+  isWithinInterval,
+  startOfDay,
+  endOfDay,
+  isSameDay,
+} from "date-fns";
 import { useState } from "react";
 import type { RequestStatus, RequestCategory } from "@/lib/types";
 import type { DateRange } from "react-day-picker";
@@ -32,15 +48,25 @@ const ITEMS_PER_PAGE = 6;
 
 const PRIORITY_CONFIG = {
   high: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
-  medium: { label: "Med", icon: ArrowRight, className: "text-amber-600 bg-amber-50" },
-  low: { label: "Low", icon: ArrowDown, className: "text-emerald-600 bg-emerald-50" },
+  medium: {
+    label: "Med",
+    icon: ArrowRight,
+    className: "text-amber-600 bg-amber-50",
+  },
+  low: {
+    label: "Low",
+    icon: ArrowDown,
+    className: "text-emerald-600 bg-emerald-50",
+  },
 } as const;
 
 function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
   const config = PRIORITY_CONFIG[priority];
   const Icon = config.icon;
   return (
-    <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${config.className}`}>
+    <span
+      className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${config.className}`}
+    >
       <Icon className="h-3 w-3" />
       {config.label}
     </span>
@@ -87,7 +113,7 @@ export default function RequestsPage() {
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginatedRequests = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   // Reset page when filters change
@@ -152,17 +178,20 @@ export default function RequestsPage() {
               variant="outline"
               className={cn(
                 "w-full sm:w-auto justify-start text-left font-normal gap-2",
-                !dateRange && "text-muted-foreground"
+                !dateRange && "text-muted-foreground",
               )}
             >
               <CalendarIcon className="h-4 w-4 shrink-0" />
               {dateRange?.from ? (
                 dateRange.to ? (
                   <span className="truncate">
-                    {format(dateRange.from, "MMM d, yyyy")} - {format(dateRange.to, "MMM d, yyyy")}
+                    {format(dateRange.from, "MMM d, yyyy")} -{" "}
+                    {format(dateRange.to, "MMM d, yyyy")}
                   </span>
                 ) : (
-                  <span className="truncate">{format(dateRange.from, "MMM d, yyyy")}</span>
+                  <span className="truncate">
+                    {format(dateRange.from, "MMM d, yyyy")}
+                  </span>
                 )
               ) : (
                 <span>Filter by date</span>
@@ -208,6 +237,7 @@ export default function RequestsPage() {
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="in-progress">In Progress</SelectItem>
+            <SelectItem value="on-hold">On-Hold</SelectItem>
             <SelectItem value="resolved">Resolved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
           </SelectContent>
@@ -218,10 +248,12 @@ export default function RequestsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="pantry">Pantry</SelectItem>
-            <SelectItem value="utility">Utility</SelectItem>
-            <SelectItem value="cleaning">Cleaning</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
+            <SelectItem value="Food and Supplies">Food and Supplies</SelectItem>
+            <SelectItem value="Office Maintenance">
+              Office Maintenance
+            </SelectItem>
+            <SelectItem value="Cleaning">Cleaning</SelectItem>
+            <SelectItem value="Other">Other</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -260,12 +292,16 @@ export default function RequestsPage() {
                             ? `- ${req.otherCategory}`
                             : ""}
                         </span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                          req.requestType === "asset-request"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-orange-100 text-orange-700"
-                        }`}>
-                          {req.requestType === "asset-request" ? "Asset" : "Issue"}
+                        <span
+                          className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                            req.requestType === "asset-request"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-orange-100 text-orange-700"
+                          }`}
+                        >
+                          {req.requestType === "asset-request"
+                            ? "Asset"
+                            : "Issue"}
                         </span>
                       </div>
                       <span className="text-sm font-medium text-foreground">
@@ -294,7 +330,9 @@ export default function RequestsPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-2">
               <p className="text-sm text-muted-foreground">
-                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-
+                {Math.min(currentPage * ITEMS_PER_PAGE, filtered.length)} of{" "}
+                {filtered.length}
               </p>
               <div className="flex items-center gap-2">
                 <Button
@@ -307,22 +345,26 @@ export default function RequestsPage() {
                   Previous
                 </Button>
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </Button>
-                  ))}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </Button>
+                    ),
+                  )}
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                 >
                   Next
