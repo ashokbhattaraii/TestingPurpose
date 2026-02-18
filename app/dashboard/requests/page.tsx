@@ -210,6 +210,8 @@ export default function RequestsPage() {
             <SelectItem value="in-progress">In Progress</SelectItem>
             <SelectItem value="resolved">Resolved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
+             <SelectItem value="on-hold">On Hold</SelectItem>
+
           </SelectContent>
         </Select>
         <Select value={categoryFilter} onValueChange={handleCategoryFilter}>
@@ -218,8 +220,8 @@ export default function RequestsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="pantry">Pantry</SelectItem>
-            <SelectItem value="utility">Utility</SelectItem>
+            <SelectItem value="Food and Supply">Food and Supply</SelectItem>
+            <SelectItem value="Office Maintenance">Office Maintenance</SelectItem>
             <SelectItem value="cleaning">Cleaning</SelectItem>
             <SelectItem value="other">Other</SelectItem>
           </SelectContent>
@@ -259,6 +261,13 @@ export default function RequestsPage() {
                           req.otherCategory
                             ? `- ${req.otherCategory}`
                             : ""}
+                        </span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                          req.requestType === "asset-request"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-orange-100 text-orange-700"
+                        }`}>
+                          {req.requestType === "asset-request" ? "Asset" : "Issue"}
                         </span>
                       </div>
                       <span className="text-sm font-medium text-foreground">
