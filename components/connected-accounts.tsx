@@ -1,29 +1,35 @@
-"use client"
+"use client";
 
-import React from "react"
+import React from "react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Github, Linkedin, Mail, Trash2, Plus, Check } from "lucide-react"
-import type { SocialAccount, SocialProvider } from "@/lib/types"
-import { useState } from "react"
-import { toast } from "sonner"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Github, Linkedin, Mail, Trash2, Plus, Check } from "lucide-react";
+import type { SocialAccount, SocialProvider } from "@/lib/types";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface ConnectedAccountsProps {
-  accounts: SocialAccount[] | undefined
-  onConnect?: (provider: SocialProvider) => void
-  onDisconnect?: (provider: SocialProvider) => void
+  accounts: SocialAccount[] | undefined;
+  onConnect?: (provider: SocialProvider) => void;
+  onDisconnect?: (provider: SocialProvider) => void;
 }
 
 const socialProviders: Record<
   SocialProvider,
   {
-    label: string
-    icon: React.ReactNode
-    color: string
-    textColor: string
+    label: string;
+    icon: React.ReactNode;
+    color: string;
+    textColor: string;
   }
 > = {
   google: {
@@ -44,38 +50,42 @@ const socialProviders: Record<
     color: "bg-blue-50 border-blue-200",
     textColor: "text-blue-700",
   },
-}
+};
 
 export function ConnectedAccounts({
   accounts = [],
   onConnect,
   onDisconnect,
 }: ConnectedAccountsProps) {
-  const [disconnecting, setDisconnecting] = useState<SocialProvider | null>(null)
-  const [connecting, setConnecting] = useState<SocialProvider | null>(null)
+  const [disconnecting, setDisconnecting] = useState<SocialProvider | null>(
+    null,
+  );
+  const [connecting, setConnecting] = useState<SocialProvider | null>(null);
 
   const handleConnect = (provider: SocialProvider) => {
-    setConnecting(provider)
+    setConnecting(provider);
     setTimeout(() => {
-      setConnecting(null)
-      onConnect?.(provider)
-      toast.success(`${socialProviders[provider].label} connected successfully`)
-    }, 1000)
-  }
+      setConnecting(null);
+      onConnect?.(provider);
+      toast.success(
+        `${socialProviders[provider].label} connected successfully`,
+      );
+    }, 1000);
+  };
 
   const handleDisconnect = (provider: SocialProvider) => {
-    setDisconnecting(provider)
+    setDisconnecting(provider);
     setTimeout(() => {
-      setDisconnecting(null)
-      onDisconnect?.(provider)
-      toast.success(`${socialProviders[provider].label} disconnected`)
-    }, 1000)
-  }
+      setDisconnecting(null);
+      onDisconnect?.(provider);
+      toast.success(`${socialProviders[provider].label} disconnected`);
+    }, 1000);
+  };
 
-  const connectedProviders = new Set(accounts.map((acc) => acc.provider))
+  const connectedProviders = new Set(accounts.map((acc) => acc.provider));
   const availableProviders = (
     Object.keys(socialProviders) as SocialProvider[]
-  ).filter((provider) => !connectedProviders.has(provider))
+  ).filter((provider) => !connectedProviders.has(provider));
 
   return (
     <Card>
@@ -95,31 +105,40 @@ export function ConnectedAccounts({
             </h3>
             <div className="flex flex-col gap-2">
               {accounts.map((account) => {
-                const provider = socialProviders[account.provider]
+                const provider = socialProviders[account.provider];
                 return (
                   <div
                     key={account.provider}
                     className={`flex items-center justify-between p-3 border rounded-lg ${provider.color}`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-md bg-white ${provider.textColor}`}>
+                      <div
+                        className={`p-2 rounded-md bg-white ${provider.textColor}`}
+                      >
                         {provider.icon}
                       </div>
                       <div className="flex flex-col">
-                        <span className={`text-sm font-medium ${provider.textColor}`}>
+                        <span
+                          className={`text-sm font-medium ${provider.textColor}`}
+                        >
                           {provider.label}
                         </span>
-                        <span className={`text-xs ${provider.textColor} opacity-75`}>
+                        <span
+                          className={`text-xs ${provider.textColor} opacity-75`}
+                        >
                           {account.email}
                         </span>
-                        <span className={`text-[10px] ${provider.textColor} opacity-60 mt-0.5`}>
-                          Connected {new Date(account.connectedAt).toLocaleDateString(
+                        <span
+                          className={`text-[10px] ${provider.textColor} opacity-60 mt-0.5`}
+                        >
+                          Connected{" "}
+                          {new Date(account.connectedAt).toLocaleDateString(
                             "en-US",
                             {
                               month: "short",
                               day: "numeric",
                               year: "numeric",
-                            }
+                            },
                           )}
                         </span>
                       </div>
@@ -140,15 +159,13 @@ export function ConnectedAccounts({
                       </Button>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
         )}
 
-        {accounts.length > 0 && availableProviders.length > 0 && (
-          <Separator />
-        )}
+        {accounts.length > 0 && availableProviders.length > 0 && <Separator />}
 
         {/* Available Providers */}
         {availableProviders.length > 0 && (
@@ -158,7 +175,7 @@ export function ConnectedAccounts({
             </h3>
             <div className="flex flex-col gap-2">
               {availableProviders.map((provider) => {
-                const config = socialProviders[provider]
+                const config = socialProviders[provider];
                 return (
                   <div
                     key={provider}
@@ -195,7 +212,7 @@ export function ConnectedAccounts({
                       )}
                     </Button>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -230,5 +247,5 @@ export function ConnectedAccounts({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

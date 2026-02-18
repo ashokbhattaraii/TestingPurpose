@@ -62,10 +62,10 @@ import { format, subDays, subMonths, isAfter, parseISO } from "date-fns";
 import type { ServiceRequest, RequestStatus } from "@/lib/types";
 
 const PIE_COLORS = [
-  "hsl(217, 91%, 50%)",
+  "hsl(330, 100%, 70%)",
   "hsl(142, 71%, 45%)",
   "hsl(38, 92%, 50%)",
-  "hsl(10, 100%, 67%)",
+  "hsl(217, 91%, 50%)",
   "hsl(0, 84%, 60%)",
 ];
 
@@ -88,25 +88,44 @@ interface DrillDownState {
 
 function getTimePeriodLabel(period: TimePeriod) {
   switch (period) {
-    case "7d": return "Last 7 days";
-    case "30d": return "Last 30 days";
-    case "3m": return "Last 3 months";
-    case "6m": return "Last 6 months";
-    case "1y": return "Last year";
-    case "all": return "All time";
+    case "7d":
+      return "Last 7 days";
+    case "30d":
+      return "Last 30 days";
+    case "3m":
+      return "Last 3 months";
+    case "6m":
+      return "Last 6 months";
+    case "1y":
+      return "Last year";
+    case "all":
+      return "All time";
   }
 }
 
-function filterByTimePeriod(requests: ServiceRequest[], period: TimePeriod): ServiceRequest[] {
+function filterByTimePeriod(
+  requests: ServiceRequest[],
+  period: TimePeriod,
+): ServiceRequest[] {
   if (period === "all") return requests;
   const now = new Date();
   let cutoff: Date;
   switch (period) {
-    case "7d": cutoff = subDays(now, 7); break;
-    case "30d": cutoff = subDays(now, 30); break;
-    case "3m": cutoff = subMonths(now, 3); break;
-    case "6m": cutoff = subMonths(now, 6); break;
-    case "1y": cutoff = subMonths(now, 12); break;
+    case "7d":
+      cutoff = subDays(now, 7);
+      break;
+    case "30d":
+      cutoff = subDays(now, 30);
+      break;
+    case "3m":
+      cutoff = subMonths(now, 3);
+      break;
+    case "6m":
+      cutoff = subMonths(now, 6);
+      break;
+    case "1y":
+      cutoff = subMonths(now, 12);
+      break;
   }
   return requests.filter((r) => isAfter(parseISO(r.createdAt), cutoff));
 }
@@ -114,38 +133,57 @@ function filterByTimePeriod(requests: ServiceRequest[], period: TimePeriod): Ser
 function computeAnalytics(requests: ServiceRequest[]) {
   const totalRequests = requests.length;
   const pendingRequests = requests.filter((r) => r.status === "pending").length;
-  const inProgressRequests = requests.filter((r) => r.status === "in-progress").length;
+  const inProgressRequests = requests.filter(
+    (r) => r.status === "in-progress",
+  ).length;
   const onHoldRequests = requests.filter((r) => r.status === "on-hold").length;
-  const resolvedRequests = requests.filter((r) => r.status === "resolved").length;
+  const resolvedRequests = requests.filter(
+    (r) => r.status === "resolved",
+  ).length;
 
   const resolved = requests.filter((r) => r.status === "resolved");
   let avgResolutionTimeHours = 0;
   if (resolved.length > 0) {
     const totalMs = resolved.reduce((acc, r) => {
-      return acc + (new Date(r.updatedAt).getTime() - new Date(r.createdAt).getTime());
+      return (
+        acc +
+        (new Date(r.updatedAt).getTime() - new Date(r.createdAt).getTime())
+      );
     }, 0);
-    avgResolutionTimeHours = Math.round(totalMs / resolved.length / (1000 * 60 * 60));
+    avgResolutionTimeHours = Math.round(
+      totalMs / resolved.length / (1000 * 60 * 60),
+    );
   }
 
   const categoryMap = new Map<string, number>();
   requests.forEach((r) => {
     categoryMap.set(r.category, (categoryMap.get(r.category) ?? 0) + 1);
   });
-  const requestsByCategory = Array.from(categoryMap, ([category, count]) => ({ category, count }));
+  const requestsByCategory = Array.from(categoryMap, ([category, count]) => ({
+    category,
+    count,
+  }));
 
   const monthMap = new Map<string, number>();
   requests.forEach((r) => {
     const m = format(parseISO(r.createdAt), "MMM yyyy");
     monthMap.set(m, (monthMap.get(m) ?? 0) + 1);
   });
-  const requestsByMonth = Array.from(monthMap, ([month, count]) => ({ month, count }));
+  const requestsByMonth = Array.from(monthMap, ([month, count]) => ({
+    month,
+    count,
+  }));
 
   const statusMap = new Map<string, number>();
   requests.forEach((r) => {
-    const label = r.status.charAt(0).toUpperCase() + r.status.slice(1).replace("-", " ");
+    const label =
+      r.status.charAt(0).toUpperCase() + r.status.slice(1).replace("-", " ");
     statusMap.set(label, (statusMap.get(label) ?? 0) + 1);
   });
-  const requestsByStatus = Array.from(statusMap, ([status, count]) => ({ status, count }));
+  const requestsByStatus = Array.from(statusMap, ([status, count]) => ({
+    status,
+    count,
+  }));
 
   return {
     totalRequests,
@@ -162,7 +200,9 @@ function computeAnalytics(requests: ServiceRequest[]) {
 
 function StatusBadge({ status }: { status: RequestStatus }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_COLORS[status] ?? "bg-muted text-muted-foreground"}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_COLORS[status] ?? "bg-muted text-muted-foreground"}`}
+    >
       {status.replace("-", " ")}
     </span>
   );
@@ -200,23 +240,34 @@ export default function AnalyticsPage() {
     return filtered;
   }, [allRequests, timePeriod, categoryFilter, statusFilter]);
 
-  const analytics = useMemo(() => computeAnalytics(filteredRequests), [filteredRequests]);
+  const analytics = useMemo(
+    () => computeAnalytics(filteredRequests),
+    [filteredRequests],
+  );
 
   // Drill-down: get filtered requests for a clicked chart segment
   const drillDownRequests = useMemo(() => {
     if (!drillDown || !allRequests) return [];
     let base = filterByTimePeriod(allRequests, timePeriod);
-    if (categoryFilter !== "all") base = base.filter((r) => r.category === categoryFilter);
-    if (statusFilter !== "all") base = base.filter((r) => r.status === statusFilter);
+    if (categoryFilter !== "all")
+      base = base.filter((r) => r.category === categoryFilter);
+    if (statusFilter !== "all")
+      base = base.filter((r) => r.status === statusFilter);
 
     switch (drillDown.type) {
       case "month":
-        return base.filter((r) => format(parseISO(r.createdAt), "MMM yyyy") === drillDown.filterValue);
+        return base.filter(
+          (r) =>
+            format(parseISO(r.createdAt), "MMM yyyy") === drillDown.filterValue,
+        );
       case "category":
         return base.filter((r) => r.category === drillDown.filterValue);
       case "status":
         return base.filter(
-          (r) => r.status.charAt(0).toUpperCase() + r.status.slice(1).replace("-", " ") === drillDown.filterValue
+          (r) =>
+            r.status.charAt(0).toUpperCase() +
+              r.status.slice(1).replace("-", " ") ===
+            drillDown.filterValue,
         );
       default:
         return [];
@@ -241,14 +292,16 @@ export default function AnalyticsPage() {
       (r) =>
         r.title.toLowerCase().includes(q) ||
         r.id.toLowerCase().includes(q) ||
-        r.createdByName.toLowerCase().includes(q)
+        r.createdByName.toLowerCase().includes(q),
     );
   }, [drillDownRequests, ddSearch]);
 
-  const ddTotalPages = Math.ceil(filteredDrillDown.length / DRILLDOWN_PAGE_SIZE);
+  const ddTotalPages = Math.ceil(
+    filteredDrillDown.length / DRILLDOWN_PAGE_SIZE,
+  );
   const paginatedDrillDown = filteredDrillDown.slice(
     (ddPage - 1) * DRILLDOWN_PAGE_SIZE,
-    ddPage * DRILLDOWN_PAGE_SIZE
+    ddPage * DRILLDOWN_PAGE_SIZE,
   );
 
   const activeFilterCount = [
@@ -265,7 +318,17 @@ export default function AnalyticsPage() {
 
   // Export helpers
   const exportCSV = (data: ServiceRequest[], filename: string) => {
-    const headers = ["ID", "Title", "Category", "Status", "Priority", "Created By", "Assigned To", "Created At", "Updated At"];
+    const headers = [
+      "ID",
+      "Title",
+      "Category",
+      "Status",
+      "Priority",
+      "Created By",
+      "Assigned To",
+      "Created At",
+      "Updated At",
+    ];
     const rows = data.map((r) => [
       r.id,
       `"${r.title.replace(/"/g, '""')}"`,
@@ -311,7 +374,11 @@ export default function AnalyticsPage() {
     downloadFile(lines.join("\n"), `${filename}.txt`, "text/plain");
   };
 
-  const downloadFile = (content: string, filename: string, mimeType: string) => {
+  const downloadFile = (
+    content: string,
+    filename: string,
+    mimeType: string,
+  ) => {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -345,15 +412,24 @@ export default function AnalyticsPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
-            <DropdownMenuItem onClick={() => exportCSV(filteredRequests, exportFilename)} className="gap-2 cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => exportCSV(filteredRequests, exportFilename)}
+              className="gap-2 cursor-pointer"
+            >
               <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
               Export as CSV
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => exportJSON(filteredRequests, exportFilename)} className="gap-2 cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => exportJSON(filteredRequests, exportFilename)}
+              className="gap-2 cursor-pointer"
+            >
               <FileJson className="h-4 w-4 text-blue-600" />
               Export as JSON
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => exportSummaryTXT(exportFilename)} className="gap-2 cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => exportSummaryTXT(exportFilename)}
+              className="gap-2 cursor-pointer"
+            >
               <FileText className="h-4 w-4 text-orange-600" />
               Export Summary (TXT)
             </DropdownMenuItem>
@@ -375,7 +451,10 @@ export default function AnalyticsPage() {
               )}
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Select value={timePeriod} onValueChange={(v) => setTimePeriod(v as TimePeriod)}>
+              <Select
+                value={timePeriod}
+                onValueChange={(v) => setTimePeriod(v as TimePeriod)}
+              >
                 <SelectTrigger className="h-9 w-[150px] text-xs">
                   <CalendarDays className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" />
                   <SelectValue />
@@ -396,8 +475,12 @@ export default function AnalyticsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Food and Supplies">Food and Supplies</SelectItem>
-                  <SelectItem value="Office Maintenance">Office Maintenance</SelectItem>
+                  <SelectItem value="Food and Supplies">
+                    Food and Supplies
+                  </SelectItem>
+                  <SelectItem value="Office Maintenance">
+                    Office Maintenance
+                  </SelectItem>
                   <SelectItem value="Cleaning">Cleaning</SelectItem>
                   <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
@@ -418,7 +501,12 @@ export default function AnalyticsPage() {
               </Select>
 
               {activeFilterCount > 0 && (
-                <Button variant="ghost" size="sm" onClick={clearFilters} className="h-9 text-xs gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="h-9 text-xs gap-1"
+                >
                   <X className="h-3.5 w-3.5" />
                   Clear
                 </Button>
@@ -517,7 +605,9 @@ export default function AnalyticsPage() {
             <CardTitle className="text-sm font-medium text-foreground">
               Requests by Month
             </CardTitle>
-            <span className="text-[10px] text-muted-foreground">Click a bar for details</span>
+            <span className="text-[10px] text-muted-foreground">
+              Click a bar for details
+            </span>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -542,8 +632,18 @@ export default function AnalyticsPage() {
                     }
                   }}
                 >
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                    allowDecimals={false}
+                  />
                   <Tooltip
                     contentStyle={{
                       borderRadius: "8px",
@@ -552,7 +652,11 @@ export default function AnalyticsPage() {
                     }}
                     cursor={{ fill: "hsl(214, 20%, 95%)" }}
                   />
-                  <Bar dataKey="count" fill="hsl(217, 91%, 50%)" radius={[4, 4, 0, 0]} />
+                  <Bar
+                    dataKey="count"
+                    fill="hsl(217, 91%, 50%)"
+                    radius={[4, 4, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -565,7 +669,9 @@ export default function AnalyticsPage() {
             <CardTitle className="text-sm font-medium text-foreground">
               Requests by Category
             </CardTitle>
-            <span className="text-[10px] text-muted-foreground">Click a slice for details</span>
+            <span className="text-[10px] text-muted-foreground">
+              Click a slice for details
+            </span>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -598,7 +704,10 @@ export default function AnalyticsPage() {
                     }}
                   >
                     {analytics.requestsByCategory.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={PIE_COLORS[index % PIE_COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip
@@ -621,7 +730,9 @@ export default function AnalyticsPage() {
             <CardTitle className="text-sm font-medium text-foreground">
               Requests by Status
             </CardTitle>
-            <span className="text-[10px] text-muted-foreground">Click a bar for details</span>
+            <span className="text-[10px] text-muted-foreground">
+              Click a bar for details
+            </span>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -647,8 +758,21 @@ export default function AnalyticsPage() {
                     }
                   }}
                 >
-                  <XAxis type="number" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                  <YAxis type="category" dataKey="status" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={85} />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                    allowDecimals={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="status"
+                    tick={{ fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={85}
+                  />
                   <Tooltip
                     contentStyle={{
                       borderRadius: "8px",
@@ -659,7 +783,10 @@ export default function AnalyticsPage() {
                   />
                   <Bar dataKey="count" radius={[0, 4, 4, 0]}>
                     {analytics.requestsByStatus.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={PIE_COLORS[index % PIE_COLORS.length]}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
@@ -670,14 +797,20 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Drill-Down Dialog */}
-      <Dialog open={drillDown !== null} onOpenChange={(open) => { if (!open) setDrillDown(null); }}>
+      <Dialog
+        open={drillDown !== null}
+        onOpenChange={(open) => {
+          if (!open) setDrillDown(null);
+        }}
+      >
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base">
               <ArrowUpRight className="h-4 w-4 text-primary" />
               {drillDown?.label}
               <Badge variant="secondary" className="ml-1 text-xs">
-                {filteredDrillDown.length} request{filteredDrillDown.length !== 1 ? "s" : ""}
+                {filteredDrillDown.length} request
+                {filteredDrillDown.length !== 1 ? "s" : ""}
               </Badge>
             </DialogTitle>
           </DialogHeader>
@@ -690,23 +823,46 @@ export default function AnalyticsPage() {
                 <Input
                   placeholder="Search by title, ID, or author..."
                   value={ddSearch}
-                  onChange={(e) => { setDdSearch(e.target.value); setDdPage(1); }}
+                  onChange={(e) => {
+                    setDdSearch(e.target.value);
+                    setDdPage(1);
+                  }}
                   className="h-8 pl-8 text-xs"
                 />
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 gap-1.5 text-xs shrink-0"
+                  >
                     <Download className="h-3.5 w-3.5" />
                     Export
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44">
-                  <DropdownMenuItem onClick={() => exportCSV(filteredDrillDown, `drilldown-${drillDown?.filterValue ?? "data"}`)} className="gap-2 cursor-pointer text-xs">
+                  <DropdownMenuItem
+                    onClick={() =>
+                      exportCSV(
+                        filteredDrillDown,
+                        `drilldown-${drillDown?.filterValue ?? "data"}`,
+                      )
+                    }
+                    className="gap-2 cursor-pointer text-xs"
+                  >
                     <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
                     CSV
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => exportJSON(filteredDrillDown, `drilldown-${drillDown?.filterValue ?? "data"}`)} className="gap-2 cursor-pointer text-xs">
+                  <DropdownMenuItem
+                    onClick={() =>
+                      exportJSON(
+                        filteredDrillDown,
+                        `drilldown-${drillDown?.filterValue ?? "data"}`,
+                      )
+                    }
+                    className="gap-2 cursor-pointer text-xs"
+                  >
                     <FileJson className="h-3.5 w-3.5 text-blue-600" />
                     JSON
                   </DropdownMenuItem>
@@ -719,7 +875,9 @@ export default function AnalyticsPage() {
           <div className="flex-1 overflow-y-auto -mx-6 px-6">
             {filteredDrillDown.length === 0 ? (
               <div className="py-8 text-center text-sm text-muted-foreground">
-                {ddSearch ? "No matching requests found." : "No requests found."}
+                {ddSearch
+                  ? "No matching requests found."
+                  : "No requests found."}
               </div>
             ) : (
               <div className="flex flex-col gap-2 pb-2">
@@ -734,11 +892,19 @@ export default function AnalyticsPage() {
                   >
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-muted-foreground">{req.id}</span>
-                        <span className="text-[10px] capitalize text-muted-foreground">{req.category}</span>
+                        <span className="text-xs font-mono text-muted-foreground">
+                          {req.id}
+                        </span>
+                        <span className="text-[10px] capitalize text-muted-foreground">
+                          {req.category}
+                        </span>
                       </div>
-                      <span className="text-sm font-medium text-foreground">{req.title}</span>
-                      <span className="text-xs text-muted-foreground">by {req.createdByName}</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {req.title}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        by {req.createdByName}
+                      </span>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
                       <span className="text-xs text-muted-foreground">
@@ -756,7 +922,12 @@ export default function AnalyticsPage() {
           {ddTotalPages > 1 && (
             <div className="flex items-center justify-between border-t pt-3 -mx-6 px-6">
               <p className="text-xs text-muted-foreground">
-                {(ddPage - 1) * DRILLDOWN_PAGE_SIZE + 1}-{Math.min(ddPage * DRILLDOWN_PAGE_SIZE, filteredDrillDown.length)} of {filteredDrillDown.length}
+                {(ddPage - 1) * DRILLDOWN_PAGE_SIZE + 1}-
+                {Math.min(
+                  ddPage * DRILLDOWN_PAGE_SIZE,
+                  filteredDrillDown.length,
+                )}{" "}
+                of {filteredDrillDown.length}
               </p>
               <div className="flex items-center gap-1.5">
                 <Button
@@ -795,7 +966,9 @@ export default function AnalyticsPage() {
                   variant="outline"
                   size="sm"
                   className="h-7 w-7 p-0"
-                  onClick={() => setDdPage((p) => Math.min(ddTotalPages, p + 1))}
+                  onClick={() =>
+                    setDdPage((p) => Math.min(ddTotalPages, p + 1))
+                  }
                   disabled={ddPage === ddTotalPages}
                 >
                   <ChevronRight className="h-3.5 w-3.5" />
