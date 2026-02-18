@@ -1,7 +1,8 @@
 "use client";
+import { useState } from "react";
 
 import { useAuth } from "@/lib/auth-context";
-import { useServiceRequests, useAnnouncements } from "@/lib/queries";
+import { useServiceRequests, useAnnouncements, useLunchTokens } from "@/lib/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,38 +14,82 @@ import {
   AlertCircle,
   Plus,
   Megaphone,
+  UtensilsCrossed,
+  ArrowUp,
+  ArrowRight,
+  ArrowDown,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
+const PRIORITY_CONFIG = {
+  high: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
+  medium: { label: "Med", icon: ArrowRight, className: "text-amber-600 bg-amber-50" },
+  low: { label: "Low", icon: ArrowDown, className: "text-emerald-600 bg-emerald-50" },
+} as const;
+
+function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
+  const config = PRIORITY_CONFIG[priority];
+  const Icon = config.icon;
+  return (
+    <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${config.className}`}>
+      <Icon className="h-3 w-3" />
+      {config.label}
+    </span>
+  );
+}
+
 export function EmployeeDashboard() {
   const { user } = useAuth();
-  const { data: requests, isLoading: reqLoading } = useServiceRequests(
-    user?.id,
-  );
+  const { data: requests, isLoading: reqLoading } = useServiceRequests(user?.id);
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
+  const today = new Date().toISOString().split("T")[0];
+  const { data: todayTokens, isLoading: tokenLoading } = useLunchTokens(today);
+  const tokenCount = todayTokens?.length ?? 0;
 
   const pending = requests?.filter((r) => r.status === "pending").length ?? 0;
-  const inProgress =
-    requests?.filter((r) => r.status === "in-progress").length ?? 0;
+  const inProgress = requests?.filter((r) => r.status === "in-progress").length ?? 0;
   const resolved = requests?.filter((r) => r.status === "resolved").length ?? 0;
   const total = requests?.length ?? 0;
 
-  const recentRequests = requests?.slice(0, 5) ?? [];
+  const [search, setSearch] = useState("");
+
+  // ✅ Case-insensitive search by title or ID
+  const recentRequests =
+    requests
+      ?.filter((r) =>
+        r.title.toLowerCase().includes(search.toLowerCase()) ||
+        r.id.toString().toLowerCase().includes(search.toLowerCase())
+      )
+      .slice(0, 5) ?? [];
+
   const pinnedAnnouncements =
     announcements?.filter((a) => a.pinned).slice(0, 2) ?? [];
 
   return (
     <div className="flex flex-col gap-6">
+      {/* ✅ Welcome Section */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-semibold text-foreground">
+          Welcome back, {user?.name?.split(" ")[0]}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Here is a summary of your service requests.
+        </p>
+      </div>
+
+      {/* ✅ Search + New Request */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">
-            Welcome back, {user?.name?.split(" ")[0]}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Here is a summary of your service requests.
-          </p>
-        </div>
+        <form onSubmit={(e) => e.preventDefault()} className="flex-1">
+          <input
+            type="text"
+            placeholder="Search requests..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </form>
+
         <div className="flex gap-2">
           <Link href="/dashboard/requests">
             <Button className="w-full justify-start gap-2">
@@ -56,9 +101,9 @@ export function EmployeeDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         {reqLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
+          Array.from({ length: 5 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-4">
                 <Skeleton className="h-16" />
@@ -117,10 +162,26 @@ export function EmployeeDashboard() {
                 </div>
               </CardContent>
             </Card>
+            <Link href="/dashboard/lunch">
+              <Card className="transition-colors hover:bg-muted/30 h-full">
+                <CardContent className="flex items-center gap-3 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50">
+                    <UtensilsCrossed className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">
+                      {tokenLoading ? "-" : tokenCount}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{"Today's Tokens"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </>
         )}
       </div>
 
+      {/* Recent Requests & Announcements */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Requests */}
         <Card className="lg:col-span-2">
@@ -164,7 +225,10 @@ export function EmployeeDashboard() {
                         {req.id} - {format(new Date(req.createdAt), "MMM d")}
                       </span>
                     </div>
-                    <StatusBadge status={req.status} />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <PriorityBadge priority={req.priority} />
+                      <StatusBadge status={req.status} />
+                    </div>
                   </Link>
                 ))}
               </div>

@@ -138,6 +138,7 @@ export const users: User[] = [
 export const serviceRequests: ServiceRequest[] = [
   {
     id: "SR-001",
+    requestType: "asset-request",
     title: "Restock coffee and tea supplies",
     description:
       "The pantry is running low on coffee beans, tea bags, and sugar packets.",
@@ -151,6 +152,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-002",
+    requestType: "issue",
     title: "AC not working in meeting room B",
     description:
       "The air conditioning unit in meeting room B is blowing warm air. Needs servicing.",
@@ -166,6 +168,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-003",
+    requestType: "issue",
     title: "Deep cleaning for 3rd floor",
     description:
       "Requesting a thorough deep cleaning of the 3rd floor workspace area.",
@@ -182,6 +185,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-004",
+    requestType: "asset-request",
     title: "Refill water dispenser on 2nd floor",
     description: "Water dispenser near the engineering bay is empty.",
     category: "Food and Supplies",
@@ -196,6 +200,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-005",
+    requestType: "issue",
     title: "Replace broken desk lamp",
     description:
       "The desk lamp at workstation E-12 is flickering and needs replacement.",
@@ -209,6 +214,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-006",
+    requestType: "asset-request",
     title: "Restock printer paper",
     description: "All printers on the 2nd floor are out of A4 paper.",
     category: "Office Maintenance",
@@ -223,6 +229,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-007",
+    requestType: "issue",
     title: "Pest control for kitchen area",
     description:
       "Noticed insects in the office kitchen near the storage cabinets.",
@@ -236,6 +243,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-008",
+    requestType: "asset-request",
     title: "Request for standing desk",
     description: "Would like a standing desk converter for workstation E-05.",
     category: "Office Maintenance",
@@ -248,6 +256,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-009",
+    requestType: "issue",
     title: "Microwave repair in pantry",
     description:
       "The microwave in the 2nd floor pantry is not heating properly.",
@@ -264,6 +273,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-010",
+    requestType: "asset-request",
     title: "Restock snacks in ",
     description: "The snack shelf in the main pantry has been empty for days.",
     category: "Food and Supplies",
@@ -360,80 +370,83 @@ export const lunchTokens: LunchToken[] = [
 export const notifications: Notification[] = [
   {
     id: "n1",
-    userId: "u3",
-    title: "New Assignment",
+    userId: "u1",
+    title: "Request Resolved",
     message:
-      "You have been assigned to request SR-002: AC not working in meeting room B",
+      "Your request SR-003: Deep cleaning for 3rd floor has been resolved by Sita Poudel.",
     read: false,
-    createdAt: "2026-02-08T10:00:00Z",
-    link: "/dashboard/requests/SR-002",
+    createdAt: "2026-02-09T08:30:00Z",
+    link: "/dashboard/requests/SR-003",
   },
   {
     id: "n2",
-    userId: "u3",
-    title: "New Assignment",
+    userId: "u1",
+    title: "Request On Hold",
     message:
-      "You have been assigned to request SR-002: AC not working in meeting room B",
+      "Your request SR-007: Pest control for kitchen area has been put on hold pending vendor availability.",
     read: false,
-    createdAt: "2026-02-08T10:00:00Z",
-    link: "/dashboard/requests/SR-002",
+    createdAt: "2026-02-07T14:00:00Z",
+    link: "/dashboard/requests/SR-007",
   },
   {
     id: "n3",
-    userId: "u3",
-    title: "New Assignment",
+    userId: "u2",
+    title: "Request In Progress",
     message:
-      "You have been assigned to request SR-002: AC not working in meeting room B",
+      "Your request SR-006: Restock printer paper is now being handled by Sita Poudel.",
     read: false,
-    createdAt: "2026-02-08T10:00:00Z",
-    link: "/dashboard/requests/SR-002",
+    createdAt: "2026-02-06T09:15:00Z",
+    link: "/dashboard/requests/SR-006",
   },
   {
     id: "n4",
-    userId: "u3",
-    title: "New Assignment",
+    userId: "u2",
+    title: "Request Rejected",
     message:
-      "You have been assigned to request SR-002: AC not working in meeting room B",
-    read: false,
-    createdAt: "2026-02-08T10:00:00Z",
-    link: "/dashboard/requests/SR-002",
+      "Your request SR-008: Request for standing desk has been rejected. Reason: Budget constraints.",
+    read: true,
+    createdAt: "2026-01-12T11:00:00Z",
+    link: "/dashboard/requests/SR-008",
   },
   {
     id: "n5",
     userId: "u3",
     title: "New Assignment",
     message:
-      "You have been assigned to request SR-002: AC not working in meeting room B",
+      "You have been assigned to request SR-002: AC not working in meeting room B.",
     read: false,
     createdAt: "2026-02-08T10:00:00Z",
     link: "/dashboard/requests/SR-002",
   },
   {
     id: "n6",
-    userId: "u4",
+    userId: "u3",
     title: "New Assignment",
-    message: "You have been assigned to request SR-006: Restock printer paper",
+    message:
+      "You have been assigned to request SR-009: Microwave repair in pantry.",
     read: true,
-    createdAt: "2026-02-06T09:00:00Z",
-    link: "/dashboard/requests/SR-006",
+    createdAt: "2026-02-05T10:30:00Z",
+    link: "/dashboard/requests/SR-009",
   },
   {
     id: "n7",
     userId: "u4",
     title: "New Assignment",
-    message: "You have been assigned to request SR-006: Restock printer paper",
-    read: true,
+    message:
+      "You have been assigned to request SR-006: Restock printer paper.",
+    read: false,
     createdAt: "2026-02-06T09:00:00Z",
     link: "/dashboard/requests/SR-006",
   },
   {
     id: "n8",
-    userId: "u4",
-    title: "New Assignment",
-    message: "You have been assigned to request SR-006: Restock printer paper",
-    read: true,
-    createdAt: "2026-02-06T09:00:00Z",
-    link: "/dashboard/requests/SR-006",
+    userId: "u5",
+    title: "New Announcement Posted",
+    message:
+      "Bikash Karki posted a new announcement: Office Deep Cleaning Scheduled for Saturday, Feb 8.",
+    read: false,
+    createdAt: "2026-02-05T08:10:00Z",
+    link: "/dashboard/announcements",
   },
 ];
 

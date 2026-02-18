@@ -14,13 +14,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Plus, Search, ChevronLeft, ChevronRight, ArrowUp, ArrowRight, ArrowDown, CalendarIcon, X } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
+import { format, isWithinInterval, startOfDay, endOfDay, isSameDay } from "date-fns";
 import { useState } from "react";
 import type { RequestStatus, RequestCategory } from "@/lib/types";
+import type { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 6;
+
+const PRIORITY_CONFIG = {
+  high: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
+  medium: { label: "Med", icon: ArrowRight, className: "text-amber-600 bg-amber-50" },
+  low: { label: "Low", icon: ArrowDown, className: "text-emerald-600 bg-emerald-50" },
+} as const;
+
+function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
+  const config = PRIORITY_CONFIG[priority];
+  const Icon = config.icon;
+  return (
+    <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${config.className}`}>
+      <Icon className="h-3 w-3" />
+      {config.label}
+    </span>
+  );
+}
 
 export default function RequestsPage() {
   const { user } = useAuth();
@@ -31,6 +56,7 @@ export default function RequestsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
 
   const filtered =
@@ -41,7 +67,21 @@ export default function RequestsPage() {
       const matchStatus = statusFilter === "all" || req.status === statusFilter;
       const matchCategory =
         categoryFilter === "all" || req.category === categoryFilter;
-      return matchSearch && matchStatus && matchCategory;
+
+      let matchDate = true;
+      if (dateRange?.from) {
+        const reqDate = new Date(req.createdAt);
+        if (dateRange.to) {
+          matchDate = isWithinInterval(reqDate, {
+            start: startOfDay(dateRange.from),
+            end: endOfDay(dateRange.to),
+          });
+        } else {
+          matchDate = isSameDay(reqDate, dateRange.from);
+        }
+      }
+
+      return matchSearch && matchStatus && matchCategory && matchDate;
     }) ?? [];
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
@@ -61,6 +101,14 @@ export default function RequestsPage() {
   };
   const handleCategoryFilter = (value: string) => {
     setCategoryFilter(value);
+    setCurrentPage(1);
+  };
+  const handleDateChange = (range: DateRange | undefined) => {
+    setDateRange(range);
+    setCurrentPage(1);
+  };
+  const clearDateFilter = () => {
+    setDateRange(undefined);
     setCurrentPage(1);
   };
 
@@ -88,8 +136,8 @@ export default function RequestsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by title or ID..."
@@ -98,6 +146,60 @@ export default function RequestsPage() {
             className="pl-9"
           />
         </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full sm:w-auto justify-start text-left font-normal gap-2",
+                !dateRange && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="h-4 w-4 shrink-0" />
+              {dateRange?.from ? (
+                dateRange.to ? (
+                  <span className="truncate">
+                    {format(dateRange.from, "MMM d, yyyy")} - {format(dateRange.to, "MMM d, yyyy")}
+                  </span>
+                ) : (
+                  <span className="truncate">{format(dateRange.from, "MMM d, yyyy")}</span>
+                )
+              ) : (
+                <span>Filter by date</span>
+              )}
+              {dateRange?.from && (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  className="ml-auto rounded-full p-0.5 hover:bg-muted"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    clearDateFilter();
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.stopPropagation();
+                      clearDateFilter();
+                    }
+                  }}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  <span className="sr-only">Clear date filter</span>
+                </span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={dateRange?.from}
+              selected={dateRange}
+              onSelect={handleDateChange}
+              numberOfMonths={2}
+            />
+          </PopoverContent>
+        </Popover>
         <Select value={statusFilter} onValueChange={handleStatusFilter}>
           <SelectTrigger className="w-full sm:w-40">
             <SelectValue placeholder="Status" />
@@ -108,6 +210,8 @@ export default function RequestsPage() {
             <SelectItem value="in-progress">In Progress</SelectItem>
             <SelectItem value="resolved">Resolved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
+             <SelectItem value="on-hold">On Hold</SelectItem>
+
           </SelectContent>
         </Select>
         <Select value={categoryFilter} onValueChange={handleCategoryFilter}>
@@ -116,8 +220,8 @@ export default function RequestsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="pantry">Pantry</SelectItem>
-            <SelectItem value="utility">Utility</SelectItem>
+            <SelectItem value="Food and Supply">Food and Supply</SelectItem>
+            <SelectItem value="Office Maintenance">Office Maintenance</SelectItem>
             <SelectItem value="cleaning">Cleaning</SelectItem>
             <SelectItem value="other">Other</SelectItem>
           </SelectContent>
@@ -158,6 +262,13 @@ export default function RequestsPage() {
                             ? `- ${req.otherCategory}`
                             : ""}
                         </span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                          req.requestType === "asset-request"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-orange-100 text-orange-700"
+                        }`}>
+                          {req.requestType === "asset-request" ? "Asset" : "Issue"}
+                        </span>
                       </div>
                       <span className="text-sm font-medium text-foreground">
                         {req.title}
@@ -168,10 +279,11 @@ export default function RequestsPage() {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 shrink-0">
                       <span className="text-xs text-muted-foreground">
                         {format(new Date(req.createdAt), "MMM d, yyyy")}
                       </span>
+                      <PriorityBadge priority={req.priority} />
                       <StatusBadge status={req.status} />
                     </div>
                   </CardContent>

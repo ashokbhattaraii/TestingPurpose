@@ -6,8 +6,9 @@ import {
   useUpdateRequestStatus,
   useAssignRequest,
   useUsers,
+  useDeleteRequest,
 } from "@/lib/queries";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,7 +21,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Calendar, User, Tag, Flag, UserPlus } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { ArrowLeft, Calendar, User, Tag, Flag, UserPlus, Edit2, Trash2, FileText, ImageIcon, File, Paperclip, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -35,16 +45,20 @@ const priorityConfig = {
 
 export default function RequestDetailPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const params = useParams();
   const id = params.id as string;
   const { data: request, isLoading } = useServiceRequest(id);
   const { data: allUsers } = useUsers();
   const updateStatus = useUpdateRequestStatus();
   const assignRequest = useAssignRequest();
+  const deleteRequest = useDeleteRequest();
   const [newStatus, setNewStatus] = useState<RequestStatus | "">("");
   const [assignTo, setAssignTo] = useState<string>("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const isAdminOrSuper = user?.role === "admin" || user?.role === "superadmin";
+  const isCreator = user?.id === request?.createdBy;
 
   const handleStatusUpdate = () => {
     if (!newStatus || !request) return;
@@ -79,6 +93,19 @@ export default function RequestDetailPage() {
         },
       },
     );
+  };
+
+  const handleDelete = () => {
+    if (!request) return;
+    deleteRequest.mutate(request.id, {
+      onSuccess: () => {
+        toast.success("Request deleted successfully.");
+        router.push("/dashboard/requests");
+      },
+      onError: () => {
+        toast.error("Failed to delete request.");
+      },
+    });
   };
 
   if (isLoading) {
@@ -125,7 +152,27 @@ export default function RequestDetailPage() {
                 {request.title}
               </CardTitle>
             </div>
-            <StatusBadge status={request.status} />
+            <div className="flex items-center gap-2">
+              <StatusBadge status={request.status} />
+              {isCreator && request.status === "pending" && (
+                <>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/dashboard/requests/edit/${request.id}`}>
+                      <Edit2 className="mr-1 h-4 w-4" />
+                      Edit
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="mr-1 h-4 w-4" />
+                    Delete
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
@@ -134,6 +181,15 @@ export default function RequestDetailPage() {
           </p>
 
           <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <ClipboardList className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Type</p>
+                <p className="text-sm text-foreground capitalize">
+                  {request.requestType === "asset-request" ? "Asset Request" : "Issue"}
+                </p>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-muted-foreground" />
               <div>
@@ -174,6 +230,46 @@ export default function RequestDetailPage() {
               </div>
             </div>
           </div>
+
+          {request.attachments && request.attachments.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Paperclip className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm font-medium text-foreground">
+                  Attachments ({request.attachments.length})
+                </p>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {request.attachments.map((att) => (
+                  <a
+                    key={att.id}
+                    href={att.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm hover:bg-muted/50 transition-colors"
+                  >
+                    {att.type.startsWith("image/") ? (
+                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                    ) : att.type === "application/pdf" ? (
+                      <FileText className="h-4 w-4 text-red-500" />
+                    ) : (
+                      <File className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="flex-1 truncate text-foreground">
+                      {att.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {att.size < 1024
+                        ? `${att.size} B`
+                        : att.size < 1024 * 1024
+                          ? `${(att.size / 1024).toFixed(1)} KB`
+                          : `${(att.size / (1024 * 1024)).toFixed(1)} MB`}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           {request.assignedToName && (
             <div className="rounded-md border border-border bg-muted/30 p-3">
@@ -264,6 +360,28 @@ export default function RequestDetailPage() {
             )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this request? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleteRequest.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteRequest.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 import {
   Building2,
   BarChart3,
@@ -16,6 +17,17 @@ import {
 import Link from "next/link";
 
 export default function HomePage() {
+  useEffect(() => {
+    async function fetchBackend() {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/auth/status`,
+      );
+      if (res) {
+        console.log("Response from backend", res.status);
+      }
+    }
+    fetchBackend();
+  }, []);
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   let activeSection = null;
@@ -90,6 +102,7 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
+
       <section className="relative mx-auto w-full max-w-7xl flex-1 px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid gap-16 lg:grid-cols-2 lg:gap-12 items-center">
           {/* Left Content */}

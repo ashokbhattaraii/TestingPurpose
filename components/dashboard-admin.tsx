@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useServiceRequests, useAnnouncements } from "@/lib/queries";
+import { useServiceRequests, useAnnouncements, useLunchTokens } from "@/lib/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,32 +14,67 @@ import {
   AlertCircle,
   BarChart3,
   Plus,
+  UtensilsCrossed,
+  ArrowUp,
+  ArrowRight,
+  ArrowDown,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+
+const PRIORITY_CONFIG = {
+  high: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
+  medium: { label: "Med", icon: ArrowRight, className: "text-amber-600 bg-amber-50" },
+  low: { label: "Low", icon: ArrowDown, className: "text-emerald-600 bg-emerald-50" },
+} as const;
+
+function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
+  const config = PRIORITY_CONFIG[priority];
+  const Icon = config.icon;
+  return (
+    <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${config.className}`}>
+      <Icon className="h-3 w-3" />
+      {config.label}
+    </span>
+  );
+}
 
 export function AdminDashboard() {
   const { user } = useAuth();
   const { data: requests, isLoading: reqLoading } = useServiceRequests();
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
+  const today = new Date().toISOString().split("T")[0];
+  const { data: todayTokens, isLoading: tokenLoading } = useLunchTokens(today);
+  const tokenCount = todayTokens?.length ?? 0;
 
   const pending = requests?.filter((r) => r.status === "pending").length ?? 0;
-  const inProgress =
-    requests?.filter((r) => r.status === "in-progress").length ?? 0;
+  const inProgress = requests?.filter((r) => r.status === "in-progress").length ?? 0;
   const resolved = requests?.filter((r) => r.status === "resolved").length ?? 0;
   const total = requests?.length ?? 0;
 
-  const urgentRequests =
+  const [search, setSearch] = useState("");
+
+  // ✅ Filter requests by title or ID, case-insensitive
+  const filteredRequests =
     requests
+      ?.filter((r) =>
+        r.title.toLowerCase().includes(search.toLowerCase()) ||
+        r.id.toString().toLowerCase().includes(search.toLowerCase())
+      ) ?? [];
+
+  // Urgent requests based on status and sorted by creation date
+  const urgentRequests =
+    filteredRequests
       ?.filter((r) => r.status === "pending" || r.status === "in-progress")
       .sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )
       .slice(0, 6) ?? [];
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-foreground">
@@ -64,10 +100,23 @@ export function AdminDashboard() {
         </div>
       </div>
 
+      {/* ✅ Search Bar */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <form onSubmit={(e) => e.preventDefault()} className="flex-1">
+          <input
+            type="text"
+            placeholder="Search requests by title or ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </form>
+      </div>
+
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         {reqLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
+          Array.from({ length: 5 }).map((_, i) => (
             <Card key={i}>
               <CardContent className="p-4">
                 <Skeleton className="h-16" />
@@ -95,9 +144,7 @@ export function AdminDashboard() {
                   <AlertCircle className="h-5 w-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {pending}
-                  </p>
+                  <p className="text-2xl font-bold text-foreground">{pending}</p>
                   <p className="text-xs text-muted-foreground">Pending</p>
                 </div>
               </CardContent>
@@ -108,9 +155,7 @@ export function AdminDashboard() {
                   <Clock className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {inProgress}
-                  </p>
+                  <p className="text-2xl font-bold text-foreground">{inProgress}</p>
                   <p className="text-xs text-muted-foreground">In Progress</p>
                 </div>
               </CardContent>
@@ -121,13 +166,26 @@ export function AdminDashboard() {
                   <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {resolved}
-                  </p>
+                  <p className="text-2xl font-bold text-foreground">{resolved}</p>
                   <p className="text-xs text-muted-foreground">Resolved</p>
                 </div>
               </CardContent>
             </Card>
+            <Link href="/dashboard/lunch">
+              <Card className="transition-colors hover:bg-muted/30 h-full">
+                <CardContent className="flex items-center gap-3 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50">
+                    <UtensilsCrossed className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground">
+                      {tokenLoading ? "-" : tokenCount}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{"Today's Tokens"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </>
         )}
       </div>
@@ -175,12 +233,8 @@ export function AdminDashboard() {
                       {format(new Date(req.createdAt), "MMM d")}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {req.priority === "high" && (
-                      <span className="text-xs font-medium text-red-600">
-                        High
-                      </span>
-                    )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <PriorityBadge priority={req.priority} />
                     <StatusBadge status={req.status} />
                   </div>
                 </Link>
