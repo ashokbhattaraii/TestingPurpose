@@ -27,14 +27,14 @@
 ## 🏃 Getting Started
 
 ### 📦 Install and Run (At Once)
-If you want to install all dependencies and start the development server in one command, use:
+If the standard installation fails due to dependency conflicts, use the following commands to install including legacy peer dependencies and start the server immediately:
 
 ```bash
-# Using npm
-npm install && npm run dev
+# Using npm (Recommended if peer errors occur)
+npm install --legacy-peer-deps && npm run dev
 
 # Using yarn
 yarn install && yarn dev
 
 # Using pnpm
-pnpm install && pnpm dev
+pnpm install --no-frozen-lockfile && pnpm dev
