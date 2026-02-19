@@ -4,56 +4,77 @@ import {
   createContext,
   useContext,
   useState,
-  useCallback,
-  type ReactNode,
+  useEffect,
+  ReactNode,
 } from "react";
-import type { User } from "./types";
-import { users } from "./data";
+import { useRouter, usePathname } from "next/navigation";
+import { getCurrentUser, apiLogout } from "./api";
+
+interface User {
+  id: string;
+  uid: string;
+  email: string;
+  name: string;
+  role: string;
+  photoURL?: string;
+}
 
 interface AuthContextType {
   user: User | null;
-  isAuthenticated: boolean;
-  login: (userId: string) => void;
-  logout: () => void;
-  refreshUser: () => void;
+  isLoading: boolean;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback((userId: string) => {
-    const foundUser = users.find((u) => u.id === userId);
-    if (foundUser) {
-      setUser({ ...foundUser });
-    }
+  useEffect(() => {
+    loadUser();
   }, []);
 
-  const logout = useCallback(() => {
-    setUser(null);
-  }, []);
-
-  // Re-read the current user from the users array (picks up role changes made by super admin)
-  const refreshUser = useCallback(() => {
-    if (user) {
-      const updated = users.find((u) => u.id === user.id);
-      if (updated) {
-        setUser({ ...updated });
-      }
+  const loadUser = async () => {
+    try {
+      const userData = await getCurrentUser();
+      console.log("✅ User loaded:", userData.email);
+      setUser(userData);
+    } catch (error) {
+      console.log("❌ No user found");
+      setUser(null);
+    } finally {
+      setIsLoading(false);
     }
-  }, [user]);
+  };
 
+  const refreshUser = async () => {
+    setIsLoading(true);
+    await loadUser();
+  };
+
+  // const logout = async () => {
+  //   try {
+  //     await apiLogout();
+  //   } catch (error) {
+  //     console.error("Logout error:", error);
+  //   } finally {
+  //     setUser(null);
+  //   }
+  // };
+
+  const logout = async () => {
+    try {
+      await apiLogout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+    }
+  };
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        login,
-        logout,
-        refreshUser,
-      }}
-    >
+    <AuthContext.Provider value={{ user, isLoading, refreshUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

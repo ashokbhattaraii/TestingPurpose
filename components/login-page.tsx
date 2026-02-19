@@ -37,14 +37,10 @@ const roleBadgeClass: Record<string, string> = {
 };
 
 export function LoginPage() {
-  const { login } = useAuth();
-
-  const handleLogin = (userId: string) => {
-    login(userId);
-  };
+  const handleLogin = (userId: string) => {};
 
   async function OAuthHandle() {
-    alert("Login in cliecked");
+    window.location.href = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/google`;
   }
 
   const demoUser = users[0];

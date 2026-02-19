@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth-context"
-import { useRouter, usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useAuth } from "@/lib/auth-context";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import {
   DropdownMenu,
@@ -12,8 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+} from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Building2,
   LayoutDashboard,
@@ -31,33 +31,33 @@ import {
   Settings,
   PanelLeft,
   ArrowLeft,
-} from "lucide-react"
-import Link from "next/link"
-import type { ReactNode } from "react"
-import { cn } from "@/lib/utils"
-import { useNotifications, useMarkNotificationRead } from "@/lib/queries"
-import { Skeleton } from "@/components/ui/skeleton"
-import { format } from "date-fns"
+} from "lucide-react";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { useNotifications, useMarkNotificationRead } from "@/lib/queries";
+import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
 
 interface NavItem {
-  label: string
-  href: string
-  icon: ReactNode
-  roles: string[]
-  badgeKey?: string
-  section?: string
+  label: string;
+  href: string;
+  icon: ReactNode;
+  roles: string[];
+  badgeKey?: string;
+  section?: string;
 }
 
 const navItems: NavItem[] = [
@@ -65,21 +65,21 @@ const navItems: NavItem[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: <LayoutDashboard className="h-4 w-4" />,
-    roles: ["employee", "admin", "superadmin"],
+    roles: ["EMPLOYEE", "admin", "superadmin"],
     section: "General",
   },
   {
     label: "Service Requests",
     href: "/dashboard/requests",
     icon: <ClipboardList className="h-4 w-4" />,
-    roles: ["employee", "admin", "superadmin"],
+    roles: ["EMPLOYEE", "admin", "superadmin"],
     section: "General",
   },
   {
     label: "Lunch Token",
     href: "/dashboard/lunch",
     icon: <UtensilsCrossed className="h-4 w-4" />,
-    roles: ["employee", "admin", "superadmin"],
+    roles: ["EMPLOYEE", "admin", "superadmin"],
     badgeKey: "lunchToken",
     section: "General",
   },
@@ -87,7 +87,7 @@ const navItems: NavItem[] = [
     label: "Announcements",
     href: "/dashboard/announcements",
     icon: <Megaphone className="h-4 w-4" />,
-    roles: ["employee", "admin", "superadmin"],
+    roles: ["EMPLOYEE", "admin", "superadmin"],
     section: "General",
   },
   {
@@ -104,7 +104,7 @@ const navItems: NavItem[] = [
     roles: ["superadmin"],
     section: "Administration",
   },
-]
+];
 
 function getInitials(name: string) {
   return name
@@ -112,37 +112,41 @@ function getInitials(name: string) {
     .map((n) => n[0])
     .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 function getRoleLabel(role: string) {
   switch (role) {
     case "superadmin":
-      return "Super Admin"
+      return "Super Admin";
     case "admin":
-      return "Admin"
+      return "Admin";
     default:
-      return "Employee"
+      return "Employee";
   }
 }
 
 function NotificationPopover({ userId }: { userId: string }) {
-  const router = useRouter()
-  const { data: notifications, isLoading } = useNotifications(userId)
-  const markRead = useMarkNotificationRead()
-  const [open, setOpen] = useState(false)
-  const unreadCount = notifications?.filter((n) => !n.read).length || 0
+  const router = useRouter();
+  const { data: notifications, isLoading } = useNotifications(userId);
+  const markRead = useMarkNotificationRead();
+  const [open, setOpen] = useState(false);
+  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
 
   // Click notification to mark as read and navigate to its detail link
-  const handleNotificationClick = (notif: { id: string; read: boolean; link?: string }) => {
+  const handleNotificationClick = (notif: {
+    id: string;
+    read: boolean;
+    link?: string;
+  }) => {
     if (!notif.read) {
-      markRead.mutate(notif.id)
+      markRead.mutate(notif.id);
     }
     if (notif.link) {
-      setOpen(false)
-      router.push(notif.link)
+      setOpen(false);
+      router.push(notif.link);
     }
-  }
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -189,20 +193,22 @@ function NotificationPopover({ userId }: { userId: string }) {
                   className={cn(
                     "border-b border-border p-3 text-xs last:border-b-0 transition-colors",
                     notif.link ? "cursor-pointer hover:bg-muted/50" : "",
-                    notif.read ? "bg-background" : "bg-primary/5"
+                    notif.read ? "bg-background" : "bg-primary/5",
                   )}
                 >
                   <div className="flex items-start gap-2">
                     <div
-                      className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${notif.read ? "bg-muted" : "bg-primary"
-                        }`}
+                      className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${
+                        notif.read ? "bg-muted" : "bg-primary"
+                      }`}
                     />
                     <div className="flex-1 min-w-0">
                       <p
-                        className={`${notif.read
+                        className={`${
+                          notif.read
                             ? "text-muted-foreground"
                             : "font-medium text-foreground"
-                          }`}
+                        }`}
                       >
                         {notif.title}
                       </p>
@@ -231,29 +237,37 @@ function NotificationPopover({ userId }: { userId: string }) {
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
-function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => void; collapsed?: boolean; badges?: Record<string, number> }) {
-  const { user } = useAuth()
-  const pathname = usePathname()
+function SidebarNav({
+  onLinkClick,
+  collapsed,
+  badges,
+}: {
+  onLinkClick?: () => void;
+  collapsed?: boolean;
+  badges?: Record<string, number>;
+}) {
+  const { user } = useAuth();
+  const pathname = usePathname();
   const filteredItems = navItems.filter((item) =>
-    item.roles.includes(user?.role || "")
-  )
+    item.roles.includes(user?.role || ""),
+  );
 
   // Group items by section
-  const sections: { label: string; items: typeof filteredItems }[] = []
-  const sectionMap = new Map<string, typeof filteredItems>()
+  const sections: { label: string; items: typeof filteredItems }[] = [];
+  const sectionMap = new Map<string, typeof filteredItems>();
   for (const item of filteredItems) {
-    const sec = item.section || "General"
+    const sec = item.section || "General";
     if (!sectionMap.has(sec)) {
-      sectionMap.set(sec, [])
-      sections.push({ label: sec, items: sectionMap.get(sec)! })
+      sectionMap.set(sec, []);
+      sections.push({ label: sec, items: sectionMap.get(sec)! });
     }
-    sectionMap.get(sec)!.push(item)
+    sectionMap.get(sec)!.push(item);
   }
 
-  const isSettingsActive = pathname === "/dashboard/settings"
+  const isSettingsActive = pathname === "/dashboard/settings";
 
   if (collapsed) {
     return (
@@ -262,8 +276,10 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
           <nav className="py-3 px-2">
             <div className="flex flex-col gap-1.5 items-center">
               {filteredItems.map((item) => {
-                const isActive = pathname === item.href
-                const badgeCount = item.badgeKey ? (badges?.[item.badgeKey] ?? 0) : 0
+                const isActive = pathname === item.href;
+                const badgeCount = item.badgeKey
+                  ? (badges?.[item.badgeKey] ?? 0)
+                  : 0;
                 return (
                   <Tooltip key={item.href}>
                     <TooltipTrigger asChild>
@@ -274,7 +290,7 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
                           "relative flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200 flex-shrink-0",
                           isActive
                             ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md"
-                            : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                         )}
                       >
                         {item.icon}
@@ -290,7 +306,7 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
                       {badgeCount > 0 && ` (${badgeCount})`}
                     </TooltipContent>
                   </Tooltip>
-                )
+                );
               })}
             </div>
           </nav>
@@ -308,7 +324,7 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
                     "flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200 mx-auto",
                     isSettingsActive
                       ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md"
-                      : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                 >
                   <Settings className="h-4 w-4" />
@@ -321,7 +337,7 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
           </div>
         </div>
       </TooltipProvider>
-    )
+    );
   }
 
   return (
@@ -334,8 +350,10 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
                 {section.label}
               </span>
               {section.items.map((item) => {
-                const isActive = pathname === item.href
-                const badgeCount = item.badgeKey ? (badges?.[item.badgeKey] ?? 0) : 0
+                const isActive = pathname === item.href;
+                const badgeCount = item.badgeKey
+                  ? (badges?.[item.badgeKey] ?? 0)
+                  : 0;
                 return (
                   <Link
                     key={item.href}
@@ -345,23 +363,29 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
                       "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                       isActive
                         ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md"
-                        : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     )}
                   >
-                    <span className={cn(
-                      "flex h-5 w-5 items-center justify-center flex-shrink-0 transition-colors",
-                      isActive ? "text-sidebar-primary-foreground" : "text-sidebar-foreground/50 group-hover:text-sidebar-accent-foreground"
-                    )}>
+                    <span
+                      className={cn(
+                        "flex h-5 w-5 items-center justify-center flex-shrink-0 transition-colors",
+                        isActive
+                          ? "text-sidebar-primary-foreground"
+                          : "text-sidebar-foreground/50 group-hover:text-sidebar-accent-foreground",
+                      )}
+                    >
                       {item.icon}
                     </span>
                     <span className="flex-1 truncate">{item.label}</span>
                     {badgeCount > 0 && (
-                      <span className={cn(
-                        "flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold",
-                        isActive
-                          ? "bg-white/20 text-sidebar-primary-foreground"
-                          : "bg-orange-500 text-white"
-                      )}>
+                      <span
+                        className={cn(
+                          "flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold",
+                          isActive
+                            ? "bg-white/20 text-sidebar-primary-foreground"
+                            : "bg-orange-500 text-white",
+                        )}
+                      >
                         {badgeCount > 99 ? "99+" : badgeCount}
                       </span>
                     )}
@@ -369,7 +393,7 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
                       <ChevronRight className="ml-auto h-4 w-4 opacity-60" />
                     )}
                   </Link>
-                )
+                );
               })}
             </div>
           ))}
@@ -388,13 +412,17 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
               "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
               isSettingsActive
                 ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md"
-                : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             )}
           >
-            <span className={cn(
-              "flex h-5 w-5 items-center justify-center flex-shrink-0 transition-colors",
-              isSettingsActive ? "text-sidebar-primary-foreground" : "text-sidebar-foreground/50 group-hover:text-sidebar-accent-foreground"
-            )}>
+            <span
+              className={cn(
+                "flex h-5 w-5 items-center justify-center flex-shrink-0 transition-colors",
+                isSettingsActive
+                  ? "text-sidebar-primary-foreground"
+                  : "text-sidebar-foreground/50 group-hover:text-sidebar-accent-foreground",
+              )}
+            >
               <Settings className="h-4 w-4" />
             </span>
             <span className="flex-1 truncate">Settings</span>
@@ -405,11 +433,17 @@ function SidebarNav({ onLinkClick, collapsed, badges }: { onLinkClick?: () => vo
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-function MobileSidebarContent({ onLinkClick, badges }: { onLinkClick?: () => void; badges?: Record<string, number> }) {
-  const { user } = useAuth()
+function MobileSidebarContent({
+  onLinkClick,
+  badges,
+}: {
+  onLinkClick?: () => void;
+  badges?: Record<string, number>;
+}) {
+  const { user } = useAuth();
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-14 items-center gap-3 border-b border-sidebar-border px-4">
@@ -420,7 +454,9 @@ function MobileSidebarContent({ onLinkClick, badges }: { onLinkClick?: () => voi
           <span className="text-sm font-bold text-sidebar-foreground tracking-tight">
             WorkOps
           </span>
-          <span className="text-[10px] text-sidebar-foreground/40">Workplace Portal</span>
+          <span className="text-[10px] text-sidebar-foreground/40">
+            Workplace Portal
+          </span>
         </div>
       </div>
       <SidebarNav onLinkClick={onLinkClick} badges={badges} />
@@ -442,29 +478,36 @@ function MobileSidebarContent({ onLinkClick, badges }: { onLinkClick?: () => voi
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export function DashboardShell({ children }: { children: ReactNode }) {
-  const { user, isAuthenticated, logout } = useAuth()
-  const router = useRouter()
-  const pathname = usePathname()
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const { user, logout } = useAuth();
+  const handleLogOut = () => {
+    try {
+      logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+  const router = useRouter();
+  const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Hardcoded lunch token badge count
   const badges: Record<string, number> = {
     lunchToken: 30,
-  }
+  };
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/")
+    if (!user) {
+      router.push("/");
     }
-  }, [isAuthenticated, router])
+  }, [router]);
 
-  if (!isAuthenticated || !user) {
-    return null
+  if (!user) {
+    return null;
   }
 
   return (
@@ -473,15 +516,17 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       <aside
         className={cn(
           "hidden border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out lg:flex lg:flex-col flex-shrink-0",
-          sidebarCollapsed ? "w-[68px]" : "w-60"
+          sidebarCollapsed ? "w-[68px]" : "w-60",
         )}
       >
         <div className="flex h-full flex-col">
           {/* Sidebar Header */}
-          <div className={cn(
-            "flex h-14 items-center border-b border-sidebar-border",
-            sidebarCollapsed ? "justify-center px-2" : "justify-between px-4"
-          )}>
+          <div
+            className={cn(
+              "flex h-14 items-center border-b border-sidebar-border",
+              sidebarCollapsed ? "justify-center px-2" : "justify-between px-4",
+            )}
+          >
             {!sidebarCollapsed && (
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary shadow-md">
@@ -491,7 +536,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   <span className="text-sm font-bold text-sidebar-foreground tracking-tight">
                     WorkOps
                   </span>
-                  <span className="text-[10px] text-sidebar-foreground/40">Workplace Portal</span>
+                  <span className="text-[10px] text-sidebar-foreground/40">
+                    Workplace Portal
+                  </span>
                 </div>
               </div>
             )}
@@ -512,14 +559,20 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <SidebarNav collapsed={sidebarCollapsed} badges={badges} />
 
           {/* Footer */}
-          <div className={cn(
-            "border-t border-sidebar-border",
-            sidebarCollapsed ? "p-2" : "p-3"
-          )}>
-            <div className={cn(
-              "flex items-center rounded-lg transition-colors",
-              sidebarCollapsed ? "justify-center py-1" : "gap-3 bg-sidebar-accent/50 px-3 py-2.5"
-            )}>
+          <div
+            className={cn(
+              "border-t border-sidebar-border",
+              sidebarCollapsed ? "p-2" : "p-3",
+            )}
+          >
+            <div
+              className={cn(
+                "flex items-center rounded-lg transition-colors",
+                sidebarCollapsed
+                  ? "justify-center py-1"
+                  : "gap-3 bg-sidebar-accent/50 px-3 py-2.5",
+              )}
+            >
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -532,7 +585,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   {sidebarCollapsed && (
                     <TooltipContent side="right" className="text-xs">
                       <p className="font-semibold">{user?.name}</p>
-                      <p className="text-muted-foreground">{getRoleLabel(user?.role || "")}</p>
+                      <p className="text-muted-foreground">
+                        {getRoleLabel(user?.role || "")}
+                      </p>
                     </TooltipContent>
                   )}
                 </Tooltip>
@@ -572,7 +627,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 side="left"
                 className="w-56 bg-sidebar p-0 text-sidebar-foreground"
               >
-                <MobileSidebarContent onLinkClick={() => setMobileOpen(false)} badges={badges} />
+                <MobileSidebarContent
+                  onLinkClick={() => setMobileOpen(false)}
+                  badges={badges}
+                />
               </SheetContent>
             </Sheet>
             {pathname !== "/dashboard" && (
@@ -589,7 +647,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                       <span className="sr-only">Back to Dashboard</span>
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">Back to Dashboard</TooltipContent>
+                  <TooltipContent side="bottom">
+                    Back to Dashboard
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             )}
@@ -645,14 +705,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => {
-                    logout()
-                    router.push("/")
-                  }}
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:text-destructive cursor-pointer"
+                  onSelect={() => handleLogOut()} // 'onSelect' is better for Shadcn/Radix dropdowns
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Sign out
+                  <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -663,5 +720,5 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
       </div>
     </div>
-  )
+  );
 }
