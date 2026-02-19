@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 
 import { useAuth } from "@/lib/auth-context";
 import { useServiceRequests, useAnnouncements, useLunchTokens } from "@/lib/queries";
@@ -40,35 +41,55 @@ function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
 
 export function EmployeeDashboard() {
   const { user } = useAuth();
-  const { data: requests, isLoading: reqLoading } = useServiceRequests(
-    user?.id,
-  );
+  const { data: requests, isLoading: reqLoading } = useServiceRequests(user?.id);
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
   const today = new Date().toISOString().split("T")[0];
   const { data: todayTokens, isLoading: tokenLoading } = useLunchTokens(today);
   const tokenCount = todayTokens?.length ?? 0;
 
   const pending = requests?.filter((r) => r.status === "pending").length ?? 0;
-  const inProgress =
-    requests?.filter((r) => r.status === "in-progress").length ?? 0;
+  const inProgress = requests?.filter((r) => r.status === "in-progress").length ?? 0;
   const resolved = requests?.filter((r) => r.status === "resolved").length ?? 0;
   const total = requests?.length ?? 0;
 
-  const recentRequests = requests?.slice(0, 5) ?? [];
+  const [search, setSearch] = useState("");
+
+  // ✅ Case-insensitive search by title or ID
+  const recentRequests =
+    requests
+      ?.filter((r) =>
+        r.title.toLowerCase().includes(search.toLowerCase()) ||
+        r.id.toString().toLowerCase().includes(search.toLowerCase())
+      )
+      .slice(0, 5) ?? [];
+
   const pinnedAnnouncements =
     announcements?.filter((a) => a.pinned).slice(0, 2) ?? [];
 
   return (
     <div className="flex flex-col gap-6">
+      {/* ✅ Welcome Section */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-semibold text-foreground">
+          Welcome back, {user?.name?.split(" ")[0]}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Here is a summary of your service requests.
+        </p>
+      </div>
+
+      {/* ✅ Search + New Request */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">
-            Welcome back, {user?.name?.split(" ")[0]}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Here is a summary of your service requests.
-          </p>
-        </div>
+        <form onSubmit={(e) => e.preventDefault()} className="flex-1">
+          <input
+            type="text"
+            placeholder="Search requests..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </form>
+
         <div className="flex gap-2">
           <Link href="/dashboard/requests">
             <Button className="w-full justify-start gap-2">
@@ -160,6 +181,7 @@ export function EmployeeDashboard() {
         )}
       </div>
 
+      {/* Recent Requests & Announcements */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Requests */}
         <Card className="lg:col-span-2">
