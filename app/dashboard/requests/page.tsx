@@ -116,7 +116,6 @@ export default function RequestsPage() {
     currentPage * ITEMS_PER_PAGE,
   );
 
-  // Reset page when filters change
   const handleSearch = (value: string) => {
     setSearch(value);
     setCurrentPage(1);
