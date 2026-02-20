@@ -125,7 +125,6 @@ export default function EditRequestPage() {
   const handleSubmit = (values: RequestFormValues) => {
     updateRequest.mutate(
       {
-        id: request.id,
         requestType: values.requestType,
         title: values.title,
         description: values.description || "",
@@ -134,9 +133,7 @@ export default function EditRequestPage() {
         otherCategory:
           values.category === "Other" ? values.otherCategory : undefined,
         status: request.status,
-        createdBy: request.createdBy,
         createdByName: request.createdByName,
-        createdAt: request.createdAt,
         updatedAt: new Date().toISOString(),
       },
       {
@@ -192,14 +189,21 @@ export default function EditRequestPage() {
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
                           <RadioGroupItem value="issue" id="edit-type-issue" />
-                          <span className="font-medium text-foreground">Issue</span>
+                          <span className="font-medium text-foreground">
+                            Issue
+                          </span>
                         </label>
                         <label
-                          htmlFor="edit-type-asset"
+                          htmlFor="edit-type-Supplies"
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
-                          <RadioGroupItem value="asset-request" id="edit-type-asset" />
-                          <span className="font-medium text-foreground">Asset Request</span>
+                          <RadioGroupItem
+                            value="Supplies-request"
+                            id="edit-type-Supplies"
+                          />
+                          <span className="font-medium text-foreground">
+                            Supplies Request
+                          </span>
                         </label>
                       </RadioGroup>
                     </FormControl>
@@ -326,10 +330,7 @@ export default function EditRequestPage() {
               )}
 
               <div className="flex gap-2 pt-2">
-                <Button
-                  type="submit"
-                  disabled={updateRequest.isPending}
-                >
+                <Button type="submit" disabled={updateRequest.isPending}>
                   {updateRequest.isPending ? (
                     <>
                       <Loader className="mr-2 h-4 w-4 animate-spin" />

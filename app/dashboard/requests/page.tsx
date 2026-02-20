@@ -238,6 +238,7 @@ export default function RequestsPage() {
             <SelectItem value="in-progress">In Progress</SelectItem>
             <SelectItem value="resolved">Resolved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="reopened">Reopened</SelectItem>
             <SelectItem value="on-hold">On Hold</SelectItem>
           </SelectContent>
         </Select>
@@ -293,13 +294,13 @@ export default function RequestsPage() {
                         </span>
                         <span
                           className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                            req.requestType === "asset-request"
+                            req.requestType === "Supplies-request"
                               ? "bg-blue-100 text-blue-700"
                               : "bg-orange-100 text-orange-700"
                           }`}
                         >
-                          {req.requestType === "asset-request"
-                            ? "Asset"
+                          {req.requestType === "Supplies-request"
+                            ? "Supplies"
                             : "Issue"}
                         </span>
                       </div>

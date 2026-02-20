@@ -138,8 +138,8 @@ export const users: User[] = [
 export const serviceRequests: ServiceRequest[] = [
   {
     id: "SR-001",
-    requestType: "asset-request",
-    title: "Restock coffee and tea supplies",
+    requestType: "Supplies-request",
+    title: "Restock coffee and tea Supplies",
     description:
       "The pantry is running low on coffee beans, tea bags, and sugar packets.",
     category: "Food and Supplies",
@@ -185,7 +185,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-004",
-    requestType: "asset-request",
+    requestType: "Supplies-request",
     title: "Refill water dispenser on 2nd floor",
     description: "Water dispenser near the engineering bay is empty.",
     category: "Food and Supplies",
@@ -214,7 +214,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-006",
-    requestType: "asset-request",
+    requestType: "Supplies-request",
     title: "Restock printer paper",
     description: "All printers on the 2nd floor are out of A4 paper.",
     category: "Office Maintenance",
@@ -243,7 +243,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-008",
-    requestType: "asset-request",
+    requestType: "Supplies-request",
     title: "Request for standing desk",
     description: "Would like a standing desk converter for workstation E-05.",
     category: "Office Maintenance",
@@ -273,7 +273,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-010",
-    requestType: "asset-request",
+    requestType: "Supplies-request",
     title: "Restock snacks in ",
     description: "The snack shelf in the main pantry has been empty for days.",
     category: "Food and Supplies",
@@ -432,8 +432,7 @@ export const notifications: Notification[] = [
     id: "n7",
     userId: "u4",
     title: "New Assignment",
-    message:
-      "You have been assigned to request SR-006: Restock printer paper.",
+    message: "You have been assigned to request SR-006: Restock printer paper.",
     read: false,
     createdAt: "2026-02-06T09:00:00Z",
     link: "/dashboard/requests/SR-006",
@@ -476,5 +475,6 @@ export const analyticsData: AnalyticsData = {
     { status: "On Hold", count: 2 },
     { status: "Resolved", count: 3 },
     { status: "Rejected", count: 1 },
+    { status: "Reopened", count: 0 },
   ],
 };

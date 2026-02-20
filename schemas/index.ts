@@ -3,7 +3,7 @@ import * as z from "zod";
 // Request validation schema
 export const requestSchema = z
   .object({
-    requestType: z.enum(["issue", "asset-request"] as const, {
+    requestType: z.enum(["issue", "Supplies-request"] as const, {
       errorMap: () => ({ message: "Please select a request type" }),
     }),
     title: z

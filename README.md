@@ -8,7 +8,7 @@
 
 ## 🚀 Key Features
 
-* **Service Requests:** Easy-to-use interface for reporting facility issues or requesting supplies.
+* **Service Requests:** Easy-to-use interface for reporting facility issues or requesting Supplies.
 * **Utility Tracking:** Monitor and manage office resources in one dashboard.
 * **Facility Coordination:** Real-time status updates on maintenance tasks.
 * **Optimized Performance:** Built with Next.js for lightning-fast page loads.
