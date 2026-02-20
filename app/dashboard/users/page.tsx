@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth-context"
-import { useUsers, useUpdateUserRole } from "@/lib/queries"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useAuth } from "@/lib/auth-context";
+import { useUsers, useUpdateUserRole } from "@/lib/queries";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useRouter } from "next/navigation"
-import { useEffect, useState, useMemo } from "react"
-import { format } from "date-fns"
-import type { UserRole } from "@/lib/types"
-import { Shield, Search, ChevronLeft, ChevronRight } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/select";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useMemo } from "react";
+import { format } from "date-fns";
+import type { UserRole } from "@/lib/types";
+import { Shield, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 function getInitials(name: string) {
   return name
@@ -27,60 +27,61 @@ function getInitials(name: string) {
     .map((n) => n[0])
     .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 const roleBadge: Record<string, string> = {
   employee: "bg-muted text-muted-foreground",
   admin: "bg-blue-100 text-blue-800",
   superadmin: "bg-primary/10 text-primary",
-}
+};
 
 const roleLabel: Record<string, string> = {
   employee: "Employee",
   admin: "Admin",
   superadmin: "Super Admin",
-}
+};
 
 export default function UsersPage() {
-  const { user, refreshUser } = useAuth()
-  const router = useRouter()
-  const { data: allUsers, isLoading } = useUsers()
-  const updateRole = useUpdateUserRole()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const { user, refreshUser } = useAuth();
+  const router = useRouter();
+  const { data: allUsers, isLoading } = useUsers();
+  const updateRole = useUpdateUserRole();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    if (user && user.role !== "superadmin") {
-      router.push("/dashboard")
+    if (user && user.role !== "SUPER_ADMIN") {
+      router.push("/dashboard");
     }
-  }, [user, router])
+  }, [user, router]);
 
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
-    if (!allUsers) return []
-    return allUsers.filter((u) =>
-      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.department.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }, [allUsers, searchQuery])
+    if (!allUsers) return [];
+    return allUsers.filter(
+      (u) =>
+        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.department.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [allUsers, searchQuery]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedUsers = filteredUsers.slice(
     startIndex,
-    startIndex + itemsPerPage
-  )
+    startIndex + itemsPerPage,
+  );
 
   // Reset to page 1 when search changes
   useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery])
+    setCurrentPage(1);
+  }, [searchQuery]);
 
-  if (user?.role !== "superadmin") return null
+  if (user?.role !== "SUPER_ADMIN") return null;
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
     updateRole.mutate(
@@ -88,20 +89,19 @@ export default function UsersPage() {
       {
         onSuccess: () => {
           // Refresh current user in case super admin changed their own role
-          refreshUser()
+          refreshUser();
         },
-      }
-    )
-  }
+      },
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">
-          User Management
-        </h1>
+        <h1 className="text-2xl font-bold text-foreground">User Management</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          View all system users and manage their roles. Role changes take effect immediately.
+          View all system users and manage their roles. Role changes take effect
+          immediately.
         </p>
       </div>
 
@@ -156,9 +156,12 @@ export default function UsersPage() {
 
           <div className="flex flex-col gap-2">
             {paginatedUsers.map((u) => {
-              const isSelf = u.id === user.id
+              const isSelf = u.id === user.id;
               return (
-                <Card key={u.id} className="overflow-hidden hover:shadow-sm transition-shadow">
+                <Card
+                  key={u.id}
+                  className="overflow-hidden hover:shadow-sm transition-shadow"
+                >
                   <CardContent className="p-0">
                     <div className="hidden lg:grid grid-cols-12 gap-4 items-center p-4">
                       {/* User Info */}
@@ -212,8 +215,8 @@ export default function UsersPage() {
                           }
                           disabled={isSelf || updateRole.isPending}
                         >
-                          <SelectTrigger className="w-32 h-8 text-xs">
-                            <SelectValue />
+                          <SelectTrigger className="w-28 h-8 text-xs">
+                            <SelectValue placeholder={roleLabel[u.role]} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="employee">Employee</SelectItem>
@@ -256,7 +259,9 @@ export default function UsersPage() {
 
                       <div className="flex flex-col gap-2 text-xs">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Department</span>
+                          <span className="text-muted-foreground">
+                            Department
+                          </span>
                           <span className="text-foreground font-medium">
                             {u.department}
                           </span>
@@ -271,7 +276,9 @@ export default function UsersPage() {
 
                       <div className="flex items-center gap-2 pt-2 border-t border-border">
                         <Shield className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Role</span>
+                        <span className="text-xs text-muted-foreground">
+                          Role
+                        </span>
                         <div className="flex-1" />
                         <Select
                           value={u.role}
@@ -295,7 +302,7 @@ export default function UsersPage() {
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
 
@@ -322,8 +329,13 @@ export default function UsersPage() {
                 <div className="flex items-center gap-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter((page) => {
-                      const diff = Math.abs(page - currentPage)
-                      return diff === 0 || diff <= 1 || page === 1 || page === totalPages
+                      const diff = Math.abs(page - currentPage);
+                      return (
+                        diff === 0 ||
+                        diff <= 1 ||
+                        page === 1 ||
+                        page === totalPages
+                      );
                     })
                     .map((page, idx, arr) => (
                       <div key={page}>
@@ -347,7 +359,9 @@ export default function UsersPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="h-8 w-8 p-0"
                   title="Next page"
@@ -373,5 +387,5 @@ export default function UsersPage() {
         </ul>
       </div>
     </div>
-  )
+  );
 }

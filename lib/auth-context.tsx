@@ -58,16 +58,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loadUser();
   };
 
-  // const logout = async () => {
-  //   try {
-  //     await apiLogout();
-  //   } catch (error) {
-  //     console.error("Logout error:", error);
-  //   } finally {
-  //     setUser(null);
-  //   }
-  // };
-
   const logout = async () => {
     try {
       await apiLogout();

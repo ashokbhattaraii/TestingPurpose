@@ -14,6 +14,7 @@ import { Building2, ArrowRight, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { users } from "@/lib/data";
+import { useLogin } from "@/hooks/use-login";
 
 function getInitials(name: string) {
   return name
@@ -42,7 +43,7 @@ export function LoginPage() {
   async function OAuthHandle() {
     window.location.href = `${process.env.NEXT_PUBLIC_BASE_URL!}/auth/google`;
   }
-
+  const { loginWithGoogle, isGoogleLoginPending } = useLogin();
   const demoUser = users[0];
   const otherUsers = users.slice(1);
 
@@ -85,7 +86,7 @@ export function LoginPage() {
               <div className="w-full">
                 <button
                   type="button"
-                  onClick={() => OAuthHandle()}
+                  onClick={() => loginWithGoogle()}
                   className="flex w-full items-center justify-center gap-3 rounded-lg border-2 border-slate-200 bg-white py-3 px-4 text-center transition-all hover:border-primary hover:bg-primary/5 hover:shadow-md"
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
