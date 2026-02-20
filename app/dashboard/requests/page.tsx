@@ -239,7 +239,6 @@ export default function RequestsPage() {
             <SelectItem value="resolved">Resolved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
             <SelectItem value="reopened">Reopened</SelectItem>
-            <SelectItem value="on-hold">On Hold</SelectItem>
           </SelectContent>
         </Select>
         <Select value={categoryFilter} onValueChange={handleCategoryFilter}>
