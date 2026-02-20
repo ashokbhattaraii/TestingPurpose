@@ -1,99 +1,110 @@
-"use client"
+"use client";
 
-import React from "react"
+import React from "react";
 
-import { useAuth } from "@/lib/auth-context"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useAuth } from "@/lib/auth-context";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { useEffect, useState } from "react"
-import { Eye, EyeOff, Lock, Bell, Shield, Copy, Check } from "lucide-react"
-import { toast } from "sonner"
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { useEffect, useState } from "react";
+import { Eye, EyeOff, Lock, Bell, Shield, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 
 const roleLabel: Record<string, string> = {
   employee: "Employee",
   admin: "Admin",
   superadmin: "Super Admin",
-}
+};
 
 export default function SettingsPage() {
-  const { user } = useAuth()
-  const [showPassword, setShowPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [copied, setCopied] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  
+  const { user } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-  })
+  });
 
   const [notificationPrefs, setNotificationPrefs] = useState({
-    emailNotifications: user?.notificationPreferences?.emailNotifications ?? true,
+    emailNotifications:
+      user?.notificationPreferences?.emailNotifications ?? true,
     announcements: user?.notificationPreferences?.announcements ?? true,
     assignments: user?.notificationPreferences?.assignments ?? true,
-  })
+  });
 
   useEffect(() => {
     if (user?.notificationPreferences) {
-      setNotificationPrefs(user.notificationPreferences)
+      setNotificationPrefs(user.notificationPreferences);
     }
-  }, [user])
+  }, [user]);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSavePassword = () => {
     if (formData.newPassword !== formData.confirmPassword) {
-      toast.error("Passwords do not match")
-      return
+      toast.error("Passwords do not match");
+      return;
     }
     if (formData.newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters")
-      return
+      toast.error("Password must be at least 8 characters");
+      return;
     }
-    
-    setIsSaving(true)
+
+    setIsSaving(true);
     setTimeout(() => {
-      setIsSaving(false)
-      setFormData({ currentPassword: "", newPassword: "", confirmPassword: "" })
-      toast.success("Password updated successfully")
-    }, 1000)
-  }
+      setIsSaving(false);
+      setFormData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      toast.success("Password updated successfully");
+    }, 1000);
+  };
 
   const handleSaveNotifications = () => {
-    setIsSaving(true)
+    setIsSaving(true);
     setTimeout(() => {
-      setIsSaving(false)
-      toast.success("Notification preferences saved")
-    }, 1000)
-  }
+      setIsSaving(false);
+      toast.success("Notification preferences saved");
+    }, 1000);
+  };
 
   const handleCopyEmail = () => {
     if (user?.email) {
-      navigator.clipboard.writeText(user.email)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      navigator.clipboard.writeText(user.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-  }
+  };
 
-  if (!user) return null
+  if (!user) return null;
 
   return (
     <div className="mx-auto max-w-4xl flex flex-col gap-8">
@@ -115,7 +126,9 @@ export default function SettingsPage() {
         <CardContent className="flex flex-col gap-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">Full Name</Label>
+              <Label className="text-sm font-medium text-foreground">
+                Full Name
+              </Label>
               <Input
                 type="text"
                 value={user.name}
@@ -124,7 +137,9 @@ export default function SettingsPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">Email Address</Label>
+              <Label className="text-sm font-medium text-foreground">
+                Email Address
+              </Label>
               <div className="flex gap-2">
                 <Input
                   type="email"
@@ -147,16 +162,20 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">Department</Label>
+              <Label className="text-sm font-medium text-foreground">
+                Department
+              </Label>
               <Input
                 type="text"
-                value={user.department}
+                value={user.department ?? "—"}
                 disabled
                 className="bg-muted"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">Role</Label>
+              <Label className="text-sm font-medium text-foreground">
+                Role
+              </Label>
               <Input
                 type="text"
                 value={roleLabel[user.role]}
@@ -170,16 +189,20 @@ export default function SettingsPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">Account Status</Label>
+              <Label className="text-sm font-medium text-foreground">
+                Account Status
+              </Label>
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-green-600" />
                 <span className="text-sm capitalize font-medium text-foreground">
-                  {user.status}
+                  {user.status ?? "active"}
                 </span>
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">Last Login</Label>
+              <Label className="text-sm font-medium text-foreground">
+                Last Login
+              </Label>
               <span className="text-sm text-foreground">
                 {user.lastLogin
                   ? new Date(user.lastLogin).toLocaleDateString("en-US", {
@@ -211,7 +234,9 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-xs font-semibold text-blue-900 mb-2">Security Tip</p>
+            <p className="text-xs font-semibold text-blue-900 mb-2">
+              Security Tip
+            </p>
             <ul className="text-xs text-blue-800 space-y-1">
               <li>• Use a strong password with at least 8 characters</li>
               <li>• Combine uppercase, lowercase, numbers, and symbols</li>
@@ -317,7 +342,9 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-primary" />
             <div>
-              <CardTitle className="text-lg">Notification Preferences</CardTitle>
+              <CardTitle className="text-lg">
+                Notification Preferences
+              </CardTitle>
               <CardDescription>
                 Choose how you want to receive notifications
               </CardDescription>
@@ -412,10 +439,13 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <p className="text-xs font-semibold text-amber-900 mb-2">Privacy Notice</p>
+            <p className="text-xs font-semibold text-amber-900 mb-2">
+              Privacy Notice
+            </p>
             <p className="text-xs text-amber-800">
-              Your profile information is visible to other team members within the organization. 
-              Contact your administrator to request additional privacy restrictions.
+              Your profile information is visible to other team members within
+              the organization. Contact your administrator to request additional
+              privacy restrictions.
             </p>
           </div>
 
@@ -453,5 +483,5 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

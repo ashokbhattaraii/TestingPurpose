@@ -17,6 +17,10 @@ interface User {
   name: string;
   role: string;
   photoURL?: string;
+  department?: string;
+  status?: "active" | "inactive" | "suspended" | string;
+  lastLogin?: string | Date | null;
+  notificationPreferences?: NotificationPreferences;
 }
 
 interface AuthContextType {
@@ -87,3 +91,9 @@ export function useAuth() {
   }
   return context;
 }
+
+export type NotificationPreferences = {
+  emailNotifications: boolean;
+  announcements: boolean;
+  assignments: boolean;
+};

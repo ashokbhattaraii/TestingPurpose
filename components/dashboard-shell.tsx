@@ -120,9 +120,9 @@ function getInitials(name: string) {
 
 function getRoleLabel(role: string) {
   switch (role) {
-    case "superadmin":
+    case "SUPER_ADMIN":
       return "Super Admin";
-    case "admin":
+    case "ADMIN":
       return "Admin";
     default:
       return "Employee";

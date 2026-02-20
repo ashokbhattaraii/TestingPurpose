@@ -1,27 +1,26 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth-context"
-import { useServiceRequests } from "@/lib/queries"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
-import { StatusBadge } from "@/components/status-badge"
-import { ConnectedAccounts } from "@/components/connected-accounts"
+import { useAuth } from "@/lib/auth-context";
+import { useServiceRequests } from "@/lib/queries";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/status-badge";
+import { ConnectedAccounts } from "@/components/connected-accounts";
 import {
   Mail,
   Building,
   Calendar,
-  Shield,
   Clock,
   CheckCircle,
   Edit3,
   Link as LinkIcon,
-} from "lucide-react"
-import { format } from "date-fns"
-import Link from "next/link"
-import { useState } from "react"
+} from "lucide-react";
+import { format } from "date-fns";
+import Link from "next/link";
+import { useState } from "react";
 
 function getInitials(name: string) {
   return name
@@ -29,23 +28,36 @@ function getInitials(name: string) {
     .map((n) => n[0])
     .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 const roleLabel: Record<string, string> = {
   employee: "Employee",
   admin: "Admin",
   superadmin: "Super Admin",
-}
+};
 
 export default function ProfilePage() {
-  const { user } = useAuth()
-  const { data: requests } = useServiceRequests(user?.id)
-  const [isEditingAvatar, setIsEditingAvatar] = useState(false)
+  const { user } = useAuth();
+  const { data: requests } = useServiceRequests(user?.id ?? "");
+  const [isEditingAvatar, setIsEditingAvatar] = useState(false);
 
-  if (!user) return null
+  if (!user) return null;
 
-  const recentRequests = requests?.slice(0, 5) ?? []
+  const displayName = user.name ?? "User";
+  const displayEmail = user.email ?? "—";
+  const displayRole = roleLabel[user.role] ?? "Employee";
+  const displayStatus = user.status ?? "active";
+  const displayDepartment = user.department ?? "N/A";
+  const joinedAt = (user as any).joinedAt
+    ? new Date((user as any).joinedAt)
+    : null;
+  const lastLogin = (user as any).lastLogin
+    ? new Date((user as any).lastLogin)
+    : null;
+  const socialAccounts = (user as any).socialAccounts ?? [];
+
+  const recentRequests = requests?.slice(0, 5) ?? [];
 
   return (
     <div className="mx-auto max-w-4xl flex flex-col gap-6">
@@ -70,7 +82,7 @@ export default function ProfilePage() {
           <div className="relative">
             <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
               <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
-                {getInitials(user.name)}
+                {getInitials(displayName)}
               </AvatarFallback>
             </Avatar>
             <Button
@@ -87,21 +99,21 @@ export default function ProfilePage() {
           <div className="flex flex-1 flex-col items-center gap-3 text-center sm:items-start sm:text-left">
             <div>
               <h2 className="text-2xl font-bold text-foreground">
-                {user.name}
+                {displayName}
               </h2>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-sm text-muted-foreground">{displayEmail}</p>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
               <Badge className="bg-primary/20 text-primary hover:bg-primary/30">
-                {roleLabel[user.role]}
+                {displayRole}
               </Badge>
               <Badge
                 variant="outline"
                 className="flex items-center gap-1 bg-green-50 border-green-200 text-green-700"
               >
                 <CheckCircle className="h-3 w-3" />
-                {user.status}
+                {displayStatus}
               </Badge>
             </div>
 
@@ -113,7 +125,7 @@ export default function ProfilePage() {
                   Department
                 </span>
                 <span className="text-sm font-semibold text-foreground">
-                  {user.department}
+                  {displayDepartment}
                 </span>
               </div>
               <div className="flex flex-col">
@@ -121,7 +133,7 @@ export default function ProfilePage() {
                   Joined
                 </span>
                 <span className="text-sm font-semibold text-foreground">
-                  {format(new Date(user.joinedAt), "MMM yyyy")}
+                  {joinedAt ? format(joinedAt, "MMM yyyy") : "N/A"}
                 </span>
               </div>
               <div className="flex flex-col">
@@ -129,7 +141,7 @@ export default function ProfilePage() {
                   Role
                 </span>
                 <span className="text-sm font-semibold text-foreground">
-                  {roleLabel[user.role]}
+                  {displayRole}
                 </span>
               </div>
               <div className="flex flex-col">
@@ -137,7 +149,7 @@ export default function ProfilePage() {
                   Status
                 </span>
                 <span className="text-sm font-semibold capitalize text-green-600">
-                  {user.status}
+                  {displayStatus}
                 </span>
               </div>
             </div>
@@ -159,11 +171,8 @@ export default function ProfilePage() {
                   Last Login
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {user.lastLogin
-                    ? format(
-                        new Date(user.lastLogin),
-                        "MMM d, yyyy 'at' h:mm a"
-                      )
+                  {lastLogin
+                    ? format(lastLogin, "MMM d, yyyy 'at' h:mm a")
                     : "Never"}
                 </span>
               </div>
@@ -175,7 +184,7 @@ export default function ProfilePage() {
                   Account Created
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {format(new Date(user.joinedAt), "MMM d, yyyy")}
+                  {joinedAt ? format(joinedAt, "MMM d, yyyy") : "N/A"}
                 </span>
               </div>
             </div>
@@ -197,7 +206,7 @@ export default function ProfilePage() {
                   Email
                 </span>
                 <span className="text-xs text-muted-foreground break-all">
-                  {user.email}
+                  {displayEmail}
                 </span>
               </div>
             </div>
@@ -208,7 +217,7 @@ export default function ProfilePage() {
                   Department
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {user.department}
+                  {displayDepartment}
                 </span>
               </div>
             </div>
@@ -217,7 +226,7 @@ export default function ProfilePage() {
       </Card>
 
       {/* Connected Social Accounts */}
-      <ConnectedAccounts accounts={user.socialAccounts} />
+      <ConnectedAccounts accounts={socialAccounts} />
 
       {/* Request History */}
       <Card>
@@ -270,16 +279,28 @@ export default function ProfilePage() {
 
       {/* Quick Actions */}
       <div className="grid gap-3 sm:grid-cols-3">
-        <Button asChild variant="outline" className="justify-center bg-transparent">
+        <Button
+          asChild
+          variant="outline"
+          className="justify-center bg-transparent"
+        >
           <Link href="/dashboard/requests">View All Requests</Link>
         </Button>
-        <Button asChild variant="outline" className="justify-center bg-transparent">
+        <Button
+          asChild
+          variant="outline"
+          className="justify-center bg-transparent"
+        >
           <Link href="/dashboard/settings">Account Settings</Link>
         </Button>
-        <Button asChild variant="outline" className="justify-center bg-transparent">
+        <Button
+          asChild
+          variant="outline"
+          className="justify-center bg-transparent"
+        >
           <Link href="/dashboard">Back to Dashboard</Link>
         </Button>
       </div>
     </div>
-  )
+  );
 }
