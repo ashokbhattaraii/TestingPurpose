@@ -30,6 +30,7 @@ import {
   ArrowDown,
   CalendarIcon,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -40,27 +41,41 @@ import {
   isSameDay,
 } from "date-fns";
 import { useState } from "react";
-import type { RequestStatus, RequestCategory } from "@/lib/types";
+import type { RequestStatus } from "@/lib/types";
 import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
+import {
+  ISSUE_CATEGORY_LABELS,
+  ISSUE_PRIORITY_LABELS,
+  SUPPLIES_CATEGORY_LABELS,
+} from "@/schemas";
 
 const ITEMS_PER_PAGE = 6;
 
 const PRIORITY_CONFIG = {
-  high: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
-  medium: {
+  HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
+  URGENT: {
+    label: "Urgent",
+    icon: AlertTriangle,
+    className: "text-red-700 bg-red-100",
+  },
+  MEDIUM: {
     label: "Med",
     icon: ArrowRight,
     className: "text-amber-600 bg-amber-50",
   },
-  low: {
+  LOW: {
     label: "Low",
     icon: ArrowDown,
     className: "text-emerald-600 bg-emerald-50",
   },
 } as const;
 
-function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
+function PriorityBadge({
+  priority,
+}: {
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+}) {
   const config = PRIORITY_CONFIG[priority];
   const Icon = config.icon;
   return (
@@ -81,7 +96,7 @@ export default function RequestsPage() {
   );
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -91,8 +106,7 @@ export default function RequestsPage() {
         req.title.toLowerCase().includes(search.toLowerCase()) ||
         req.id.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === "all" || req.status === statusFilter;
-      const matchCategory =
-        categoryFilter === "all" || req.category === categoryFilter;
+      const matchType = typeFilter === "all" || req.type === typeFilter;
 
       let matchDate = true;
       if (dateRange?.from) {
@@ -107,7 +121,7 @@ export default function RequestsPage() {
         }
       }
 
-      return matchSearch && matchStatus && matchCategory && matchDate;
+      return matchSearch && matchStatus && matchType && matchDate;
     }) ?? [];
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
@@ -124,8 +138,8 @@ export default function RequestsPage() {
     setStatusFilter(value);
     setCurrentPage(1);
   };
-  const handleCategoryFilter = (value: string) => {
-    setCategoryFilter(value);
+  const handleTypeFilter = (value: string) => {
+    setTypeFilter(value);
     setCurrentPage(1);
   };
   const handleDateChange = (range: DateRange | undefined) => {
@@ -135,6 +149,16 @@ export default function RequestsPage() {
   const clearDateFilter = () => {
     setDateRange(undefined);
     setCurrentPage(1);
+  };
+
+  const getCategoryLabel = (req: (typeof requests extends (infer T)[] | undefined ? T : never)) => {
+    if (req.type === "ISSUE" && req.issueCategory) {
+      return ISSUE_CATEGORY_LABELS[req.issueCategory];
+    }
+    if (req.type === "Supplies" && req.SuppliesCategory) {
+      return SUPPLIES_CATEGORY_LABELS[req.SuppliesCategory];
+    }
+    return "";
   };
 
   return (
@@ -162,7 +186,7 @@ export default function RequestsPage() {
 
       {/* Filters */}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <div className="relative flex-1 min-w-0">
+        <div className="relative min-w-0 flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by title or ID..."
@@ -176,7 +200,7 @@ export default function RequestsPage() {
             <Button
               variant="outline"
               className={cn(
-                "w-full sm:w-auto justify-start text-left font-normal gap-2",
+                "w-full justify-start gap-2 text-left font-normal sm:w-auto",
                 !dateRange && "text-muted-foreground",
               )}
             >
@@ -234,25 +258,20 @@ export default function RequestsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="in-progress">In Progress</SelectItem>
-            <SelectItem value="resolved">Resolved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="reopened">Reopened</SelectItem>
+            <SelectItem value="PENDING">Pending</SelectItem>
+            <SelectItem value="APPROVED">Approved</SelectItem>
+            <SelectItem value="REJECTED">Rejected</SelectItem>
+            <SelectItem value="CANCELLED">Cancelled</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={categoryFilter} onValueChange={handleCategoryFilter}>
+        <Select value={typeFilter} onValueChange={handleTypeFilter}>
           <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="Category" />
+            <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="Food and Supply">Food and Supply</SelectItem>
-            <SelectItem value="Office Maintenance">
-              Office Maintenance
-            </SelectItem>
-            <SelectItem value="cleaning">Cleaning</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="ISSUE">Issue</SelectItem>
+            <SelectItem value="Supplies">Supplies</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -281,42 +300,43 @@ export default function RequestsPage() {
                   <CardContent className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-muted-foreground">
+                        <span className="font-mono text-xs text-muted-foreground">
                           {req.id}
                         </span>
-                        <span className="text-xs capitalize text-muted-foreground">
-                          {req.category}{" "}
-                          {req.category === ("Other" as RequestCategory) &&
-                          req.otherCategory
-                            ? `- ${req.otherCategory}`
-                            : ""}
+                        <span className="text-xs text-muted-foreground">
+                          {getCategoryLabel(req)}
                         </span>
                         <span
-                          className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
-                            req.requestType === "Supplies-request"
+                          className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                            req.type === "Supplies"
                               ? "bg-blue-100 text-blue-700"
                               : "bg-orange-100 text-orange-700"
                           }`}
                         >
-                          {req.requestType === "Supplies-request"
-                            ? "Supplies"
-                            : "Issue"}
+                          {req.type === "Supplies" ? "Supplies" : "Issue"}
                         </span>
                       </div>
                       <span className="text-sm font-medium text-foreground">
                         {req.title}
                       </span>
+                      {req.type === "Supplies" && req.itemName && (
+                        <span className="text-xs text-muted-foreground">
+                          Item: {req.itemName}
+                        </span>
+                      )}
                       {!isEmployee && (
                         <span className="text-xs text-muted-foreground">
                           by {req.createdByName}
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex shrink-0 items-center gap-2">
                       <span className="text-xs text-muted-foreground">
                         {format(new Date(req.createdAt), "MMM d, yyyy")}
                       </span>
-                      <PriorityBadge priority={req.priority} />
+                      {req.type === "ISSUE" && req.issuePriority && (
+                        <PriorityBadge priority={req.issuePriority} />
+                      )}
                       <StatusBadge status={req.status} />
                     </div>
                   </CardContent>
@@ -340,7 +360,7 @@ export default function RequestsPage() {
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                 >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  <ChevronLeft className="mr-1 h-4 w-4" />
                   Previous
                 </Button>
                 <div className="flex items-center gap-1">
@@ -367,7 +387,7 @@ export default function RequestsPage() {
                   disabled={currentPage === totalPages}
                 >
                   Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
+                  <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </div>
             </div>

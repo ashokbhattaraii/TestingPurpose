@@ -1,18 +1,31 @@
 export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
 
 export type RequestStatus =
-  | "pending"
-  | "on-hold"
-  | "in-progress"
-  | "resolved"
-  | "rejected"
-  | "reopened";
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "CANCELLED";
 
-export type RequestCategory =
-  | "Food and Supplies"
-  | "Office Maintenance"
-  | "Cleaning"
-  | "Other";
+export type RequestType = "ISSUE" | "Supplies";
+
+export type IssuePriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+
+export type IssueCategory =
+  | "TECHNICAL"
+  | "FACILITY"
+  | "HR"
+  | "ADMINISTRATIVE"
+  | "SECURITY"
+  | "OTHER";
+
+export type SuppliesCategory =
+  | "OFFICE_Supplies"
+  | "EQUIPMENT"
+  | "STATIONERY"
+  | "PANTRY"
+  | "CLEANING"
+  | "TECHNOLOGY"
+  | "OTHER";
 
 export type SocialProvider = "google" | "github" | "linkedin";
 export interface SocialAccount {
@@ -39,8 +52,6 @@ export interface User {
   };
 }
 
-export type RequestType = "issue" | "Supplies-request";
-
 export interface Attachment {
   id: string;
   name: string;
@@ -51,19 +62,39 @@ export interface Attachment {
 
 export interface ServiceRequest {
   id: string;
-  requestType: RequestType;
+  type: RequestType;
+  status: RequestStatus;
   title: string;
   description: string;
-  category: RequestCategory;
-  status: RequestStatus;
-  otherCategory?: string;
-  priority: "low" | "medium" | "high";
-  createdBy: string;
+
+  // Issue-specific fields
+  issuePriority?: IssuePriority;
+  issueCategory?: IssueCategory;
+  location?: string;
+
+  // Supplies-specific fields
+  SuppliesCategory?: SuppliesCategory;
+  itemName: string;
+
+  // Common fields
+  attachments?: Attachment[];
+
+  // Approval
+  approverId?: string;
+  approvedAt?: string;
+  rejectionReason?: string;
+  adminNotes?: string;
+
+  // Fulfillment (for Supplies)
+  isFulfilled?: boolean;
+  fulfilledAt?: string;
+  fulfilledBy?: string;
+
+  // Timestamps & Relations
+  userId: string;
   createdByName: string;
   assignedTo?: string;
   assignedToName?: string;
-  attachments?: Attachment[];
-  rejectionComment?: string;
   createdAt: string;
   updatedAt: string;
 }

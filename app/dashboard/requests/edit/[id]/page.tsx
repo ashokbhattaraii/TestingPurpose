@@ -29,12 +29,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { requestSchema, type RequestFormValues } from "@/schemas";
+import {
+  requestSchema,
+  type RequestFormValues,
+  ISSUE_CATEGORIES,
+  ISSUE_PRIORITIES,
+  SUPPLIES_CATEGORIES,
+  ISSUE_CATEGORY_LABELS,
+  SUPPLIES_CATEGORY_LABELS,
+  ISSUE_PRIORITY_LABELS,
+} from "@/schemas";
 import { Skeleton } from "@/components/ui/skeleton";
-
-// Extract categories and priorities from schema for consistency
-const CATEGORIES = requestSchema._def.schema.shape.category._def.values;
-const PRIORITIES = requestSchema._def.schema.shape.priority._def.values;
 
 export default function EditRequestPage() {
   const { user } = useAuth();
@@ -44,37 +49,74 @@ export default function EditRequestPage() {
   const { data: request, isLoading } = useServiceRequest(id);
   const updateRequest = useUpdateRequest();
 
+  const getDefaultValues = React.useCallback((): RequestFormValues => {
+    if (!request) {
+      return {
+        type: "ISSUE",
+        title: "",
+        description: "",
+        issuePriority: "MEDIUM",
+        issueCategory: "TECHNICAL",
+        location: "",
+      };
+    }
+    if (request.type === "ISSUE") {
+      return {
+        type: "ISSUE",
+        title: request.title,
+        description: request.description || "",
+        issuePriority: request.issuePriority || "MEDIUM",
+        issueCategory: request.issueCategory || "TECHNICAL",
+        location: request.location || "",
+      };
+    }
+    return {
+      type: "Supplies",
+      title: request.title,
+      description: request.description || "",
+      SuppliesCategory: request.SuppliesCategory || "OFFICE_Supplies",
+      itemName: request.itemName || "",
+    };
+  }, [request]);
+
   const form = useForm<RequestFormValues>({
     resolver: zodResolver(requestSchema),
-    defaultValues: {
-      requestType: request?.requestType || "issue",
-      title: request?.title || "",
-      description: request?.description || "",
-      category: request?.category || "Food and Supplies",
-      priority: request?.priority || "medium",
-      otherCategory: request?.otherCategory || "",
-    },
+    defaultValues: getDefaultValues(),
   });
 
   // Update form when request data loads
   React.useEffect(() => {
     if (request) {
+      form.reset(getDefaultValues());
+    }
+  }, [request, form, getDefaultValues]);
+
+  const requestType = form.watch("type");
+
+  const handleTypeChange = (newType: "ISSUE" | "Supplies") => {
+    if (newType === "ISSUE") {
       form.reset({
-        requestType: request.requestType || "issue",
-        title: request.title,
-        description: request.description,
-        category: request.category,
-        priority: request.priority,
-        otherCategory: request.otherCategory || "",
+        type: "ISSUE",
+        title: form.getValues("title"),
+        description: form.getValues("description") || "",
+        issuePriority: "MEDIUM",
+        issueCategory: "TECHNICAL",
+        location: "",
+      });
+    } else {
+      form.reset({
+        type: "Supplies",
+        title: form.getValues("title"),
+        description: form.getValues("description") || "",
+        SuppliesCategory: "OFFICE_Supplies",
+        itemName: "",
       });
     }
-  }, [request, form]);
-
-  const category = form.watch("category");
+  };
 
   // Check authorization
-  const isCreator = user?.id === request?.createdBy;
-  const isNotPending = request && request.status !== "pending";
+  const isCreator = user?.id === request?.userId;
+  const isNotPending = request && request.status !== "PENDING";
 
   if (isLoading) {
     return (
@@ -125,16 +167,9 @@ export default function EditRequestPage() {
   const handleSubmit = (values: RequestFormValues) => {
     updateRequest.mutate(
       {
-        requestType: values.requestType,
-        title: values.title,
-        description: values.description || "",
-        category: values.category,
-        priority: values.priority,
-        otherCategory:
-          values.category === "Other" ? values.otherCategory : undefined,
-        status: request.status,
-        createdByName: request.createdByName,
-        updatedAt: new Date().toISOString(),
+        id: request.id,
+        ...values,
+        itemName: values.type === "Supplies" ? values.itemName : "",
       },
       {
         onSuccess: () => {
@@ -172,15 +207,19 @@ export default function EditRequestPage() {
               onSubmit={form.handleSubmit(handleSubmit)}
               className="flex flex-col gap-4"
             >
+              {/* Request Type Radio */}
               <FormField
                 control={form.control}
-                name="requestType"
+                name="type"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Request Type *</FormLabel>
                     <FormControl>
                       <RadioGroup
-                        onValueChange={field.onChange}
+                        onValueChange={(val) => {
+                          field.onChange(val);
+                          handleTypeChange(val as "ISSUE" | "Supplies");
+                        }}
                         value={field.value}
                         className="flex gap-4"
                       >
@@ -188,7 +227,10 @@ export default function EditRequestPage() {
                           htmlFor="edit-type-issue"
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
-                          <RadioGroupItem value="issue" id="edit-type-issue" />
+                          <RadioGroupItem
+                            value="ISSUE"
+                            id="edit-type-issue"
+                          />
                           <span className="font-medium text-foreground">
                             Issue
                           </span>
@@ -198,7 +240,7 @@ export default function EditRequestPage() {
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
                           <RadioGroupItem
-                            value="Supplies-request"
+                            value="Supplies"
                             id="edit-type-Supplies"
                           />
                           <span className="font-medium text-foreground">
@@ -234,7 +276,9 @@ export default function EditRequestPage() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description (optional)</FormLabel>
+                    <FormLabel>
+                      Description{requestType === "ISSUE" ? " *" : " (optional)"}
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Provide details about your request..."
@@ -247,86 +291,134 @@ export default function EditRequestPage() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+              {/* Issue-specific fields */}
+              {requestType === "ISSUE" && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="issueCategory"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {ISSUE_CATEGORIES.map((cat) => (
+                                <SelectItem key={cat} value={cat}>
+                                  {ISSUE_CATEGORY_LABELS[cat]}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="issuePriority"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Priority *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select priority" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {ISSUE_PRIORITIES.map((priority) => (
+                                <SelectItem key={priority} value={priority}>
+                                  {ISSUE_PRIORITY_LABELS[priority]}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Location (optional)</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
+                          <Input
+                            placeholder="Where did the issue occur? (e.g., 2nd Floor, Meeting Room B)"
+                            {...field}
+                          />
                         </FormControl>
-                        <SelectContent>
-                          {CATEGORIES.map(
-                            (cat: RequestFormValues["category"]) => (
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {/* Supplies-specific fields */}
+              {requestType === "Supplies" && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="SuppliesCategory"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Supplies Category *</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select supplies category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {SUPPLIES_CATEGORIES.map((cat) => (
                               <SelectItem key={cat} value={cat}>
-                                {cat}
+                                {SUPPLIES_CATEGORY_LABELS[cat]}
                               </SelectItem>
-                            ),
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Priority *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                  <FormField
+                    control={form.control}
+                    name="itemName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Item Name *</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
+                          <Input
+                            placeholder="Name of item requested (e.g., A4 Paper, Coffee Beans)"
+                            {...field}
+                          />
                         </FormControl>
-                        <SelectContent>
-                          {PRIORITIES.map(
-                            (priority: RequestFormValues["priority"]) => (
-                              <SelectItem key={priority} value={priority}>
-                                {priority.charAt(0).toUpperCase() +
-                                  priority.slice(1)}
-                              </SelectItem>
-                            ),
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {category === "Other" && (
-                <FormField
-                  control={form.control}
-                  name="otherCategory"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Specify Category *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Please specify your category (3-15 characters)"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
               )}
 
               <div className="flex gap-2 pt-2">
