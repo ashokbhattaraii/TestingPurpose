@@ -1,6 +1,6 @@
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  "http://oumsbackend-hvhgvh.up.railway.app//api/v1";
+  "http://oumsbackend-hvhgvh.up.railway.app/api/v1";
 
 export async function fetchWithAuth(
   endpoint: string,
