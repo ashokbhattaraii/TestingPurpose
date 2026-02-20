@@ -32,7 +32,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-<<<<<<< HEAD
 import {
   ArrowLeft,
   Calendar,
@@ -50,9 +49,6 @@ import {
   RotateCcw,
   MessageSquare,
 } from "lucide-react";
-=======
-import { ArrowLeft, Calendar, User, Tag, Flag, UserPlus, Edit2, Trash2, FileText, ImageIcon, File, Paperclip, ClipboardList, RotateCcw, MessageSquare } from "lucide-react";
->>>>>>> 914c4501123a1af01128639afb217dd4ff602a05
 import Link from "next/link";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -94,13 +90,9 @@ export default function RequestDetailPage() {
       {
         id: request.id,
         status: newStatus,
-<<<<<<< HEAD
         ...(newStatus === "rejected"
           ? { rejectionComment: rejectionComment.trim() }
           : {}),
-=======
-        ...(newStatus === "rejected" ? { rejectionComment: rejectionComment.trim() } : {}),
->>>>>>> 914c4501123a1af01128639afb217dd4ff602a05
       },
       {
         onSuccess: () => {
@@ -118,13 +110,9 @@ export default function RequestDetailPage() {
       { id: request.id, userId: user.id, userName: user.name },
       {
         onSuccess: () => {
-<<<<<<< HEAD
           toast.success(
             "Request has been reopened. Admins have been notified.",
           );
-=======
-          toast.success("Request has been reopened. Admins have been notified.");
->>>>>>> 914c4501123a1af01128639afb217dd4ff602a05
         },
       },
     );
@@ -336,13 +324,9 @@ export default function RequestDetailPage() {
               <div className="flex items-start gap-2">
                 <MessageSquare className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-<<<<<<< HEAD
                   <p className="text-sm font-medium text-destructive">
                     Rejection Reason
                   </p>
-=======
-                  <p className="text-sm font-medium text-destructive">Rejection Reason</p>
->>>>>>> 914c4501123a1af01128639afb217dd4ff602a05
                   <p className="text-sm text-foreground mt-1 leading-relaxed">
                     {request.rejectionComment}
                   </p>
@@ -356,18 +340,12 @@ export default function RequestDetailPage() {
             <div className="rounded-md border border-border bg-muted/30 p-4">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">
-<<<<<<< HEAD
                   <p className="text-sm font-medium text-foreground">
                     Not satisfied with the rejection?
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     You can reopen this request for further review by the admin
                     team.
-=======
-                  <p className="text-sm font-medium text-foreground">Not satisfied with the rejection?</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    You can reopen this request for further review by the admin team.
->>>>>>> 914c4501123a1af01128639afb217dd4ff602a05
                   </p>
                 </div>
                 <Button
@@ -467,15 +445,11 @@ export default function RequestDetailPage() {
                   </Select>
                   <Button
                     onClick={handleStatusUpdate}
-<<<<<<< HEAD
                     disabled={
                       !newStatus ||
                       updateStatus.isPending ||
                       (newStatus === "rejected" && !rejectionComment.trim())
                     }
-=======
-                    disabled={!newStatus || updateStatus.isPending || (newStatus === "rejected" && !rejectionComment.trim())}
->>>>>>> 914c4501123a1af01128639afb217dd4ff602a05
                     size="sm"
                   >
                     {updateStatus.isPending ? "Updating..." : "Update"}
@@ -483,14 +457,10 @@ export default function RequestDetailPage() {
                 </div>
                 {newStatus === "rejected" && (
                   <div className="flex flex-col gap-1.5">
-<<<<<<< HEAD
                     <label
                       htmlFor="rejection-comment"
                       className="text-xs font-medium text-destructive"
                     >
-=======
-                    <label htmlFor="rejection-comment" className="text-xs font-medium text-destructive">
->>>>>>> 914c4501123a1af01128639afb217dd4ff602a05
                       Rejection Reason (required)
                     </label>
                     <Textarea
@@ -501,14 +471,10 @@ export default function RequestDetailPage() {
                       className="min-h-[80px] border-destructive/30 focus-visible:ring-destructive"
                     />
                     {!rejectionComment.trim() && (
-<<<<<<< HEAD
                       <p className="text-xs text-destructive">
                         A rejection reason is required before updating the
                         status.
                       </p>
-=======
-                      <p className="text-xs text-destructive">A rejection reason is required before updating the status.</p>
->>>>>>> 914c4501123a1af01128639afb217dd4ff602a05
                     )}
                   </div>
                 )}
