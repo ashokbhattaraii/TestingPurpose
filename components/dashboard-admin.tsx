@@ -23,12 +23,13 @@ import Link from "next/link";
 import { format } from "date-fns";
 
 const PRIORITY_CONFIG = {
-  high: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
-  medium: { label: "Med", icon: ArrowRight, className: "text-amber-600 bg-amber-50" },
-  low: { label: "Low", icon: ArrowDown, className: "text-emerald-600 bg-emerald-50" },
+  HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
+  URGENT: { label: "Urgent", icon: ArrowUp, className: "text-red-700 bg-red-100" },
+  MEDIUM: { label: "Med", icon: ArrowRight, className: "text-amber-600 bg-amber-50" },
+  LOW: { label: "Low", icon: ArrowDown, className: "text-emerald-600 bg-emerald-50" },
 } as const;
 
-function PriorityBadge({ priority }: { priority: "low" | "medium" | "high" }) {
+function PriorityBadge({ priority }: { priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT" }) {
   const config = PRIORITY_CONFIG[priority];
   const Icon = config.icon;
   return (
@@ -47,9 +48,9 @@ export function AdminDashboard() {
   const { data: todayTokens, isLoading: tokenLoading } = useLunchTokens(today);
   const tokenCount = todayTokens?.length ?? 0;
 
-  const pending = requests?.filter((r) => r.status === "pending").length ?? 0;
-  const inProgress = requests?.filter((r) => r.status === "in-progress").length ?? 0;
-  const resolved = requests?.filter((r) => r.status === "resolved").length ?? 0;
+  const pending = requests?.filter((r) => r.status === "PENDING").length ?? 0;
+  const approved = requests?.filter((r) => r.status === "APPROVED").length ?? 0;
+  const rejected = requests?.filter((r) => r.status === "REJECTED").length ?? 0;
   const total = requests?.length ?? 0;
 
   const [search, setSearch] = useState("");
@@ -62,10 +63,10 @@ export function AdminDashboard() {
         r.id.toString().toLowerCase().includes(search.toLowerCase())
       ) ?? [];
 
-  // Urgent requests based on status and sorted by creation date
+  // Active requests based on status and sorted by creation date
   const urgentRequests =
     filteredRequests
-      ?.filter((r) => r.status === "pending" || r.status === "in-progress")
+      ?.filter((r) => r.status === "PENDING")
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -151,23 +152,23 @@ export function AdminDashboard() {
             </Card>
             <Card>
               <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-                  <Clock className="h-5 w-5 text-blue-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{inProgress}</p>
-                  <p className="text-xs text-muted-foreground">In Progress</p>
+                  <p className="text-2xl font-bold text-foreground">{approved}</p>
+                  <p className="text-xs text-muted-foreground">Approved</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
+                  <AlertCircle className="h-5 w-5 text-red-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{resolved}</p>
-                  <p className="text-xs text-muted-foreground">Resolved</p>
+                  <p className="text-2xl font-bold text-foreground">{rejected}</p>
+                  <p className="text-xs text-muted-foreground">Rejected</p>
                 </div>
               </CardContent>
             </Card>
@@ -234,7 +235,9 @@ export function AdminDashboard() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <PriorityBadge priority={req.priority} />
+                    {req.type === "ISSUE" && req.issuePriority && (
+                      <PriorityBadge priority={req.issuePriority} />
+                    )}
                     <StatusBadge status={req.status} />
                   </div>
                 </Link>
