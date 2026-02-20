@@ -26,7 +26,7 @@ export function useServiceRequests(userId?: string) {
     queryKey: ["serviceRequests", userId],
     queryFn: () => {
       const filtered = userId
-        ? serviceRequests.filter((r) => r.createdBy === userId)
+        ? serviceRequests.filter((r) => r.userId === userId)
         : serviceRequests;
       return delay([...filtered]);
     },
@@ -73,6 +73,7 @@ export function useCreateRequest() {
       const request: ServiceRequest = {
         ...newRequest,
         id: `SR-${String(serviceRequests.length + 1).padStart(3, "0")}`,
+        status: "PENDING",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -111,13 +112,13 @@ export function useUpdateUserRole() {
 export function useUpdateRequestStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status, rejectionComment }: { id: string; status: RequestStatus; rejectionComment?: string }) => {
+    mutationFn: ({ id, status, rejectionReason }: { id: string; status: RequestStatus; rejectionReason?: string }) => {
       const request = serviceRequests.find((r) => r.id === id);
       if (request) {
         request.status = status;
         request.updatedAt = new Date().toISOString();
-        if (status === "rejected" && rejectionComment) {
-          request.rejectionComment = rejectionComment;
+        if (status === "REJECTED" && rejectionReason) {
+          request.rejectionReason = rejectionReason;
         }
       }
       return delay(request);
@@ -136,12 +137,12 @@ export function useReopenRequest() {
     mutationFn: ({ id, userId, userName }: { id: string; userId: string; userName: string }) => {
       const request = serviceRequests.find((r) => r.id === id);
       if (request) {
-        request.status = "reopened";
-        request.rejectionComment = undefined;
+        request.status = "PENDING";
+        request.rejectionReason = undefined;
         request.updatedAt = new Date().toISOString();
       }
       // Notify admins that the request was reopened
-      const adminUsers = users.filter((u) => u.role === "admin" || u.role === "superadmin");
+      const adminUsers = users.filter((u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN");
       adminUsers.forEach((admin) => {
         const notif: Notification = {
           id: `n-${Date.now()}-${admin.id}`,
@@ -184,8 +185,8 @@ export function useAssignRequest() {
         request.assignedTo = assignedToId;
         request.assignedToName = assignedToName;
         request.updatedAt = new Date().toISOString();
-        if (request.status === "pending") {
-          request.status = "in-progress";
+        if (request.status === "PENDING") {
+          request.status = "APPROVED";
         }
       }
       // Create a notification for the assigned user
@@ -405,15 +406,11 @@ export function useUpdateRequest() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (
-      updates: Omit<ServiceRequest, "id" | "createdBy" | "createdAt">,
+      updates: Partial<ServiceRequest> & { id: string },
     ) => {
       const request = serviceRequests.find((r) => r.id === updates.id);
       if (request) {
-        request.title = updates.title;
-        request.description = updates.description;
-        request.category = updates.category;
-        request.priority = updates.priority;
-        request.otherCategory = updates.otherCategory;
+        Object.assign(request, updates);
         request.updatedAt = new Date().toISOString();
       }
       return delay(request);
