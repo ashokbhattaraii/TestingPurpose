@@ -49,6 +49,7 @@ import {
   ISSUE_PRIORITY_LABELS,
   SUPPLIES_CATEGORY_LABELS,
 } from "@/schemas";
+import useCreateRequestMutation from "@/hooks/use-createRequest";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -151,12 +152,22 @@ export default function RequestsPage() {
     setCurrentPage(1);
   };
 
-  const getCategoryLabel = (req: (typeof requests extends (infer T)[] | undefined ? T : never)) => {
+  const getCategoryLabel = (
+    req: typeof requests extends (infer T)[] | undefined ? T : never,
+  ) => {
     if (req.type === "ISSUE" && req.issueCategory) {
-      return ISSUE_CATEGORY_LABELS[req.issueCategory];
+      return ISSUE_CATEGORY_LABELS[
+        req.issueCategory as keyof typeof ISSUE_CATEGORY_LABELS
+      ];
     }
-    if (req.type === "Supplies" && req.SuppliesCategory) {
-      return SUPPLIES_CATEGORY_LABELS[req.SuppliesCategory];
+    if (
+      req.type === "Supplies" &&
+      req.SuppliesCategory &&
+      req.SuppliesCategory in SUPPLIES_CATEGORY_LABELS
+    ) {
+      return SUPPLIES_CATEGORY_LABELS[
+        req.SuppliesCategory as keyof typeof SUPPLIES_CATEGORY_LABELS
+      ];
     }
     return "";
   };

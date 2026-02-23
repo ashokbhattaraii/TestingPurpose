@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useCreateRequestMutation from "@/hooks/use-createRequest";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -47,6 +48,7 @@ import {
   ISSUE_PRIORITY_LABELS,
 } from "@/schemas";
 import type { Attachment } from "@/lib/types";
+import error from "next/error";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILES = 5;
@@ -159,36 +161,27 @@ export default function NewRequestPage() {
     });
   };
 
-  const handleSubmit = (values: RequestFormValues) => {
-    if (!user?.id || !user?.name) {
-      toast.error("User information is missing. Please log in again.");
-      return;
-    }
+  const { mutate, isPending } = useCreateRequestMutation();
 
-    createRequest.mutate(
-      {
-        ...values,
-        itemName: values.type === "Supplies" ? values.itemName : "",
-        status: "PENDING",
-        userId: user.id,
-        createdByName: user.name,
-        attachments: attachments.length > 0 ? attachments : undefined,
-      },
-      {
+  const handleSubmit = async (data: any) => {
+    try {
+      mutate(data, {
         onSuccess: () => {
-          toast.success("Request submitted successfully.");
-          form.reset();
-          setAttachments([]);
+          toast.success("Request created successfully!");
           router.push("/dashboard/requests");
         },
-        onError: (error) => {
-          console.error("Failed to submit request:", error);
-          toast.error("Failed to submit request. Please try again.");
+        onError: (error: any) => {
+          toast.error(
+            error?.response?.data?.message ||
+              "An error occurred while creating the request.",
+          );
         },
-      },
-    );
+      });
+      console.log("Request submitted successfully!");
+    } catch (error) {
+      console.error("Request submission error:", error);
+    }
   };
-
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-6">
@@ -241,10 +234,7 @@ export default function NewRequestPage() {
                           htmlFor="type-Supplies"
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
-                          <RadioGroupItem
-                            value="Supplies"
-                            id="type-Supplies"
-                          />
+                          <RadioGroupItem value="Supplies" id="type-Supplies" />
                           <span className="font-medium text-foreground">
                             Supplies Request
                           </span>
@@ -279,7 +269,8 @@ export default function NewRequestPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Description{requestType === "ISSUE" ? " *" : " (optional)"}
+                      Description
+                      {requestType === "ISSUE" ? " *" : " (optional)"}
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -481,12 +472,8 @@ export default function NewRequestPage() {
                 )}
               </div>
 
-              <Button
-                type="submit"
-                className="mt-2"
-                disabled={createRequest.isPending}
-              >
-                {createRequest.isPending ? "Submitting..." : "Submit Request"}
+              <Button type="submit" className="mt-2" disabled={isPending}>
+                {isPending ? "Creating Request..." : "Create Request"}
               </Button>
             </form>
           </Form>

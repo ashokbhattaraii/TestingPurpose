@@ -61,6 +61,18 @@ import { useEffect, useState, useMemo } from "react";
 import { format, subDays, subMonths, isAfter, parseISO } from "date-fns";
 import type { ServiceRequest, RequestStatus } from "@/lib/types";
 
+// Extend ServiceRequest to include missing properties if not in the type definition
+declare global {
+  namespace JSX {}
+}
+
+declare module "@/lib/types" {
+  interface ServiceRequest {
+    category: string;
+    priority?: string;
+  }
+}
+
 const PIE_COLORS = [
   "hsl(330, 100%, 70%)",
   "hsl(142, 71%, 45%)",
@@ -70,10 +82,11 @@ const PIE_COLORS = [
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-amber-100 text-amber-700",
-  APPROVED: "bg-emerald-100 text-emerald-700",
-  REJECTED: "bg-red-100 text-red-700",
-  CANCELLED: "bg-gray-100 text-gray-700",
+  pending: "bg-amber-100 text-amber-700",
+  "in-progress": "bg-blue-100 text-blue-700",
+  "on-hold": "bg-orange-100 text-orange-700",
+  resolved: "bg-emerald-100 text-emerald-700",
+  rejected: "bg-red-100 text-red-700",
 };
 
 type TimePeriod = "7d" | "30d" | "3m" | "6m" | "1y" | "all";
@@ -129,41 +142,40 @@ function filterByTimePeriod(
   return requests.filter((r) => isAfter(parseISO(r.createdAt), cutoff));
 }
 
-function getCategoryLabel(r: ServiceRequest): string {
-  if (r.type === "ISSUE" && r.issueCategory) return r.issueCategory;
-  if (r.type === "Supplies" && r.SuppliesCategory) return r.SuppliesCategory;
-  return "Unknown";
-}
-
 function computeAnalytics(requests: ServiceRequest[]) {
   const totalRequests = requests.length;
-  const pendingRequests = requests.filter((r) => r.status === "PENDING").length;
-  const approvedRequests = requests.filter(
-    (r) => r.status === "APPROVED",
+  const pendingRequests = requests.filter(
+    (r) => r.status === ("pending" as RequestStatus),
   ).length;
-  const rejectedRequests = requests.filter((r) => r.status === "REJECTED").length;
-  const cancelledRequests = requests.filter(
-    (r) => r.status === "CANCELLED",
+  const inProgressRequests = requests.filter(
+    (r) => r.status === ("in-progress" as RequestStatus),
+  ).length;
+  const onHoldRequests = requests.filter(
+    (r) => r.status === ("on-hold" as RequestStatus),
+  ).length;
+  const resolvedRequests = requests.filter(
+    (r) => r.status === ("resolved" as RequestStatus),
   ).length;
 
-  const approved = requests.filter((r) => r.status === "APPROVED");
+  const resolved = requests.filter(
+    (r) => r.status === ("resolved" as RequestStatus),
+  );
   let avgResolutionTimeHours = 0;
-  if (approved.length > 0) {
-    const totalMs = approved.reduce((acc, r) => {
+  if (resolved.length > 0) {
+    const totalMs = resolved.reduce((acc, r) => {
       return (
         acc +
         (new Date(r.updatedAt).getTime() - new Date(r.createdAt).getTime())
       );
     }, 0);
     avgResolutionTimeHours = Math.round(
-      totalMs / approved.length / (1000 * 60 * 60),
+      totalMs / resolved.length / (1000 * 60 * 60),
     );
   }
 
   const categoryMap = new Map<string, number>();
   requests.forEach((r) => {
-    const cat = getCategoryLabel(r);
-    categoryMap.set(cat, (categoryMap.get(cat) ?? 0) + 1);
+    categoryMap.set(r.category, (categoryMap.get(r.category) ?? 0) + 1);
   });
   const requestsByCategory = Array.from(categoryMap, ([category, count]) => ({
     category,
@@ -182,7 +194,8 @@ function computeAnalytics(requests: ServiceRequest[]) {
 
   const statusMap = new Map<string, number>();
   requests.forEach((r) => {
-    const label = r.status.charAt(0) + r.status.slice(1).toLowerCase();
+    const label =
+      r.status.charAt(0).toUpperCase() + r.status.slice(1).replace("-", " ");
     statusMap.set(label, (statusMap.get(label) ?? 0) + 1);
   });
   const requestsByStatus = Array.from(statusMap, ([status, count]) => ({
@@ -193,9 +206,9 @@ function computeAnalytics(requests: ServiceRequest[]) {
   return {
     totalRequests,
     pendingRequests,
-    approvedRequests,
-    rejectedRequests,
-    cancelledRequests,
+    inProgressRequests,
+    onHoldRequests,
+    resolvedRequests,
     avgResolutionTimeHours,
     requestsByCategory,
     requestsByMonth,
@@ -203,12 +216,12 @@ function computeAnalytics(requests: ServiceRequest[]) {
   };
 }
 
-function AnalyticsStatusBadge({ status }: { status: RequestStatus }) {
+function StatusBadge({ status }: { status: RequestStatus }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_COLORS[status] ?? "bg-muted text-muted-foreground"}`}
     >
-      {status.charAt(0) + status.slice(1).toLowerCase()}
+      {status.replace("-", " ")}
     </span>
   );
 }
@@ -227,7 +240,7 @@ export default function AnalyticsPage() {
   const isLoading = reqLoading || analyticsLoading;
 
   useEffect(() => {
-    if (user && user.role === "EMPLOYEE") {
+    if (user && user.role === "employee") {
       router.push("/dashboard");
     }
   }, [user, router]);
@@ -237,7 +250,7 @@ export default function AnalyticsPage() {
     if (!allRequests) return [];
     let filtered = filterByTimePeriod(allRequests, timePeriod);
     if (categoryFilter !== "all") {
-      filtered = filtered.filter((r) => getCategoryLabel(r) === categoryFilter);
+      filtered = filtered.filter((r) => r.category === categoryFilter);
     }
     if (statusFilter !== "all") {
       filtered = filtered.filter((r) => r.status === statusFilter);
@@ -255,7 +268,7 @@ export default function AnalyticsPage() {
     if (!drillDown || !allRequests) return [];
     let base = filterByTimePeriod(allRequests, timePeriod);
     if (categoryFilter !== "all")
-      base = base.filter((r) => getCategoryLabel(r) === categoryFilter);
+      base = base.filter((r) => r.category === categoryFilter);
     if (statusFilter !== "all")
       base = base.filter((r) => r.status === statusFilter);
 
@@ -266,11 +279,12 @@ export default function AnalyticsPage() {
             format(parseISO(r.createdAt), "MMM yyyy") === drillDown.filterValue,
         );
       case "category":
-        return base.filter((r) => getCategoryLabel(r) === drillDown.filterValue);
+        return base.filter((r) => r.category === drillDown.filterValue);
       case "status":
         return base.filter(
           (r) =>
-            r.status.charAt(0) + r.status.slice(1).toLowerCase() ===
+            r.status.charAt(0).toUpperCase() +
+              r.status.slice(1).replace("-", " ") ===
             drillDown.filterValue,
         );
       default:
@@ -325,7 +339,6 @@ export default function AnalyticsPage() {
     const headers = [
       "ID",
       "Title",
-      "Type",
       "Category",
       "Status",
       "Priority",
@@ -337,10 +350,9 @@ export default function AnalyticsPage() {
     const rows = data.map((r) => [
       r.id,
       `"${r.title.replace(/"/g, '""')}"`,
-      r.type,
-      getCategoryLabel(r),
+      r.category,
       r.status,
-      r.type === "ISSUE" ? (r.issuePriority ?? "") : "",
+      r.priority,
       r.createdByName,
       r.assignedToName ?? "",
       format(parseISO(r.createdAt), "yyyy-MM-dd HH:mm"),
@@ -363,9 +375,9 @@ export default function AnalyticsPage() {
       "--- Summary ---",
       `Total Requests: ${analytics.totalRequests}`,
       `Pending: ${analytics.pendingRequests}`,
-      `Approved: ${analytics.approvedRequests}`,
-      `Rejected: ${analytics.rejectedRequests}`,
-      `Cancelled: ${analytics.cancelledRequests}`,
+      `In Progress: ${analytics.inProgressRequests}`,
+      `On Hold: ${analytics.onHoldRequests}`,
+      `Resolved: ${analytics.resolvedRequests}`,
       `Avg Resolution Time: ${analytics.avgResolutionTimeHours}h`,
       "",
       "--- By Category ---",
@@ -398,7 +410,7 @@ export default function AnalyticsPage() {
 
   const exportFilename = `analytics-${timePeriod}-${format(new Date(), "yyyyMMdd")}`;
 
-  if (user?.role === "EMPLOYEE") return null;
+  if (user?.role === "employee") return null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -481,17 +493,14 @@ export default function AnalyticsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="TECHNICAL">Technical</SelectItem>
-                  <SelectItem value="FACILITY">Facility</SelectItem>
-                  <SelectItem value="HR">HR</SelectItem>
-                  <SelectItem value="ADMINISTRATIVE">Administrative</SelectItem>
-                  <SelectItem value="SECURITY">Security</SelectItem>
-                  <SelectItem value="OFFICE_Supplies">Office Supplies</SelectItem>
-                  <SelectItem value="EQUIPMENT">Equipment</SelectItem>
-                  <SelectItem value="PANTRY">Pantry</SelectItem>
-                  <SelectItem value="CLEANING">Cleaning</SelectItem>
-                  <SelectItem value="TECHNOLOGY">Technology</SelectItem>
-                  <SelectItem value="OTHER">Other</SelectItem>
+                  <SelectItem value="Food and Supplies">
+                    Food and Supplies
+                  </SelectItem>
+                  <SelectItem value="Office Maintenance">
+                    Office Maintenance
+                  </SelectItem>
+                  <SelectItem value="Cleaning">Cleaning</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -501,10 +510,11 @@ export default function AnalyticsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="APPROVED">Approved</SelectItem>
-                  <SelectItem value="REJECTED">Rejected</SelectItem>
-                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="on-hold">On Hold</SelectItem>
+                  <SelectItem value="resolved">Resolved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -564,27 +574,27 @@ export default function AnalyticsPage() {
             </Card>
             <Card>
               <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+                  <TrendingUp className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {analytics.approvedRequests}
+                    {analytics.inProgressRequests}
                   </p>
-                  <p className="text-xs text-muted-foreground">Approved</p>
+                  <p className="text-xs text-muted-foreground">In Progress</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {analytics.rejectedRequests}
+                    {analytics.resolvedRequests}
                   </p>
-                  <p className="text-xs text-muted-foreground">Rejected</p>
+                  <p className="text-xs text-muted-foreground">Resolved</p>
                 </div>
               </CardContent>
             </Card>
@@ -904,7 +914,7 @@ export default function AnalyticsPage() {
                           {req.id}
                         </span>
                         <span className="text-[10px] capitalize text-muted-foreground">
-                          {getCategoryLabel(req)}
+                          {req.category}
                         </span>
                       </div>
                       <span className="text-sm font-medium text-foreground">
@@ -918,7 +928,7 @@ export default function AnalyticsPage() {
                       <span className="text-xs text-muted-foreground">
                         {format(parseISO(req.createdAt), "MMM d, yyyy")}
                       </span>
-                      <AnalyticsStatusBadge status={req.status} />
+                      <StatusBadge status={req.status} />
                     </div>
                   </button>
                 ))}
