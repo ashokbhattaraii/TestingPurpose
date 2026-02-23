@@ -2,7 +2,9 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1",
+  baseURL:
+    process.env.NEXT_PUBLIC_API_URL ||
+    "https://oumsbackend-hvhgvh.up.railway.app/api/v1",
   withCredentials: true,
 });
 
