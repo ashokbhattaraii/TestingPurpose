@@ -21,9 +21,9 @@
         "format": "turbo run format",
         "test": "turbo run test",
         "clean": "turbo run clean",
-        "postinstall": "npm exec --workspace=apps/api -- prisma generate --schema=./prisma/schema.prisma",
-        "db:generate": "npm exec --workspace=apps/api -- prisma generate --schema=./prisma/schema.prisma",
-        "db:push": "npm exec --workspace=apps/api -- prisma db push --schema=./prisma/schema.prisma"
+        "postinstall": "npm run generate -w apps/api",
+        "db:generate": "npm run generate -w apps/api",
+        "db:push": "npm run -w apps/api -- prisma db push"
     },
     "devDependencies": {
         "turbo": "^2.3.3",
