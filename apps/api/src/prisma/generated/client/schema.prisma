@@ -1,0 +1,302 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/prisma/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  EMPLOYEE
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum RequestType {
+  ISSUE // Report problems, complaints, or concerns
+  Supplies // Request office Supplies, equipment, or materials
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum IssueCategory {
+  TECHNICAL // IT, software, hardware issues
+  FACILITY // Building, office space, maintenance
+  HR // Human resources related
+  ADMINISTRATIVE // Paperwork, processes
+  SECURITY // Safety and security concerns
+  OTHER // Miscellaneous
+}
+
+enum SuppliesCategory {
+  OFFICE_Supplies // Pens, paper, folders, etc.
+  EQUIPMENT // Computers, monitors, furniture
+  STATIONERY // Business cards, letterheads
+  PANTRY // Coffee, snacks, kitchen Supplies
+  CLEANING // Cleaning materials
+  TECHNOLOGY // Software licenses, accessories
+  OTHER // Miscellaneous Supplies
+}
+
+enum NotificationType {
+  REQUEST_UPDATE
+  ANNOUNCEMENT
+  SYSTEM
+  MENTION
+}
+
+model User {
+  id       String   @id @default(cuid())
+  uid      String   @unique // Firebase/Google Auth UID
+  email    String   @unique
+  name     String
+  photoURL String?
+  role     UserRole @default(EMPLOYEE)
+
+  // Profile Information
+  phone            String?
+  department       String?
+  position         String?
+  startDate        DateTime?
+  bio              String?
+  address          String?
+  emergencyContact String?
+
+  // Status
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  requests             Request[]
+  approvedRequests     Request[]          @relation("RequestApprover")
+  notifications        Notification[]
+  lunchAttendance      LunchAttendance[]
+  connectedAccounts    ConnectedAccount[]
+  analytics            Analytics[]
+  createdAnnouncements Announcement[]     @relation("AnnouncementCreator")
+
+  @@index([uid])
+  @@index([email])
+  @@index([role])
+}
+
+model ConnectedAccount {
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String // google, github, etc.
+  providerAccountId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Request {
+  id     String        @id @default(cuid())
+  userId String
+  type   RequestType
+  status RequestStatus @default(PENDING)
+
+  // Request Details
+  title       String
+  description String
+
+  // Issue-specific fields
+  issuePriority IssuePriority?
+  issueCategory IssueCategory?
+  location      String? // Where the issue occurred
+
+  // Supplies-specific fields
+  SuppliesCategory SuppliesCategory?
+  itemName         String // Name of item requested
+
+  // Common fields
+  attachments String[] // Array of file URLs (photos, documents)
+
+  // Approval
+  approverId      String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  adminNotes      String? // Internal notes from admin
+
+  // Fulfillment (for Supplies)
+  isFulfilled Boolean   @default(false)
+  fulfilledAt DateTime?
+  fulfilledBy String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approver User? @relation("RequestApprover", fields: [approverId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+  @@index([issuePriority])
+  @@index([issueCategory])
+  @@index([SuppliesCategory])
+}
+
+model Announcement {
+  id       String @id @default(cuid())
+  title    String
+  content  String
+  priority String @default("normal") // low, normal, high, urgent
+
+  // Targeting
+  targetRoles UserRole[] // Empty array means all users
+  isPublished Boolean    @default(false)
+
+  // Creator
+  createdById String
+
+  // Timestamps
+  publishedAt DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  createdBy User @relation("AnnouncementCreator", fields: [createdById], references: [id])
+
+  @@index([isPublished])
+  @@index([createdAt])
+}
+
+model Notification {
+  id     String           @id @default(cuid())
+  userId String
+  type   NotificationType
+
+  title   String
+  message String
+  link    String? // URL to navigate to
+
+  isRead Boolean   @default(false)
+  readAt DateTime?
+
+  // Metadata
+  metadata Json? // Additional data
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model LunchAttendance {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime @db.Date // Only date, no time
+  isAttending Boolean  @default(true)
+  notes       String? // Optional notes (e.g., dietary preferences, late arrival)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date]) // One entry per user per day
+  @@index([date])
+  @@index([userId])
+}
+
+model Analytics {
+  id     String  @id @default(cuid())
+  userId String? // Null for system-wide analytics
+
+  // Metrics
+  metric   String // e.g., "login", "request_created", "page_view"
+  value    Float
+  metadata Json?
+
+  // Time period
+  date   DateTime @default(now())
+  period String   @default("daily") // daily, weekly, monthly
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([metric])
+  @@index([date])
+  @@index([period])
+}
+
+model Settings {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  value       Json
+  description String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+
+  // Actor
+  userId    String?
+  userEmail String?
+
+  // Action
+  action     String // e.g., "user.created", "request.approved"
+  resource   String // e.g., "User", "Request"
+  resourceId String?
+
+  // Details
+  changes   Json? // Before/after values
+  ipAddress String?
+  userAgent String?
+
+  // Timestamp
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+}

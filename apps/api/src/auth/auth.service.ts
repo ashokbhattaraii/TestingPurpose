@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../prisma/generated/client'
 import { PrismaService } from '../prisma/prisma.service';
 import { SupabaseService } from '../supabase/supabase.service';
 
@@ -10,7 +10,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private supabase: SupabaseService,
-  ) {}
+  ) { }
 
   async googleLogin(googleUser: any) {
     console.log('🔍 Processing Google login for:', googleUser.email);
