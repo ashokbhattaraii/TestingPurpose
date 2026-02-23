@@ -18,21 +18,14 @@
         "start:web": "turbo run start --filter=@omus/web",
         "start:api": "turbo run start --filter=@omus/api",
         "lint": "turbo run lint",
-        "lint:web": "turbo run lint --filter=@omus/web",
-        "lint:api": "turbo run lint --filter=@omus/api",
         "format": "turbo run format",
-        "format:api": "turbo run format --filter=@omus/api",
         "test": "turbo run test",
-        "test:web": "turbo run test --filter=@omus/web",
-        "test:api": "turbo run test --filter=@omus/api",
-        "test:e2e": "turbo run test:e2e --filter=@omus/api",
         "clean": "turbo run clean",
-        "clean:web": "turbo run clean --filter=@omus/web",
-        "clean:api": "turbo run clean --filter=@omus/api",
-        "postinstall": "prisma generate"
+        "postinstall": "npx prisma generate --schema=./apps/api/prisma/schema.prisma"
     },
     "devDependencies": {
-        "turbo": "^2.3.3"
+        "turbo": "^2.3.3",
+        "prisma": "^6.0.0"
     },
     "engines": {
         "node": ">=18.0.0",
