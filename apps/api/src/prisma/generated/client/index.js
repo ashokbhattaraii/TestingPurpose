@@ -340,8 +340,7 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../../prisma",
   "clientVersion": "6.19.2",
@@ -369,8 +368,8 @@ const fs = require('fs')
 config.dirname = __dirname
 if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   const alternativePaths = [
-    "src/prisma/generated/client",
-    "prisma/generated/client",
+    "apps/api/src/prisma/generated/client",
+    "api/src/prisma/generated/client",
   ]
   
   const alternativePath = alternativePaths.find((altPath) => {
@@ -400,7 +399,7 @@ Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "src/prisma/generated/client/query_engine-windows.dll.node")
+path.join(process.cwd(), "apps/api/src/prisma/generated/client/query_engine-windows.dll.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "src/prisma/generated/client/schema.prisma")
+path.join(process.cwd(), "apps/api/src/prisma/generated/client/schema.prisma")

@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '../prisma/generated/client'
 import { PrismaService } from '../prisma/prisma.service';
 import { SupabaseService } from '../supabase/supabase.service';
-
 @Injectable()
 export class AuthService {
   constructor(
