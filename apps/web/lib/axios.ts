@@ -4,7 +4,7 @@ import axios from "axios";
 const axiosInstance = axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_API_URL ||
-    "https://oumsbackend-hvhgvh.up.railway.app/api/v1",
+    "https://testing-purpose-api.vercel.app/api/v1",
   withCredentials: true,
 });
 
