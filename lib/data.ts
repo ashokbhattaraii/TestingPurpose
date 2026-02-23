@@ -149,6 +149,7 @@ export const serviceRequests: ServiceRequest[] = [
     createdByName: "Aarav Sharma",
     createdAt: "2026-02-01T09:00:00Z",
     updatedAt: "2026-02-01T09:00:00Z",
+    category: "",
   },
   {
     id: "SR-002",
@@ -167,6 +168,7 @@ export const serviceRequests: ServiceRequest[] = [
     itemName: "",
     createdAt: "2026-01-28T14:30:00Z",
     updatedAt: "2026-01-30T10:00:00Z",
+    category: "",
   },
   {
     id: "SR-003",
@@ -185,6 +187,7 @@ export const serviceRequests: ServiceRequest[] = [
     itemName: "",
     createdAt: "2026-01-20T08:00:00Z",
     updatedAt: "2026-01-25T16:00:00Z",
+    category: "",
   },
   {
     id: "SR-004",
@@ -200,6 +203,7 @@ export const serviceRequests: ServiceRequest[] = [
     assignedToName: "Bikash Karki",
     createdAt: "2026-01-15T11:00:00Z",
     updatedAt: "2026-01-15T14:00:00Z",
+    category: "",
   },
   {
     id: "SR-005",
@@ -216,6 +220,7 @@ export const serviceRequests: ServiceRequest[] = [
     itemName: "",
     createdAt: "2026-02-03T10:00:00Z",
     updatedAt: "2026-02-03T10:00:00Z",
+    category: "FACILITY",
   },
   {
     id: "SR-006",
@@ -231,6 +236,7 @@ export const serviceRequests: ServiceRequest[] = [
     assignedToName: "Sita Poudel",
     createdAt: "2026-02-05T08:30:00Z",
     updatedAt: "2026-02-06T09:00:00Z",
+    category: "OFFICE_Supplies",
   },
   {
     id: "SR-007",
@@ -247,6 +253,7 @@ export const serviceRequests: ServiceRequest[] = [
     itemName: "",
     createdAt: "2026-02-06T15:00:00Z",
     updatedAt: "2026-02-06T15:00:00Z",
+    category: "SECURITY",
   },
   {
     id: "SR-008",
@@ -261,6 +268,7 @@ export const serviceRequests: ServiceRequest[] = [
     createdByName: "Priya Thapa",
     createdAt: "2026-01-10T09:00:00Z",
     updatedAt: "2026-01-12T11:00:00Z",
+    category: "EQUIPMENT",
   },
   {
     id: "SR-009",
@@ -279,6 +287,7 @@ export const serviceRequests: ServiceRequest[] = [
     itemName: "",
     createdAt: "2026-02-04T12:00:00Z",
     updatedAt: "2026-02-05T10:00:00Z",
+    category: "FACILITY",
   },
   {
     id: "SR-010",
@@ -296,6 +305,7 @@ export const serviceRequests: ServiceRequest[] = [
     assignedToName: "Sita Poudel",
     createdAt: "2026-01-22T10:00:00Z",
     updatedAt: "2026-01-23T14:00:00Z",
+    category: "PANTRY",
   },
 ];
 
