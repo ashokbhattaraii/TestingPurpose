@@ -44,7 +44,6 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Gradient background with decorative elements */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
@@ -142,7 +141,6 @@ export default function HomePage() {
               </Button>
             </div>
 
-            {/* Trust Badges */}
             <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-primary/10">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-primary" />
@@ -179,7 +177,9 @@ export default function HomePage() {
                       <p className="font-semibold text-foreground">
                         {item.title}
                       </p>
-                      <p className="text-sm text-muted-foreground">{item.desc}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.desc}
+                      </p>
                     </div>
                   </div>
                 ))}
