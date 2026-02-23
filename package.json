@@ -28,7 +28,8 @@
         "test:e2e": "turbo run test:e2e --filter=@omus/api",
         "clean": "turbo run clean",
         "clean:web": "turbo run clean --filter=@omus/web",
-        "clean:api": "turbo run clean --filter=@omus/api"
+        "clean:api": "turbo run clean --filter=@omus/api",
+        "postinstall": "prisma generate"
     },
     "devDependencies": {
         "turbo": "^2.3.3"
