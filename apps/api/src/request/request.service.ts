@@ -4,10 +4,10 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 
-import { RequestType, RequestStatus } from 'src/prisma/generated/client';
+import { RequestType, RequestStatus } from '../prisma/generated/client';
 
 @Injectable()
 export class RequestService {

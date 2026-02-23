@@ -1,5 +1,5 @@
 import { PassportModule, PassportStrategy } from '@nestjs/passport';
-import { SupabaseService } from 'src/supabase/supabase.service';
+import { SupabaseService } from '../../supabase/supabase.service';
 import { Strategy } from 'passport-google-oauth20';
 import { VerifiedCallback } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
