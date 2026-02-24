@@ -571,8 +571,8 @@ export default function RequestDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Request</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this request? This action cannot be
-              undone.
+              Are you sure you want to delete this request? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3">

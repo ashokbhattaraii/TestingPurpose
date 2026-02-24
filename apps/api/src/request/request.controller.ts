@@ -7,18 +7,12 @@ import type { UserPayload } from '../common/decorators/current-user.decorator/cu
 import { AuthGuard } from '@nestjs/passport';
 @Controller('request')
 export class RequestController {
-  constructor(private readonly requestService: RequestService) { }
+  constructor(private readonly requestService: RequestService) {}
 
   @Post('create')
   @UseGuards(AuthGuard('jwt'))
   create(@Body() dto: CreateRequestDto, @CurrentUser() user: UserPayload) {
     console.log('Creating request for user:', user.id);
     return this.requestService.createRequest(user.id, dto);
-  }
-
-  @Get('my-requests')
-  @UseGuards(AuthGuard('jwt'))
-  getRequest(@CurrentUser() user: UserPayload) {
-    return this.requestService.getUserRequests(user.id);
   }
 }

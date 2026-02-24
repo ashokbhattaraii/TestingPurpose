@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/prisma/generated/client"
+ 
 }
 
 datasource db {
@@ -23,7 +23,7 @@ enum RequestStatus {
 
 enum RequestType {
   ISSUE // Report problems, complaints, or concerns
-  Supplies // Request office Supplies, equipment, or materials
+  SUPPLIES // Request office Supplies, equipment, or materials
 }
 
 enum IssuePriority {
@@ -32,26 +32,8 @@ enum IssuePriority {
   HIGH
   URGENT
 }
-
-enum IssueCategory {
-  TECHNICAL // IT, software, hardware issues
-  FACILITY // Building, office space, maintenance
-  HR // Human resources related
-  ADMINISTRATIVE // Paperwork, processes
-  SECURITY // Safety and security concerns
-  OTHER // Miscellaneous
-}
-
-enum SuppliesCategory {
-  OFFICE_Supplies // Pens, paper, folders, etc.
-  EQUIPMENT // Computers, monitors, furniture
-  STATIONERY // Business cards, letterheads
-  PANTRY // Coffee, snacks, kitchen Supplies
-  CLEANING // Cleaning materials
-  TECHNOLOGY // Software licenses, accessories
-  OTHER // Miscellaneous Supplies
-}
-
+export const ISSUE_CATEGORIES = ["TECHNICAL", "FACILITY", "HR", "ADMINISTRATIVE", "SECURITY", "OTHER"] as const;
+export const SUPPLIES_CATEGORIES = ["OFFICE_SUPPLIES", "EQUIPMENT", "STATIONERY", "PANTRY", "CLEANING", "TECHNOLOGY", "OTHER"] as const;
 enum NotificationType {
   REQUEST_UPDATE
   ANNOUNCEMENT
@@ -121,31 +103,18 @@ model Request {
   userId String
   type   RequestType
   status RequestStatus @default(PENDING)
-
-  // Request Details
-  title       String
-  description String
-
-  // Issue-specific fields
-  issuePriority IssuePriority?
-  issueCategory IssueCategory?
-  location      String? // Where the issue occurred
-
-  // Supplies-specific fields
-  SuppliesCategory SuppliesCategory?
-  itemName         String // Name of item requested
-  
-
   // Common fields
-  attachments String[] // Array of file URLs (photos, documents)
+  title       String
+  description String?
+  attachments String[]
 
   // Approval
   approverId      String?
   approvedAt      DateTime?
   rejectionReason String?
-  adminNotes      String? // Internal notes from admin
+  adminNotes      String?
 
-  // Fulfillment (for Supplies)
+  // Fulfillment
   isFulfilled Boolean   @default(false)
   fulfilledAt DateTime?
   fulfilledBy String?
@@ -155,16 +124,37 @@ model Request {
   updatedAt DateTime @updatedAt
 
   // Relations
-  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  approver User? @relation("RequestApprover", fields: [approverId], references: [id])
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approver        User?                  @relation("RequestApprover", fields: [approverId], references: [id])
+  issueDetails    RequestIssueDetails?
+  suppliesDetails RequestSuppliesDetails?
 
   @@index([userId])
   @@index([status])
   @@index([type])
   @@index([createdAt])
-  @@index([issuePriority])
-  @@index([issueCategory])
-  @@index([SuppliesCategory])
+}
+
+model RequestIssueDetails {
+  requestId String        @id
+  priority  IssuePriority
+  category  IssueCategory
+  location  String?
+
+  request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([priority])
+  @@index([category])
+}
+
+model RequestSuppliesDetails {
+  requestId String           @id
+  category  SuppliesCategory
+  itemName  String
+
+  request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([category])
 }
 
 model Announcement {

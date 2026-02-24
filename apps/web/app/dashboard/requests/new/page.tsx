@@ -39,7 +39,6 @@ import {
 } from "@/components/ui/form";
 import {
   requestSchema,
-  type RequestFormValues,
   ISSUE_CATEGORIES,
   ISSUE_PRIORITIES,
   SUPPLIES_CATEGORIES,
@@ -49,39 +48,30 @@ import {
 } from "@/schemas";
 import type { Attachment } from "@/lib/types";
 import error from "next/error";
+import { CreateRequestPayload } from "@/lib/type/requestType"; // fix import path
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+type RequestFormValues = {
+  type: "ISSUE" | "SUPPLIES";
+  title: string;
+  description?: string;
+  issuePriority?: "LOW" | "MEDIUM" | "HIGH";
+  issueCategory?: "HARDWARE" | "SOFTWARE" | "NETWORK";
+  location?: string;
+  suppliesCategory?: "OFFICE" | "MAINTENANCE" | "OTHER";
+  itemName?: string;
+};
+
+// ✅ keep non-hook constants at module level
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_FILES = 5;
-const ACCEPTED_TYPES = [
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "text/plain",
-];
-
-function formatFileSize(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function getFileIcon(type: string) {
-  if (type.startsWith("image/"))
-    return <ImageIcon className="h-4 w-4 text-muted-foreground" />;
-  if (type === "application/pdf")
-    return <FileText className="h-4 w-4 text-red-500" />;
-  return <File className="h-4 w-4 text-muted-foreground" />;
-}
+const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 
 export default function NewRequestPage() {
-  const { user } = useAuth();
+  // ✅ hooks must be inside component
   const router = useRouter();
-  const createRequest = useCreateRequest();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const { mutate, isPending } = useCreateRequestMutation();
 
   const form = useForm<RequestFormValues>({
     resolver: zodResolver(requestSchema),
@@ -90,29 +80,29 @@ export default function NewRequestPage() {
       title: "",
       description: "",
       issuePriority: "MEDIUM",
-      issueCategory: "TECHNICAL",
+      issueCategory: "SOFTWARE",
       location: "",
     },
   });
 
   const requestType = form.watch("type");
 
-  const handleTypeChange = (newType: "ISSUE" | "Supplies") => {
+  const handleTypeChange = (newType: "ISSUE" | "SUPPLIES") => {
     if (newType === "ISSUE") {
       form.reset({
         type: "ISSUE",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
         issuePriority: "MEDIUM",
-        issueCategory: "TECHNICAL",
+        issueCategory: "SOFTWARE",
         location: "",
       });
     } else {
       form.reset({
-        type: "Supplies",
+        type: "SUPPLIES",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
-        SuppliesCategory: "OFFICE_Supplies",
+        suppliesCategory: "OFFICE",
         itemName: "",
       });
     }
@@ -161,27 +151,44 @@ export default function NewRequestPage() {
     });
   };
 
-  const { mutate, isPending } = useCreateRequestMutation();
+  const handleSubmit = async (data: RequestFormValues) => {
+    const apiType = data.type === "ISSUE" ? "ISSUE" : "SUPPLIES"; // ensure correct type for API
 
-  const handleSubmit = async (data: any) => {
-    try {
-      mutate(data, {
-        onSuccess: () => {
-          toast.success("Request created successfully!");
-          router.push("/dashboard/requests");
-        },
-        onError: (error: any) => {
-          toast.error(
-            error?.response?.data?.message ||
-              "An error occurred while creating the request.",
-          );
-        },
-      });
-      console.log("Request submitted successfully!");
-    } catch (error) {
-      console.error("Request submission error:", error);
-    }
+    const payload: CreateRequestPayload = {
+      type: apiType as RequestFormValues["type"],
+      title: data.title,
+      description: data.description?.trim() || undefined,
+      attachments: attachments.map((a) => a.name),
+      ...(data.type === "ISSUE"
+        ? {
+            issueDetails: {
+              priority: data.issuePriority!,
+              category: data.issueCategory!,
+              location: data.location?.trim() || undefined,
+            },
+          }
+        : {
+            suppliesDetails: {
+              category: data.suppliesCategory!,
+              itemName: data.itemName!,
+            },
+          }),
+    };
+
+    mutate(payload, {
+      onSuccess: () => {
+        toast.success("Request created successfully!");
+        router.push("/dashboard/requests");
+      },
+      onError: (error: any) => {
+        toast.error(
+          error?.response?.data?.message ||
+            "An error occurred while creating the request.",
+        );
+      },
+    });
   };
+
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-6">
@@ -216,7 +223,7 @@ export default function NewRequestPage() {
                       <RadioGroup
                         onValueChange={(val) => {
                           field.onChange(val);
-                          handleTypeChange(val as "ISSUE" | "Supplies");
+                          handleTypeChange(val as "ISSUE" | "SUPPLIES");
                         }}
                         value={field.value}
                         className="flex gap-4"
@@ -231,10 +238,10 @@ export default function NewRequestPage() {
                           </span>
                         </label>
                         <label
-                          htmlFor="type-Supplies"
+                          htmlFor="type-supplies"
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
-                          <RadioGroupItem value="Supplies" id="type-Supplies" />
+                          <RadioGroupItem value="SUPPLIES" id="type-supplies" />
                           <span className="font-medium text-foreground">
                             Supplies Request
                           </span>
@@ -365,11 +372,11 @@ export default function NewRequestPage() {
               )}
 
               {/* Supplies-specific fields */}
-              {requestType === "Supplies" && (
+              {requestType === "SUPPLIES" && (
                 <>
                   <FormField
                     control={form.control}
-                    name="SuppliesCategory"
+                    name="suppliesCategory"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Supplies Category *</FormLabel>
@@ -421,7 +428,7 @@ export default function NewRequestPage() {
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept={ACCEPTED_TYPES.join(",")}
+                  accept="image/*"
                   onChange={handleFileSelect}
                   className="hidden"
                   aria-label="Upload attachments"
@@ -449,13 +456,10 @@ export default function NewRequestPage() {
                         key={att.id}
                         className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm"
                       >
-                        {getFileIcon(att.type)}
                         <span className="flex-1 truncate text-foreground">
                           {att.name}
                         </span>
-                        <span className="shrink-0 text-xs text-muted-foreground">
-                          {formatFileSize(att.size)}
-                        </span>
+                        <span className="shrink-0 text-xs text-muted-foreground"></span>
                         <Button
                           type="button"
                           variant="ghost"

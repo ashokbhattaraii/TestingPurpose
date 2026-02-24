@@ -3,43 +3,36 @@
   "version": "1.0.0",
   "private": true,
   "description": "OMUS — Monorepo powered by Turborepo (Next.js + NestJS)",
-
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
-
   "scripts": {
     "dev": "turbo run dev --parallel",
     "dev:web": "turbo run dev --filter=@omus/web",
     "dev:api": "turbo run dev --filter=@omus/api",
-
     "build": "turbo run build",
     "build:web": "turbo run build --filter=@omus/web",
     "build:api": "turbo run build --filter=@omus/api",
-
     "start": "turbo run start",
     "start:web": "turbo run start --filter=@omus/web",
     "start:api": "turbo run start --filter=@omus/api",
-
     "lint": "turbo run lint",
     "test": "turbo run test",
     "clean": "turbo run clean",
-
+    "migrate": "dotenv -e .env prisma migrate dev --schema=prisma/schema.prisma",
     "db:generate": "prisma generate --schema=apps/api/prisma/schema.prisma",
     "db:push": "prisma db push --schema=apps/api/prisma/schema.prisma",
     "db:studio": "prisma studio --schema=apps/api/prisma/schema.prisma"
   },
-
   "dependencies": {
-    "@prisma/client": "6.19.2"
+    "@prisma/client": "6.19.2",
+    "pg": "^8.18.0"
   },
-
   "devDependencies": {
-    "turbo": "^2.8.10",
-    "prisma": "6.19.2"
+    "prisma": "6.19.2",
+    "turbo": "^2.8.10"
   },
-
   "engines": {
     "node": ">=18"
   },

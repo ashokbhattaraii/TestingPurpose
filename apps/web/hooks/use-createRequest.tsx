@@ -6,13 +6,13 @@ import {
 } from "@tanstack/react-query";
 
 import axiosInstance from "@/lib/axios";
-import { ServiceRequest } from "@/lib/types";
+import { CreateRequestPayload } from "@/lib/type/requestType";
 import { toast } from "@/hooks/use-toast";
 export default function useCreateRequestMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["newRequest"],
-    mutationFn: async (dto: ServiceRequest) => {
+    mutationFn: async (dto: CreateRequestPayload) => {
       const response = await axiosInstance.post("/request/create", dto);
       return response.data;
     },
