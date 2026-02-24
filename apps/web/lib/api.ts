@@ -1,5 +1,6 @@
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://testing-purpose-api.vercel.app/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://testing-purpose-api.vercel.app/api/v1";
 
 export async function fetchWithAuth(
   endpoint: string,
