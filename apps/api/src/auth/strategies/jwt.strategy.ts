@@ -8,7 +8,7 @@ const cookieExtractor = (req: Request): string | null => {
   let token = null;
   if (req && req.cookies) {
     token = req.cookies['access_token'];
-    console.log('🍪 Cookie found:', token ? 'Yes' : 'No');
+    console.log('Cookie found:', token ? 'Yes' : 'No');
   }
   return token;
 };
@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: process.env.JWT_SECRET!,
     });
 
-    console.log('🔐 JwtStrategy initialized');
+    console.log('JwtStrategy initialized');
     console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
   }
 
@@ -37,7 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
     //commit
     if (!user || !user.isActive) {
-      console.log('❌ User not found or inactive');
+      console.log(' User not found or inactive');
       throw new UnauthorizedException('User not found or inactive');
     }
 

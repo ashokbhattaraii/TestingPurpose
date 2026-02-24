@@ -7,11 +7,11 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 
-import { RequestType, RequestStatus } from '../prisma/generated/client';
+import { RequestType, RequestStatus } from '@prisma/client';
 
 @Injectable()
 export class RequestService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async createRequest(userId: string, dto: CreateRequestDto) {
     if (dto.type === RequestType.ISSUE) {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserRole } from '../prisma/generated/client'
+import { UserRole } from '../prisma/generated/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { SupabaseService } from '../supabase/supabase.service';
 @Injectable()
@@ -9,7 +9,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private supabase: SupabaseService,
-  ) { }
+  ) {}
 
   async googleLogin(googleUser: any) {
     console.log('🔍 Processing Google login for:', googleUser.email);
@@ -27,7 +27,7 @@ export class AuthService {
     if (user && user.uid) {
       // User exists with Supabase UID
       supabaseUserId = user.uid;
-      console.log('✅ Found existing user with Supabase UID:', supabaseUserId);
+      console.log('Found existing user with Supabase UID:', supabaseUserId);
 
       // Update Supabase Auth user metadata
       await supabaseClient.auth.admin.updateUserById(supabaseUserId, {
@@ -39,7 +39,7 @@ export class AuthService {
           last_login: new Date().toISOString(),
         },
       });
-      console.log('✅ Updated Supabase Auth user metadata');
+      console.log(' Updated Supabase Auth user metadata');
     } else {
       // Create new Supabase Auth user
       const { data: authData, error: authError } =

@@ -14,7 +14,7 @@ import {
   IssueCategory,
   IssuePriority,
   SuppliesCategory,
-} from '../../prisma/generated/client';
+} from '@prisma/client';
 export class CreateRequestDto {
   @IsEnum(RequestType)
   type: RequestType;
