@@ -41,7 +41,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found or inactive');
     }
 
-    console.log('✅ JWT validated for user:', user.email);
+    console.log('JWT validated for user:', user.email);
 
     return {
       id: user.id,
