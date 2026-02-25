@@ -7,7 +7,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  Version,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';

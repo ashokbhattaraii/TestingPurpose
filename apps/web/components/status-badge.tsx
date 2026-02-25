@@ -10,18 +10,24 @@ const statusConfig: Record<
     label: "Pending",
     className: "bg-amber-100 text-amber-800 border-amber-200",
   },
-  APPROVED: {
+
+  COMPLETED: {
     label: "Approved",
     className: "bg-emerald-100 text-emerald-800 border-emerald-200",
   },
+
   REJECTED: {
     label: "Rejected",
     className: "bg-red-100 text-red-800 border-red-200",
   },
-  CANCELLED: {
-    label: "Cancelled",
-    className: "bg-gray-100 text-gray-800 border-gray-200",
+  APPROVED: {
+    label: "",
+    className: ""
   },
+  "ON-HOLD": {
+    label: "",
+    className: ""
+  }
 };
 
 export function StatusBadge({ status }: { status: RequestStatus }) {
