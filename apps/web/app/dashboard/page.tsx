@@ -4,9 +4,12 @@ import { useAuth } from "@/lib/auth-context";
 import { EmployeeDashboard } from "@/components/dashboard-employee";
 import { AdminDashboard } from "@/components/dashboard-admin";
 import { SuperadminDashboard } from "@/components/dashboard-superadmin";
-
+import { useLaunchAttendanceSummary } from "@/hooks/launch/useLaunchAttendance";
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
+  const { data: launchSummary } = useLaunchAttendanceSummary();
+
+  console.log("Launch Attendance Summary:", launchSummary);
 
   if (isLoading) {
     return (
@@ -34,6 +37,6 @@ export default function DashboardPage() {
   }
 
   // Fallback
-  console.log("⚠️ Unknown role, rendering employee dashboard as fallback");
   return <EmployeeDashboard />;
+  console.log("⚠️ Unknown role, rendering employee dashboard as fallback");
 }

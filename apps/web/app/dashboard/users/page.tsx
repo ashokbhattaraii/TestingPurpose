@@ -61,7 +61,7 @@ export default function UsersPage() {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    if (user && !normalizeRole(user.role) === "SUPER_ADMIN") {
+    if (user && !normalizeRole(user?.role)) {
       router.push("/dashboard");
     }
   }, [user, normalizeRole, router]);
@@ -171,7 +171,7 @@ export default function UsersPage() {
 
           <div className="flex flex-col gap-2">
             {paginatedUsers.map((u) => {
-              const isSelf = u.id === user.id;
+              const isSelf = u.id === user?.id;
               const userRole = normalizeRole(u.role) ?? "EMPLOYEE";
               return (
                 <Card

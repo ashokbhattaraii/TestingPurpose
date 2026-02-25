@@ -8,6 +8,7 @@ import { SupabaseService } from './supabase/supabase.service';
 import { SupabaseModule } from './supabase/supabase.module';
 import { RequestModule } from './request/request.module';
 import { UserModule } from './user/user.module';
+import { LaunchModule } from './launch/launch.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UserModule } from './user/user.module';
     SupabaseModule,
     RequestModule,
     UserModule,
+    LaunchModule,
   ],
   controllers: [AppController],
   providers: [AppService, SupabaseService],
