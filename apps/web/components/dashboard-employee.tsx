@@ -124,7 +124,7 @@ export function EmployeeDashboard() {
         </form>
 
         <div className="flex gap-2">
-          <Link href="/dashboard/requests">
+          <Link href="/dashboard/requests/new">
             <Button className="w-full justify-start gap-2">
               <Plus className="h-4 w-4" />
               New Request
