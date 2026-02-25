@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import axiosInstance from "@/lib/axios";
+import axiosInstance from "@/lib/axios/axios";
 import {
   CreateRequestPayload,
   GetRequestsResponse,
@@ -49,7 +49,7 @@ export function useGetAllRequestsQuery() {
     staleTime: 0,
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
-    refetchInterval: 10 * 100,
+    refetchInterval: 10 * 2 * 1000, // 2 minutes
     retry: true,
   });
 }

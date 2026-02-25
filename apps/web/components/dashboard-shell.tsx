@@ -745,7 +745,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     <div className="flex flex-col gap-0.5">
                       <span>Settings</span>
                       <span className="text-xs text-muted-foreground">
-                        Account & preferences
+                        Account & preferredLunchOptions
                       </span>
                     </div>
                   </Link>

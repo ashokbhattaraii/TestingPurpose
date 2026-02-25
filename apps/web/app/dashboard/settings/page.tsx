@@ -92,7 +92,7 @@ export default function SettingsPage() {
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);
-      toast.success("Notification preferences saved");
+      toast.success("Notification preferredLunchOptions saved");
     }, 1000);
   };
 
@@ -111,7 +111,8 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Settings</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Manage your account security, preferences, and privacy settings.
+          Manage your account security, preferredLunchOptions, and privacy
+          settings.
         </p>
       </div>
 

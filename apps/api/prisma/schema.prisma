@@ -26,6 +26,11 @@ enum RequestType {
   SUPPLIES // Request office Supplies, equipment, or materials
 }
 
+enum LaunchType {
+  VEG
+  NON_VEG
+}
+
 enum IssuePriority {
   LOW
   MEDIUM
@@ -230,9 +235,9 @@ model LunchAttendance {
   userId      String
   date        DateTime @db.Date // Only date, no time
   isAttending Boolean  @default(true)
-  notes       String? // Optional notes (e.g., dietary preferences, late arrival)
-
+  preferredLunchOption LaunchType?
   // Timestamps
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
