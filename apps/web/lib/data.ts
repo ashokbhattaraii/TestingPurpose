@@ -494,7 +494,8 @@ export const analyticsData: AnalyticsData = {
   requestsByStatus: [
     { status: "Pending", count: 3 },
     { status: "Approved", count: 6 },
+    { status: "ON-HOLD", count: 6 },
     { status: "Rejected", count: 1 },
-    { status: "Cancelled", count: 0 },
+    
   ],
 };

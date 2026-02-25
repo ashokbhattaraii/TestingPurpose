@@ -517,9 +517,10 @@ export default function RequestDetailPage() {
                       <SelectValue placeholder="Select new status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="APPROVED">Approved</SelectItem>
+                      <SelectItem value="COMPLETED">Completed</SelectItem>
+                      <SelectItem value="PENDING">Pending</SelectItem>
+                      <SelectItem value="ON-HOLD">On-Hold</SelectItem>
                       <SelectItem value="REJECTED">Rejected</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button
@@ -571,8 +572,8 @@ export default function RequestDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Request</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this request? This action cannot be
-              undone.
+              Are you sure you want to delete this request? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3">

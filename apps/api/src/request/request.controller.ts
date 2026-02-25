@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDto } from './dto/create-request.dto';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator/current-user.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator/current-user.decorator';
 
-import type { UserPayload } from 'src/common/decorators/current-user.decorator/current-user.decorator';
+import type { UserPayload } from '../common/decorators/current-user.decorator/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 @Controller('request')
 export class RequestController {
@@ -16,9 +16,10 @@ export class RequestController {
     return this.requestService.createRequest(user.id, dto);
   }
 
-  @Get('my-requests')
+  @Get('requests')
   @UseGuards(AuthGuard('jwt'))
-  getRequest(@CurrentUser() user: UserPayload) {
-    return this.requestService.getUserRequests(user.id);
+  getAllRequests(@CurrentUser() user: UserPayload) {
+    console.log('Fetching requests from user:', user.id);
+    return this.requestService.getRequests();
   }
 }

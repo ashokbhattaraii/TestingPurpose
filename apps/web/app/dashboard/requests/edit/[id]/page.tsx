@@ -227,10 +227,7 @@ export default function EditRequestPage() {
                           htmlFor="edit-type-issue"
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
-                          <RadioGroupItem
-                            value="ISSUE"
-                            id="edit-type-issue"
-                          />
+                          <RadioGroupItem value="ISSUE" id="edit-type-issue" />
                           <span className="font-medium text-foreground">
                             Issue
                           </span>
@@ -277,7 +274,8 @@ export default function EditRequestPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Description{requestType === "ISSUE" ? " *" : " (optional)"}
+                      Description
+                      {requestType === "ISSUE" ? " *" : " (optional)"}
                     </FormLabel>
                     <FormControl>
                       <Textarea

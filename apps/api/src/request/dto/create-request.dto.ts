@@ -1,25 +1,67 @@
+import { Type } from 'class-transformer';
 import {
-  IsString,
+  ValidateNested,
   IsEnum,
-  IsObject,
   IsOptional,
-  IsArray,
+  IsString,
+  IsNotEmpty,
   MinLength,
-  IsInt,
 } from 'class-validator';
 
-import {
-  RequestType,
-  RequestStatus,
-  IssueCategory,
-  IssuePriority,
-  SuppliesCategory,
-} from '@prisma/client';
-export class CreateRequestDto {
-  @IsEnum(RequestType)
-  type: RequestType;
+// Enums
+export enum RequestType {
+  ISSUE = 'ISSUE',
+  SUPPLIES = 'SUPPLIES',
+}
+
+export enum IssuePriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+}
+
+export enum IssueCategory {
+  HARDWARE = 'HARDWARE',
+  SOFTWARE = 'SOFTWARE',
+  NETWORK = 'NETWORK',
+}
+
+export enum SuppliesCategory {
+  OFFICE = 'OFFICE',
+  MAINTENANCE = 'MAINTENANCE',
+  OTHER = 'OTHER',
+}
+
+// Nested DTO for ISSUE type requests
+export class IssueDetailsDto {
+  @IsEnum(IssuePriority)
+  priority: IssuePriority;
+
+  @IsEnum(IssueCategory)
+  category: IssueCategory;
+
+  @IsOptional()
+  @IsString()
+  location?: string | null;
+}
+
+// Nested DTO for SUPPLIES type requests
+export class SuppliesDetailsDto {
+  @IsEnum(SuppliesCategory)
+  category: SuppliesCategory;
 
   @IsString()
+  @IsNotEmpty()
+  itemName: string;
+}
+
+// Main DTO for creating a request
+export class CreateRequestDto {
+  @IsEnum(RequestType)
+  type: RequestType; // "ISSUE" | "SUPPLIES"
+
+  @IsString()
+  @IsNotEmpty()
   @MinLength(3)
   title: string;
 
@@ -27,29 +69,18 @@ export class CreateRequestDto {
   @IsOptional()
   description?: string;
 
-  @IsArray()
   @IsOptional()
   attachments?: string[];
 
-  //-----Issue- Specific------
-
-  @IsEnum(IssuePriority)
+  // ISSUE-specific fields
+  @ValidateNested()
+  @Type(() => IssueDetailsDto)
   @IsOptional()
-  issuePriority: IssuePriority;
+  issueDetails?: IssueDetailsDto;
 
-  @IsEnum(IssueCategory)
+  // SUPPLIES-specific fields
+  @ValidateNested()
+  @Type(() => SuppliesDetailsDto)
   @IsOptional()
-  issueCategory: IssueCategory;
-
-  @IsString()
-  @IsOptional()
-  location?: string;
-
-  //-------supplies-specific
-
-  @IsEnum(SuppliesCategory)
-  suppliesCategory: SuppliesCategory;
-
-  @IsString()
-  itemName: string;
+  suppliesDetails?: SuppliesDetailsDto;
 }

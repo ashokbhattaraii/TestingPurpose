@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { RequestController } from './request.controller';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaService } from '../prisma/prisma.service';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [PrismaModule],
@@ -10,4 +10,4 @@ import { PrismaModule } from 'src/prisma/prisma.module';
   controllers: [RequestController],
   exports: [RequestService],
 })
-export class RequestModule {}
+export class RequestModule { }
