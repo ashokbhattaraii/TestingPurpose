@@ -517,9 +517,10 @@ export default function RequestDetailPage() {
                       <SelectValue placeholder="Select new status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="APPROVED">Approved</SelectItem>
+                      <SelectItem value="COMPLETED">Completed</SelectItem>
+                      <SelectItem value="PENDING">Pending</SelectItem>
+                      <SelectItem value="ON-HOLD">On-Hold</SelectItem>
                       <SelectItem value="REJECTED">Rejected</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button

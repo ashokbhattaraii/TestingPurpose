@@ -41,3 +41,5 @@ coverage/
 # Logs
 logs/
 *.log
+
+/generated/prisma
