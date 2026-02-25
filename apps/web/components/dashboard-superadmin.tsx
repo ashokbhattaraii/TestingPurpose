@@ -1,9 +1,15 @@
-"use client"
+"use client";
 
-import { useServiceRequests, useUsers, useAnalytics, useLunchTokens } from "@/lib/queries"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import {
+  useServiceRequests,
+  useUsers,
+  useAnalytics,
+  useLunchTokens,
+} from "@/lib/queries";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetUser } from "@/hooks/users/useGetUser";
 import {
   ClipboardList,
   Users,
@@ -11,8 +17,8 @@ import {
   TrendingUp,
   BarChart3,
   UtensilsCrossed,
-} from "lucide-react"
-import Link from "next/link"
+} from "lucide-react";
+import Link from "next/link";
 import {
   BarChart,
   Bar,
@@ -20,19 +26,21 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-} from "recharts"
+} from "recharts";
 
 export function SuperadminDashboard() {
-  const { data: requests, isLoading: reqLoading } = useServiceRequests()
-  const { data: users, isLoading: userLoading } = useUsers()
-  const { data: analytics, isLoading: analyticsLoading } = useAnalytics()
-  const today = new Date().toISOString().split("T")[0]
-  const { data: todayTokens, isLoading: tokenLoading } = useLunchTokens(today)
-  const tokenCount = todayTokens?.length ?? 0
+  const { data: requests, isLoading: reqLoading } = useServiceRequests();
+  const { data: adminData, isLoading: userLoading } = useGetUser();
+  console.log("👥 Admin users:", adminData);
+  const { data: users } = useUsers();
+  const { data: analytics, isLoading: analyticsLoading } = useAnalytics();
+  const today = new Date().toISOString().split("T")[0];
+  const { data: todayTokens, isLoading: tokenLoading } = useLunchTokens(today);
+  const tokenCount = todayTokens?.length ?? 0;
 
-  const total = requests?.length ?? 0
-  const totalUsers = users?.length ?? 0
-  const avgTime = analytics?.avgResolutionTimeHours ?? 0
+  const total = requests?.length ?? 0;
+  const totalUsers = users?.length ?? 0;
+  const avgTime = analytics?.avgResolutionTimeHours ?? 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -137,7 +145,9 @@ export function SuperadminDashboard() {
                     <p className="text-2xl font-bold text-foreground">
                       {tokenLoading ? "-" : tokenCount}
                     </p>
-                    <p className="text-xs text-muted-foreground">{"Today's Tokens"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {"Today's Tokens"}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -188,5 +198,5 @@ export function SuperadminDashboard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
