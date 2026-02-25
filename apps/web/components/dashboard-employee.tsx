@@ -80,6 +80,7 @@ export function EmployeeDashboard() {
 
   const pending = requests?.filter((r) => r.status === "PENDING").length ?? 0;
   const approved = requests?.filter((r) => r.status === "APPROVED").length ?? 0;
+  const onhold = requests?.filter((r) => r.status === "ON-HOLD").length ?? 0;
   const rejected = requests?.filter((r) => r.status === "REJECTED").length ?? 0;
   const total = requests?.length ?? 0;
 
@@ -168,6 +169,21 @@ export function EmployeeDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+             <Card>
+              <CardContent className="flex items-center gap-3 p-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
+                  <AlertCircle className="h-5 w-5 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">
+                    {onhold}
+                  </p>
+                  <p className="text-xs text-muted-foreground">On-Hold</p>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardContent className="flex items-center gap-3 p-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
@@ -194,23 +210,7 @@ export function EmployeeDashboard() {
                 </div>
               </CardContent>
             </Card>
-            <Link href="/dashboard/lunch">
-              <Card className="transition-colors hover:bg-muted/30 h-full">
-                <CardContent className="flex items-center gap-3 p-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50">
-                    <UtensilsCrossed className="h-5 w-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
-                      {tokenLoading ? "-" : tokenCount}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {"Today's Tokens"}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+           
           </>
         )}
       </div>

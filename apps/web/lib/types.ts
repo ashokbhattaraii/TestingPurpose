@@ -1,6 +1,6 @@
 export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
 
-export type RequestStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+export type RequestStatus = "PENDING" | "APPROVED"| "ON-HOLD"| "REJECTED" | "COMPLETED";
 
 export type RequestType = "ISSUE" | "Supplies";
 
