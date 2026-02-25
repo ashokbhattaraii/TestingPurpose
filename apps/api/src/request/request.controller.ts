@@ -15,4 +15,11 @@ export class RequestController {
     console.log('Creating request for user:', user.id);
     return this.requestService.createRequest(user.id, dto);
   }
+
+  @Get('requests')
+  @UseGuards(AuthGuard('jwt'))
+  getAllRequests(@CurrentUser() user: UserPayload) {
+    console.log('Fetching requests from user:', user.id);
+    return this.requestService.getRequests();
+  }
 }

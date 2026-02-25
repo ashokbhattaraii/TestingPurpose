@@ -112,7 +112,15 @@ export function useUpdateUserRole() {
 export function useUpdateRequestStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status, rejectionReason }: { id: string; status: RequestStatus; rejectionReason?: string }) => {
+    mutationFn: ({
+      id,
+      status,
+      rejectionReason,
+    }: {
+      id: string;
+      status: RequestStatus;
+      rejectionReason?: string;
+    }) => {
       const request = serviceRequests.find((r) => r.id === id);
       if (request) {
         request.status = status;
@@ -134,7 +142,15 @@ export function useUpdateRequestStatus() {
 export function useReopenRequest() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, userId, userName }: { id: string; userId: string; userName: string }) => {
+    mutationFn: ({
+      id,
+      userId,
+      userName,
+    }: {
+      id: string;
+      userId: string;
+      userName: string;
+    }) => {
       const request = serviceRequests.find((r) => r.id === id);
       if (request) {
         request.status = "PENDING";
@@ -142,7 +158,9 @@ export function useReopenRequest() {
         request.updatedAt = new Date().toISOString();
       }
       // Notify admins that the request was reopened
-      const adminUsers = users.filter((u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN");
+      const adminUsers = users.filter(
+        (u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN",
+      );
       adminUsers.forEach((admin) => {
         const notif: Notification = {
           id: `n-${Date.now()}-${admin.id}`,
@@ -405,9 +423,7 @@ export function useDeleteRequest() {
 export function useUpdateRequest() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (
-      updates: Partial<ServiceRequest> & { id: string },
-    ) => {
+    mutationFn: (updates: Partial<ServiceRequest> & { id: string }) => {
       const request = serviceRequests.find((r) => r.id === updates.id);
       if (request) {
         Object.assign(request, updates);

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
+import { useGetAllRequestsQuery } from "@/hooks/use-createRequest";
 import {
   Select,
   SelectContent,
@@ -44,6 +45,7 @@ import { useState } from "react";
 import type { RequestStatus } from "@/lib/types";
 import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
+
 import {
   ISSUE_CATEGORY_LABELS,
   ISSUE_PRIORITY_LABELS,
@@ -89,12 +91,85 @@ function PriorityBadge({
   );
 }
 
+const toValidDate = (value: unknown): Date | null => {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  if (value && typeof value === "object") {
+    const obj = value as {
+      toDate?: () => Date;
+      $date?: string | number;
+      seconds?: number;
+      nanoseconds?: number;
+      _seconds?: number;
+      _nanoseconds?: number;
+    };
+
+    if (typeof obj.toDate === "function") {
+      const d = obj.toDate();
+      return d instanceof Date && !Number.isNaN(d.getTime()) ? d : null;
+    }
+
+    if (obj.$date !== undefined) {
+      const d = new Date(obj.$date);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    const seconds = obj.seconds ?? obj._seconds;
+    const nanoseconds = obj.nanoseconds ?? obj._nanoseconds;
+    if (typeof seconds === "number") {
+      const ms = seconds * 1000 + Math.floor((nanoseconds ?? 0) / 1_000_000);
+      const d = new Date(ms);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+  }
+
+  return null;
+};
+
+const formatRequestDate = (value: unknown) => {
+  const d = toValidDate(value);
+  return d ? format(d, "MMM d, yyyy") : "N/A";
+};
+
+const normalizePriority = (
+  value: unknown,
+): "LOW" | "MEDIUM" | "HIGH" | "URGENT" | null => {
+  if (typeof value !== "string") return null;
+  const p = value.trim().toUpperCase();
+
+  if (p === "LOW" || p === "MEDIUM" || p === "HIGH" || p === "URGENT") return p;
+  if (p === "MED") return "MEDIUM";
+  if (p === "CRITICAL") return "URGENT";
+
+  return null;
+};
+
 export default function RequestsPage() {
   const { user } = useAuth();
   const isEmployee = user?.role === "EMPLOYEE";
   const { data: requests, isLoading } = useServiceRequests(
     isEmployee ? user?.id : undefined,
   );
+  const { data, isLoading: requestsLoading } = useGetAllRequestsQuery();
+
+  const allRequests = ((
+    data as { message?: string; requests?: any[] } | undefined
+  )?.requests ??
+    requests ??
+    []) as any[];
+
+  console.log("👤 Dashboard - Loading:", isLoading || requestsLoading);
+  console.log("👤 Dashboard - User:", user);
+  console.log("👤 Dashboard - Role:", user?.role);
+  console.log("📋 Dashboard - All Requests:", allRequests);
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
@@ -102,16 +177,18 @@ export default function RequestsPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const filtered =
-    requests?.filter((req) => {
+    allRequests.filter((req) => {
       const matchSearch =
-        req.title.toLowerCase().includes(search.toLowerCase()) ||
-        req.id.toLowerCase().includes(search.toLowerCase());
+        req.title?.toLowerCase().includes(search.toLowerCase()) ||
+        req.id?.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === "all" || req.status === statusFilter;
       const matchType = typeFilter === "all" || req.type === typeFilter;
 
       let matchDate = true;
       if (dateRange?.from) {
-        const reqDate = new Date(req.createdAt);
+        const reqDate = toValidDate(req.createdAt);
+        if (!reqDate) return false;
+
         if (dateRange.to) {
           matchDate = isWithinInterval(reqDate, {
             start: startOfDay(dateRange.from),
@@ -152,21 +229,15 @@ export default function RequestsPage() {
     setCurrentPage(1);
   };
 
-  const getCategoryLabel = (
-    req: typeof requests extends (infer T)[] | undefined ? T : never,
-  ) => {
-    if (req.type === "ISSUE" && req.issueCategory) {
+  const getCategoryLabel = (req: any) => {
+    if (req.type === "ISSUE" && req.issueDetails?.category) {
       return ISSUE_CATEGORY_LABELS[
-        req.issueCategory as keyof typeof ISSUE_CATEGORY_LABELS
+        req.issueDetails.category as keyof typeof ISSUE_CATEGORY_LABELS
       ];
     }
-    if (
-      req.type === "Supplies" &&
-      req.SuppliesCategory &&
-      req.SuppliesCategory in SUPPLIES_CATEGORY_LABELS
-    ) {
+    if (req.type === "SUPPLIES" && req.suppliesDetails?.category) {
       return SUPPLIES_CATEGORY_LABELS[
-        req.SuppliesCategory as keyof typeof SUPPLIES_CATEGORY_LABELS
+        req.suppliesDetails.category as keyof typeof SUPPLIES_CATEGORY_LABELS
       ];
     }
     return "";
@@ -282,7 +353,7 @@ export default function RequestsPage() {
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="ISSUE">Issue</SelectItem>
-            <SelectItem value="Supplies">Supplies</SelectItem>
+            <SelectItem value="SUPPLIES">Supplies</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -305,55 +376,60 @@ export default function RequestsPage() {
       ) : (
         <>
           <div className="flex flex-col gap-2">
-            {paginatedRequests.map((req) => (
-              <Link key={req.id} href={`/dashboard/requests/${req.id}`}>
-                <Card className="transition-colors hover:bg-muted/30">
-                  <CardContent className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs text-muted-foreground">
-                          {req.id}
+            {paginatedRequests.map((req) => {
+              const issuePriority = normalizePriority(
+                req.issueDetails?.priority ?? req.issuePriority,
+              );
+
+              return (
+                <Link key={req.id} href={`/dashboard/requests/${req.id}`}>
+                  <Card className="transition-colors hover:bg-muted/30">
+                    <CardContent className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {req.id}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {getCategoryLabel(req)}
+                          </span>
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                              req.type === "SUPPLIES"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-orange-100 text-orange-700"
+                            }`}
+                          >
+                            {req.type === "SUPPLIES" ? "Supplies" : "Issue"}
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium text-foreground">
+                          {req.title}
                         </span>
+                        {req.type === "SUPPLIES" &&
+                          req.suppliesDetails?.itemName && (
+                            <span className="text-xs text-muted-foreground">
+                              Item: {req.suppliesDetails.itemName}
+                            </span>
+                          )}
                         <span className="text-xs text-muted-foreground">
-                          {getCategoryLabel(req)}
-                        </span>
-                        <span
-                          className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
-                            req.type === "Supplies"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-orange-100 text-orange-700"
-                          }`}
-                        >
-                          {req.type === "Supplies" ? "Supplies" : "Issue"}
+                          by {req.user?.name ?? req.createdByName ?? "Unknown"}
                         </span>
                       </div>
-                      <span className="text-sm font-medium text-foreground">
-                        {req.title}
-                      </span>
-                      {req.type === "Supplies" && req.itemName && (
+                      <div className="flex shrink-0 items-center gap-2">
                         <span className="text-xs text-muted-foreground">
-                          Item: {req.itemName}
+                          {formatRequestDate(req.createdAt)}
                         </span>
-                      )}
-                      {!isEmployee && (
-                        <span className="text-xs text-muted-foreground">
-                          by {req.createdByName}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(req.createdAt), "MMM d, yyyy")}
-                      </span>
-                      {req.type === "ISSUE" && req.issuePriority && (
-                        <PriorityBadge priority={req.issuePriority} />
-                      )}
-                      <StatusBadge status={req.status} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                        {req.type === "ISSUE" && issuePriority && (
+                          <PriorityBadge priority={issuePriority} />
+                        )}
+                        <StatusBadge status={req.status} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
 
           {/* Pagination */}

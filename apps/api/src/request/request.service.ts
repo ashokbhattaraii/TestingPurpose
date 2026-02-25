@@ -124,4 +124,29 @@ export class RequestService {
     };
     return this.removeNullish(returnMsg);
   }
+
+  async getRequests() {
+    const requests = await this.prisma.request.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        issueDetails: true,
+        suppliesDetails: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            department: true,
+            photoURL: true,
+          },
+        },
+      },
+    });
+    const returnMsg = {
+      message: 'Total requests fetched successfully',
+      requests,
+    };
+    return this.removeNullish(returnMsg);
+  }
 }

@@ -2,7 +2,11 @@
 import { useState } from "react";
 
 import { useAuth } from "@/lib/auth-context";
-import { useServiceRequests, useAnnouncements, useLunchTokens } from "@/lib/queries";
+import {
+  useServiceRequests,
+  useAnnouncements,
+  useLunchTokens,
+} from "@/lib/queries";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,19 +25,38 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { useGetAllRequestsQuery } from "@/hooks/use-createRequest";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
-  URGENT: { label: "Urgent", icon: ArrowUp, className: "text-red-700 bg-red-100" },
-  MEDIUM: { label: "Med", icon: ArrowRight, className: "text-amber-600 bg-amber-50" },
-  LOW: { label: "Low", icon: ArrowDown, className: "text-emerald-600 bg-emerald-50" },
+  URGENT: {
+    label: "Urgent",
+    icon: ArrowUp,
+    className: "text-red-700 bg-red-100",
+  },
+  MEDIUM: {
+    label: "Med",
+    icon: ArrowRight,
+    className: "text-amber-600 bg-amber-50",
+  },
+  LOW: {
+    label: "Low",
+    icon: ArrowDown,
+    className: "text-emerald-600 bg-emerald-50",
+  },
 } as const;
 
-function PriorityBadge({ priority }: { priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT" }) {
+function PriorityBadge({
+  priority,
+}: {
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+}) {
   const config = PRIORITY_CONFIG[priority];
   const Icon = config.icon;
   return (
-    <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${config.className}`}>
+    <span
+      className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${config.className}`}
+    >
       <Icon className="h-3 w-3" />
       {config.label}
     </span>
@@ -42,7 +65,14 @@ function PriorityBadge({ priority }: { priority: "LOW" | "MEDIUM" | "HIGH" | "UR
 
 export function EmployeeDashboard() {
   const { user } = useAuth();
-  const { data: requests, isLoading: reqLoading } = useServiceRequests(user?.id);
+  const { data, isLoading: requestsLoading } = useGetAllRequestsQuery();
+  console.log("👤 Dashboard - Loading:", requestsLoading);
+  console.log("👤 Dashboard - User:", user);
+  console.log("👤 Dashboard - Role:", user?.role);
+  console.log("📋 Dashboard - All Requests:", data);
+  const { data: requests, isLoading: reqLoading } = useServiceRequests(
+    user?.id,
+  );
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
   const today = new Date().toISOString().split("T")[0];
   const { data: todayTokens, isLoading: tokenLoading } = useLunchTokens(today);
@@ -58,9 +88,10 @@ export function EmployeeDashboard() {
   // ✅ Case-insensitive search by title or ID
   const recentRequests =
     requests
-      ?.filter((r) =>
-        r.title.toLowerCase().includes(search.toLowerCase()) ||
-        r.id.toString().toLowerCase().includes(search.toLowerCase())
+      ?.filter(
+        (r) =>
+          r.title.toLowerCase().includes(search.toLowerCase()) ||
+          r.id.toString().toLowerCase().includes(search.toLowerCase()),
       )
       .slice(0, 5) ?? [];
 
@@ -173,7 +204,9 @@ export function EmployeeDashboard() {
                     <p className="text-2xl font-bold text-foreground">
                       {tokenLoading ? "-" : tokenCount}
                     </p>
-                    <p className="text-xs text-muted-foreground">{"Today's Tokens"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {"Today's Tokens"}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
