@@ -343,7 +343,7 @@ export default function RequestsPage() {
             <SelectItem value="PENDING">Pending</SelectItem>
             <SelectItem value="ON-HOLD">On-Hold</SelectItem>
             <SelectItem value="REJECTED">Rejected</SelectItem>
-            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
           </SelectContent>
         </Select>
         <Select value={typeFilter} onValueChange={handleTypeFilter}>
