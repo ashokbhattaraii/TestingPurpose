@@ -4,8 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 
 async function startGoogleLogin(): Promise<void> {
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    "http://localhost3001:/api/v1";
+    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001/api/v1";
   if (!baseUrl) {
     throw new Error("NEXT_PUBLIC_BASE_URL is not set");
   }

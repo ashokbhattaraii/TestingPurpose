@@ -367,7 +367,7 @@ export const lunchTokens: LunchToken[] = [
     userId: "u1",
     userName: "Aarav Sharma",
     date: "2026-02-08",
-    preference: "veg",
+    preferredLunchOption: "veg",
     collectedAt: "2026-02-08T09:30:00Z",
   },
   {
@@ -375,7 +375,7 @@ export const lunchTokens: LunchToken[] = [
     userId: "u2",
     userName: "Priya Thapa",
     date: "2026-02-08",
-    preference: "non-veg",
+    preferredLunchOption: "non-veg",
     collectedAt: "2026-02-08T10:15:00Z",
   },
   {
@@ -383,7 +383,7 @@ export const lunchTokens: LunchToken[] = [
     userId: "u3",
     userName: "Bikash Karki",
     date: "2026-02-08",
-    preference: "veg",
+    preferredLunchOption: "veg",
     collectedAt: "2026-02-08T10:45:00Z",
   },
 ];

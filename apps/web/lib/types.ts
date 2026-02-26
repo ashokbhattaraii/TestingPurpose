@@ -1,6 +1,11 @@
 export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
 
-export type RequestStatus = "PENDING" | "APPROVED"| "ON-HOLD"| "REJECTED" | "COMPLETED";
+export type RequestStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "ON-HOLD"
+  | "REJECTED"
+  | "COMPLETED";
 
 export type RequestType = "ISSUE" | "Supplies";
 
@@ -104,14 +109,14 @@ export interface Announcement {
   pinned: boolean;
 }
 
-export type MealPreference = "veg" | "non-veg";
+export type MealPreference = "VEG" | "NON_VEG";
 
 export interface LunchToken {
   id: string;
   userId: string;
   userName: string;
   date: string; // YYYY-MM-DD
-  preference: MealPreference;
+  preferredLunchOption: MealPreference;
   collectedAt: string;
 }
 

@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
+import { useLunchContext } from "@/lib/lunch/lunchContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -540,10 +540,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
+  const { totalTokens } = useLunchContext();
   // Hardcoded lunch token badge count
+  console.log("DashboardShell - totalTokens from context:", totalTokens);
   const badges: Record<string, number> = {
-    lunchToken: 30,
+    lunchToken: totalTokens,
   };
 
   useEffect(() => {
@@ -745,7 +746,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     <div className="flex flex-col gap-0.5">
                       <span>Settings</span>
                       <span className="text-xs text-muted-foreground">
-                        Account & preferences
+                        Account & preferredLunchOptions
                       </span>
                     </div>
                   </Link>

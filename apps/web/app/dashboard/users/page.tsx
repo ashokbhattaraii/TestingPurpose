@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useGetUser } from "@/hooks/users/useGetUser";
 import {
   Select,
   SelectContent,
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import type { UserRole } from "@/lib/types";
 import { Shield, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -36,37 +37,48 @@ const roleBadge: Record<string, string> = {
   superadmin: "bg-primary/10 text-primary",
 };
 
-const roleLabel: Record<string, string> = {
-  employee: "Employee",
-  admin: "Admin",
-  superadmin: "Super Admin",
+const roleLabel: Record<UserRole, string> = {
+  EMPLOYEE: "Employee",
+  ADMIN: "Admin",
+  SUPER_ADMIN: "Super Admin",
 };
+
+function normalizeRole(role: string | null | undefined): UserRole | null {
+  if (!role) return null;
+  const r = role.toUpperCase();
+  if (r === "EMPLOYEE" || r === "ADMIN" || r === "SUPER_ADMIN") return r;
+  if (r === "SUPERADMIN") return "SUPER_ADMIN"; // fallback for old values
+  return null;
+}
 
 export default function UsersPage() {
   const { user, refreshUser } = useAuth();
   const router = useRouter();
-  const { data: allUsers, isLoading } = useUsers();
+  const { data: allEmployees, isLoading } = useGetUser();
   const updateRole = useUpdateUserRole();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   useEffect(() => {
-    if (user && user.role !== "SUPER_ADMIN") {
+    if (user && !normalizeRole(user?.role)) {
       router.push("/dashboard");
     }
-  }, [user, router]);
+  }, [user, normalizeRole, router]);
 
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
-    if (!allUsers) return [];
-    return allUsers.filter(
+    if (!allEmployees) return [];
+    return allEmployees.filter(
       (u) =>
         u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.department.toLowerCase().includes(searchQuery.toLowerCase()),
+        (u.department ?? "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        (u.position ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
     );
-  }, [allUsers, searchQuery]);
+  }, [allEmployees, searchQuery]);
 
   // Pagination
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -81,7 +93,10 @@ export default function UsersPage() {
     setCurrentPage(1);
   }, [searchQuery]);
 
-  if (user?.role !== "SUPER_ADMIN") return null;
+  const currentUserRole = normalizeRole(user?.role);
+  const isSuperAdmin = currentUserRole === "SUPER_ADMIN";
+
+  if (!isSuperAdmin) return null;
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
     updateRole.mutate(
@@ -156,7 +171,8 @@ export default function UsersPage() {
 
           <div className="flex flex-col gap-2">
             {paginatedUsers.map((u) => {
-              const isSelf = u.id === user.id;
+              const isSelf = u.id === user?.id;
+              const userRole = normalizeRole(u.role) ?? "EMPLOYEE";
               return (
                 <Card
                   key={u.id}
@@ -201,7 +217,7 @@ export default function UsersPage() {
                       {/* Joined Date */}
                       <div className="col-span-2">
                         <span className="text-sm text-foreground">
-                          {format(new Date(u.joinedAt), "MMM yyyy")}
+                          {formatJoinedAt(u?.createdAt)}
                         </span>
                       </div>
 
@@ -209,19 +225,19 @@ export default function UsersPage() {
                       <div className="col-span-3 flex items-center justify-end gap-2">
                         <Shield className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <Select
-                          value={u.role}
+                          value={userRole}
                           onValueChange={(value) =>
                             handleRoleChange(u.id, value as UserRole)
                           }
                           disabled={isSelf || updateRole.isPending}
                         >
                           <SelectTrigger className="w-28 h-8 text-xs">
-                            <SelectValue placeholder={roleLabel[u.role]} />
+                            <SelectValue placeholder={roleLabel[userRole]} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="employee">Employee</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="superadmin">
+                            <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                            <SelectItem value="ADMIN">Admin</SelectItem>
+                            <SelectItem value="SUPER_ADMIN">
                               Super Admin
                             </SelectItem>
                           </SelectContent>
@@ -269,7 +285,7 @@ export default function UsersPage() {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Joined</span>
                           <span className="text-foreground font-medium">
-                            {format(new Date(u.joinedAt), "MMM yyyy")}
+                            {formatJoinedAt(u?.createdAt)}
                           </span>
                         </div>
                       </div>
@@ -281,7 +297,7 @@ export default function UsersPage() {
                         </span>
                         <div className="flex-1" />
                         <Select
-                          value={u.role}
+                          value={userRole}
                           onValueChange={(value) =>
                             handleRoleChange(u.id, value as UserRole)
                           }
@@ -291,9 +307,9 @@ export default function UsersPage() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="employee">Employee</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="superadmin">
+                            <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                            <SelectItem value="ADMIN">Admin</SelectItem>
+                            <SelectItem value="SUPER_ADMIN">
                               Super Admin
                             </SelectItem>
                           </SelectContent>
@@ -388,4 +404,11 @@ export default function UsersPage() {
       </div>
     </div>
   );
+}
+//  "createdAt": "2026-02-25T07:40:55.484Z",
+function formatJoinedAt(value: any) {
+  if (!value) return "N/A";
+  const date = typeof value === "string" ? parseISO(value) : value;
+  if (!isValid(date)) return "Invalid date";
+  return format(date, "MMM d, yyyy");
 }

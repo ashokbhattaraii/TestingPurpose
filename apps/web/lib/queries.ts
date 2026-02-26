@@ -261,11 +261,11 @@ export function useCollectLunchToken() {
     mutationFn: ({
       userId,
       userName,
-      preference,
+      preferredLunchOption,
     }: {
       userId: string;
       userName: string;
-      preference: MealPreference;
+      preferredLunchOption: MealPreference;
     }) => {
       const today = new Date().toISOString().split("T")[0];
       const existing = lunchTokens.find(
@@ -279,7 +279,7 @@ export function useCollectLunchToken() {
         userId,
         userName,
         date: today,
-        preference,
+        preferredLunchOption,
         collectedAt: new Date().toISOString(),
       };
       lunchTokens.unshift(token);

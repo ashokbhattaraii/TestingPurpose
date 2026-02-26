@@ -1,69 +1,110 @@
-"use client"
+"use client";
 
-import { useAuth } from "@/lib/auth-context"
+import { useAuth } from "@/lib/auth-context";
+import { useLunchTokens } from "@/lib/queries";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  useLunchTokenForUser,
-  useLunchTokens,
-  useCollectLunchToken,
-} from "@/lib/queries"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { UtensilsCrossed, Clock, Leaf, Drumstick, CheckCircle2, XCircle } from "lucide-react"
-import { format } from "date-fns"
-import { useState, useMemo } from "react"
-import { toast } from "sonner"
-import type { MealPreference } from "@/lib/types"
+  useMarkLaunchAttendance,
+  useMyLunchAttendance,
+} from "@/hooks/launch/useLaunchAttendance";
+import { useLunchContext } from "@/lib/lunch/lunchContext";
+import {
+  UtensilsCrossed,
+  Clock,
+  Leaf,
+  Drumstick,
+  CheckCircle2,
+  XCircle,
+  Ticket,
+  Users,
+} from "lucide-react";
+import { format } from "date-fns";
+import { useState, useMemo } from "react";
+import { toast } from "sonner";
+import type { MealPreference } from "@/lib/types";
 
 function getToday() {
-  return new Date().toISOString().split("T")[0]
+  return new Date().toISOString().split("T")[0];
 }
 
 function isBefore11AM() {
-  const now = new Date()
-  return now.getHours() < 11
+  const now = new Date();
+  return now.getHours() < 12;
 }
 
 export default function LunchTokenPage() {
-  const { user } = useAuth()
-  const today = getToday()
-  const { data: myToken, isLoading: tokenLoading } = useLunchTokenForUser(
-    user?.id || "",
-    today
-  )
-  const { data: allTokensToday, isLoading: allLoading } = useLunchTokens(today)
-  const collectToken = useCollectLunchToken()
-  const [preference, setPreference] = useState<MealPreference | null>(null)
+  const { user } = useAuth();
+  const { data: myAttendance, isLoading: attendanceLoading } =
+    useMyLunchAttendance();
+  const today = getToday();
 
-  const canCollect = isBefore11AM()
-  const alreadyCollected = !!myToken
+  const { data: allTokensToday, isLoading: allLoading } = useLunchTokens(today);
+  const [preferredLunchOption, setPreference] = useState<MealPreference | null>(
+    null,
+  );
 
-  const isAdmin = user?.role === "admin" || user?.role === "superadmin"
+  const { totalAttending, totalTokens, totalVegetarian, totalNonVegetarian } =
+    useLunchContext();
+
+  const canCollect = isBefore11AM();
+
+  // Read from myAttendance.attendance — matches the actual API response shape
+  const alreadyCollected = myAttendance?.attendance?.isAttending === true;
+  const collectedPreference = myAttendance?.attendance?.preferredLunchOption as
+    | MealPreference
+    | undefined;
+
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
 
   const stats = useMemo(() => {
-    if (!allTokensToday) return { total: 0, veg: 0, nonVeg: 0 }
+    if (!allTokensToday) return { total: 0, veg: 0, nonVeg: 0 };
     return {
       total: allTokensToday.length,
-      veg: allTokensToday.filter((t) => t.preference === "veg").length,
-      nonVeg: allTokensToday.filter((t) => t.preference === "non-veg").length,
-    }
-  }, [allTokensToday])
+      veg: allTokensToday.filter((t) => t.preferredLunchOption === "VEG")
+        .length,
+      nonVeg: allTokensToday.filter((t) => t.preferredLunchOption === "NON_VEG")
+        .length,
+    };
+  }, [allTokensToday]);
+
+  const { mutate: handleAttendance, isPending } = useMarkLaunchAttendance();
 
   const handleCollect = () => {
-    if (!user || !preference) return
-    collectToken.mutate(
-      { userId: user.id, userName: user.name, preference },
-      {
-        onSuccess: () => {
-          toast.success("Lunch token collected successfully!")
-          setPreference(null)
-        },
-        onError: (err) => {
-          toast.error(err.message)
-        },
-      }
-    )
+    if (!preferredLunchOption) {
+      toast.error(
+        "Please select a meal preference before collecting your token.",
+      );
+      return;
+    }
+    handleAttendance({
+      isAttending: true,
+      preferredLunchOption: preferredLunchOption as MealPreference,
+    });
+  };
+
+  const handleCancelCollection = () => {
+    handleAttendance({
+      isAttending: false,
+      preferredLunchOption: (collectedPreference ??
+        preferredLunchOption) as MealPreference,
+    });
+  };
+
+  // Full-page skeleton while loading
+  if (attendanceLoading) {
+    return (
+      <div className="mx-auto max-w-3xl flex flex-col gap-6">
+        <div>
+          <Skeleton className="h-7 w-40" />
+          <Skeleton className="mt-1 h-4 w-72" />
+        </div>
+        <Skeleton className="h-20 w-full rounded-lg" />
+        <Skeleton className="h-48 w-full rounded-lg" />
+      </div>
+    );
   }
 
   return (
@@ -73,6 +114,67 @@ export default function LunchTokenPage() {
         <p className="text-sm text-muted-foreground">
           Collect your daily lunch token before 11:00 AM
         </p>
+      </div>
+
+      {/* ── Today's Lunch Overview ── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {/* Total Tokens */}
+        <Card className="relative overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center p-4">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+              <Ticket className="h-5 w-5 text-blue-600" />
+            </div>
+            <p className="text-3xl font-bold text-foreground">{totalTokens}</p>
+            <p className="text-xs font-medium text-muted-foreground">
+              Total Tokens
+            </p>
+          </CardContent>
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-blue-500" />
+        </Card>
+
+        {/* Total Attending */}
+        <Card className="relative overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center p-4">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
+              <Users className="h-5 w-5 text-purple-600" />
+            </div>
+            <p className="text-3xl font-bold text-foreground">
+              {totalAttending}
+            </p>
+            <p className="text-xs font-medium text-muted-foreground">
+              Attending
+            </p>
+          </CardContent>
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-purple-500" />
+        </Card>
+
+        {/* Vegetarian */}
+        <Card className="relative overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center p-4">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+              <Leaf className="h-5 w-5 text-green-600" />
+            </div>
+            <p className="text-3xl font-bold text-green-600">
+              {totalVegetarian}
+            </p>
+            <p className="text-xs font-medium text-muted-foreground">Veg</p>
+          </CardContent>
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-green-500" />
+        </Card>
+
+        {/* Non-Vegetarian */}
+        <Card className="relative overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center p-4">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
+              <Drumstick className="h-5 w-5 text-orange-600" />
+            </div>
+            <p className="text-3xl font-bold text-orange-600">
+              {totalNonVegetarian}
+            </p>
+            <p className="text-xs font-medium text-muted-foreground">Non-Veg</p>
+          </CardContent>
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-orange-500" />
+        </Card>
       </div>
 
       {/* Status banner */}
@@ -113,19 +215,17 @@ export default function LunchTokenPage() {
       </Card>
 
       {/* Collect Token Card */}
-      {tokenLoading ? (
-        <Skeleton className="h-48" />
-      ) : alreadyCollected ? (
+      {alreadyCollected ? (
         <Card>
           <CardHeader>
             <CardTitle className="text-base text-foreground">
               Your Token for Today
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-col gap-4">
             <div className="flex items-center gap-4 rounded-lg border border-border bg-muted/30 p-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                {myToken?.preference === "veg" ? (
+                {collectedPreference === "VEG" ? (
                   <Leaf className="h-6 w-6 text-green-600" />
                 ) : (
                   <Drumstick className="h-6 w-6 text-orange-600" />
@@ -133,16 +233,25 @@ export default function LunchTokenPage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground capitalize">
-                  {myToken?.preference === "veg" ? "Vegetarian" : "Non-Vegetarian"}
+                  {collectedPreference === "VEG"
+                    ? "Vegetarian"
+                    : "Non-Vegetarian"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Collected at{" "}
-                  {myToken
-                    ? format(new Date(myToken.collectedAt), "h:mm a")
-                    : ""}
+                  Token collected for today
                 </p>
               </div>
             </div>
+            {canCollect && (
+              <Button
+                variant="destructive"
+                onClick={handleCancelCollection}
+                disabled={isPending}
+                className="w-full"
+              >
+                {isPending ? "Cancelling..." : "Cancel Token Collection"}
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -156,9 +265,10 @@ export default function LunchTokenPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setPreference("veg")}
+                onClick={() => setPreference("VEG")}
+                disabled={isPending}
                 className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
-                  preference === "veg"
+                  preferredLunchOption === "VEG"
                     ? "border-green-500 bg-green-50"
                     : "border-border hover:border-green-300"
                 }`}
@@ -166,13 +276,16 @@ export default function LunchTokenPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                   <Leaf className="h-6 w-6 text-green-600" />
                 </div>
-                <span className="text-sm font-medium text-foreground">Vegetarian</span>
+                <span className="text-sm font-medium text-foreground">
+                  Vegetarian
+                </span>
               </button>
               <button
                 type="button"
-                onClick={() => setPreference("non-veg")}
+                onClick={() => setPreference("NON_VEG")}
+                disabled={isPending}
                 className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
-                  preference === "non-veg"
+                  preferredLunchOption === "NON_VEG"
                     ? "border-orange-500 bg-orange-50"
                     : "border-border hover:border-orange-300"
                 }`}
@@ -180,15 +293,17 @@ export default function LunchTokenPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100">
                   <Drumstick className="h-6 w-6 text-orange-600" />
                 </div>
-                <span className="text-sm font-medium text-foreground">Non-Vegetarian</span>
+                <span className="text-sm font-medium text-foreground">
+                  Non-Vegetarian
+                </span>
               </button>
             </div>
             <Button
               onClick={handleCollect}
-              disabled={!preference || !canCollect || collectToken.isPending}
+              disabled={!preferredLunchOption || !canCollect || isPending}
               className="w-full"
             >
-              {collectToken.isPending
+              {isPending
                 ? "Collecting..."
                 : !canCollect
                   ? "Collection Closed (After 11 AM)"
@@ -261,17 +376,19 @@ export default function LunchTokenPage() {
                           <Badge
                             variant="outline"
                             className={
-                              token.preference === "veg"
+                              token.preferredLunchOption === "VEG"
                                 ? "border-green-300 text-green-700"
                                 : "border-orange-300 text-orange-700"
                             }
                           >
-                            {token.preference === "veg" ? (
+                            {token.preferredLunchOption === "VEG" ? (
                               <Leaf className="mr-1 h-3 w-3" />
                             ) : (
                               <Drumstick className="mr-1 h-3 w-3" />
                             )}
-                            {token.preference === "veg" ? "Veg" : "Non-Veg"}
+                            {token.preferredLunchOption === "VEG"
+                              ? "Veg"
+                              : "Non-Veg"}
                           </Badge>
                         </div>
                       ))}
@@ -284,5 +401,5 @@ export default function LunchTokenPage() {
         </Card>
       )}
     </div>
-  )
+  );
 }
