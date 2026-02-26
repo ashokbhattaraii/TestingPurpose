@@ -32,6 +32,7 @@ import {
   CalendarIcon,
   X,
   AlertTriangle,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -265,96 +266,99 @@ export default function RequestsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <div className="relative min-w-0 flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search by title or ID..."
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-start gap-2 text-left font-normal sm:w-auto",
-                !dateRange && "text-muted-foreground",
-              )}
-            >
-              <CalendarIcon className="h-4 w-4 shrink-0" />
-              {dateRange?.from ? (
-                dateRange.to ? (
-                  <span className="truncate">
-                    {format(dateRange.from, "MMM d, yyyy")} -{" "}
-                    {format(dateRange.to, "MMM d, yyyy")}
-                  </span>
-                ) : (
-                  <span className="truncate">
-                    {format(dateRange.from, "MMM d, yyyy")}
-                  </span>
-                )
-              ) : (
-                <span>Filter by date</span>
-              )}
-              {dateRange?.from && (
-                <span
-                  role="button"
-                  tabIndex={0}
-                  className="ml-auto rounded-full p-0.5 hover:bg-muted"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    clearDateFilter();
+      <Card className="border-none shadow-sm bg-muted/20">
+        <CardContent className="p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="relative min-w-0 flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search requests..."
+                value={search}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pl-9 bg-white/50 focus:bg-white transition-all border-none shadow-inner"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "justify-start gap-2 text-left font-normal bg-white/50 hover:bg-white",
+                      !dateRange && "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="h-4 w-4 shrink-0" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <span className="max-w-[150px] truncate">
+                          {format(dateRange.from, "MMM d")} - {format(dateRange.to, "MMM d")}
+                        </span>
+                      ) : (
+                        <span>{format(dateRange.from, "MMM d, yyyy")}</span>
+                      )
+                    ) : (
+                      <span>Date Range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={handleDateChange}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Select value={statusFilter} onValueChange={handleStatusFilter}>
+                <SelectTrigger className="w-[140px] bg-white/50 hover:bg-white">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="ON-HOLD">On-Hold</SelectItem>
+                  <SelectItem value="REJECTED">Rejected</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={typeFilter} onValueChange={handleTypeFilter}>
+                <SelectTrigger className="w-[130px] bg-white/50 hover:bg-white">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="ISSUE">Issue</SelectItem>
+                  <SelectItem value="SUPPLIES">Supplies</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {(search || statusFilter !== "all" || typeFilter !== "all" || dateRange) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearch("");
+                    setStatusFilter("all");
+                    setTypeFilter("all");
+                    setDateRange(undefined);
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.stopPropagation();
-                      clearDateFilter();
-                    }
-                  }}
+                  className="h-9 px-2 text-muted-foreground hover:text-foreground"
                 >
-                  <X className="h-3.5 w-3.5" />
-                  <span className="sr-only">Clear date filter</span>
-                </span>
+                  <X className="h-4 w-4 mr-1" />
+                  Reset
+                </Button>
               )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              initialFocus
-              mode="range"
-              defaultMonth={dateRange?.from}
-              selected={dateRange}
-              onSelect={handleDateChange}
-              numberOfMonths={2}
-            />
-          </PopoverContent>
-        </Popover>
-        <Select value={statusFilter} onValueChange={handleStatusFilter}>
-          <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="PENDING">Pending</SelectItem>
-            <SelectItem value="ON-HOLD">On-Hold</SelectItem>
-            <SelectItem value="REJECTED">Rejected</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={typeFilter} onValueChange={handleTypeFilter}>
-          <SelectTrigger className="w-full sm:w-40">
-            <SelectValue placeholder="Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="ISSUE">Issue</SelectItem>
-            <SelectItem value="SUPPLIES">Supplies</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* List */}
       {isLoading ? (
@@ -373,55 +377,83 @@ export default function RequestsPage() {
         </Card>
       ) : (
         <>
-          <div className="flex flex-col gap-2">
+          <div className="grid gap-3">
             {paginatedRequests.map((req) => {
               const issuePriority = normalizePriority(
                 req.issueDetails?.priority ?? req.issuePriority,
               );
+              const isSupplies = req.type === "SUPPLIES";
 
               return (
                 <Link key={req.id} href={`/dashboard/requests/${req.id}`}>
-                  <Card className="transition-colors hover:bg-muted/30">
-                    <CardContent className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs text-muted-foreground">
-                            {req.id}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {getCategoryLabel(req)}
-                          </span>
-                          <span
-                            className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
-                              req.type === "SUPPLIES"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-orange-100 text-orange-700"
-                            }`}
-                          >
-                            {req.type === "SUPPLIES" ? "Supplies" : "Issue"}
-                          </span>
-                        </div>
-                        <span className="text-sm font-medium text-foreground">
-                          {req.title}
-                        </span>
-                        {req.type === "SUPPLIES" &&
-                          req.suppliesDetails?.itemName && (
-                            <span className="text-xs text-muted-foreground">
-                              Item: {req.suppliesDetails.itemName}
+                  <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/30 overflow-hidden">
+                    <CardContent className="flex flex-col sm:flex-row p-0 h-full">
+                      <div className={cn(
+                        "w-2 sm:w-1.5 shrink-0 transition-colors",
+                        isSupplies ? "bg-blue-500" : "bg-orange-500"
+                      )} />
+
+                      <div className="flex flex-col flex-1 gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/70 bg-muted px-2 py-0.5 rounded">
+                              {req.id.slice(0, 8)}
                             </span>
-                          )}
-                        <span className="text-xs text-muted-foreground">
-                          by {req.user?.name ?? req.createdByName ?? "Unknown"}
-                        </span>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {formatRequestDate(req.createdAt)}
-                        </span>
-                        {req.type === "ISSUE" && issuePriority && (
-                          <PriorityBadge priority={issuePriority} />
-                        )}
-                        <StatusBadge status={req.status} />
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-2 py-0.5 border border-border rounded">
+                              {getCategoryLabel(req)}
+                            </span>
+                            <span
+                              className={cn(
+                                "flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold uppercase rounded-full",
+                                isSupplies
+                                  ? "bg-blue-50 text-blue-600 border border-blue-100"
+                                  : "bg-orange-50 text-orange-600 border border-orange-100"
+                              )}
+                            >
+                              <div className={cn("h-1 w-1 rounded-full animate-pulse", isSupplies ? "bg-blue-500" : "bg-orange-500")} />
+                              {isSupplies ? "Supplies" : "Issue"}
+                            </span>
+                          </div>
+
+                          <div className="space-y-1">
+                            <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                              {req.title}
+                            </h3>
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1.5">
+                                <Users className="h-3.5 w-3.5" />
+                                <span className="font-medium">{req.user?.name ?? req.createdByName ?? "Unknown"}</span>
+                              </div>
+                              {isSupplies && req.suppliesDetails?.itemName && (
+                                <>
+                                  <span className="text-muted-foreground/30">•</span>
+                                  <span className="font-medium bg-slate-100 px-2 rounded tracking-tight italic">
+                                    Item: {req.suppliesDetails.itemName}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 pt-4 border-t border-border sm:pt-0 sm:border-none">
+                          <div className="flex flex-col items-end gap-1.5">
+                            <div className="flex items-center gap-2">
+                              {req.type === "ISSUE" && issuePriority && (
+                                <PriorityBadge priority={issuePriority} />
+                              )}
+                              <StatusBadge status={req.status} />
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                              <CalendarIcon className="h-3.5 w-3.5" />
+                              {formatRequestDate(req.createdAt)}
+                            </div>
+                          </div>
+
+                          <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 border border-border group-hover:bg-primary group-hover:text-white transition-all">
+                            <ChevronRight className="h-5 w-5" />
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
