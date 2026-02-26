@@ -4,7 +4,6 @@ import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { QueryProvider } from "@/lib/query-provider";
 export default function DashboardLayout({
   children,
 }: {
@@ -36,8 +35,6 @@ export default function DashboardLayout({
   }
 
   return (
-    <QueryProvider>
-      <DashboardShell>{children}</DashboardShell>
-    </QueryProvider>
+    <DashboardShell>{children}</DashboardShell>
   );
 }

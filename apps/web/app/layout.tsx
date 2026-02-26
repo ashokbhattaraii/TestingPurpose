@@ -3,10 +3,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import { Toaster } from "@/components/ui/toaster";
-import { LunchProvider } from "@/lib/lunch/lunchContext";
-import { QueryProvider } from "@/lib/query-provider";
-const _inter = Inter({ subsets: ["latin"] });
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
@@ -24,13 +20,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <Providers>
-          <LunchProvider>
-            <QueryProvider>
-              {children}
-              <Toaster />{" "}
-            </QueryProvider>
-            {/* Moved Toaster inside Providers to ensure it has access to the context */}
-          </LunchProvider>
+          {children}
         </Providers>
       </body>
     </html>

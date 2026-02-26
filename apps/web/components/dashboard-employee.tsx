@@ -69,34 +69,31 @@ export function EmployeeDashboard() {
   const { totalTokens, totalAttending, totalVegetarian, totalNonVegetarian } =
     useLunchContext();
 
-  console.log("🍽️ Lunch Context - Total Attending:", totalAttending);
-  console.log("🍽️ Lunch Context - Total Vegetarian:", totalVegetarian);
-  console.log("🍽️ Lunch Context - Total Non-Vegetarian:", totalNonVegetarian);
+  const { data: allRequests, isLoading: requestsLoading } =
+    useGetAllRequestsQuery();
 
-  const { data, isLoading: requestsLoading } = useGetAllRequestsQuery();
-  console.log("👤 Dashboard - Loading:", requestsLoading);
-  console.log("👤 Dashboard - User:", user);
-  console.log("👤 Dashboard - Role:", user?.role);
-  console.log("📋 Dashboard - All Requests:", data);
-  const { data: requests, isLoading: reqLoading } = useServiceRequests(
-    user?.id,
-  );
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
-  const today = new Date().toISOString().split("T")[0];
-  const { data: todayTokens, isLoading: tokenLoading } = useLunchTokens(today);
-  const tokenCount = todayTokens?.length ?? 0;
 
-  const pending = requests?.filter((r) => r.status === "PENDING").length ?? 0;
-  const approved = requests?.filter((r) => r.status === "APPROVED").length ?? 0;
-  const onhold = requests?.filter((r) => r.status === "ON-HOLD").length ?? 0;
-  const rejected = requests?.filter((r) => r.status === "REJECTED").length ?? 0;
-  const total = requests?.length ?? 0;
+  const pending =
+    allRequests?.filter((r) => r.status === "PENDING").length ?? 0;
+  const approved =
+    allRequests?.filter((r) => r.status === "APPROVED").length ?? 0;
+  // Note: ON-HOLD is not in current schema, using PENDING or approved as placeholder if needed,
+  // but for now keeping it as 0 or mapping to another status if available
+  const onhold =
+    allRequests?.filter((r) => r.status as string === "ON-HOLD").length ?? 0;
+  const rejected =
+    allRequests?.filter((r) => r.status === "REJECTED").length ?? 0;
+  const total = allRequests?.length ?? 0;
 
   const [search, setSearch] = useState("");
 
-  // ✅ Case-insensitive search by title or ID
+  // ✅ Show ONLY user's requests in "Your Recent Requests"
+  const userRequests =
+    allRequests?.filter((r) => r.user?.id === user?.id) ?? [];
+
   const recentRequests =
-    requests
+    userRequests
       ?.filter(
         (r) =>
           r.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -142,77 +139,88 @@ export function EmployeeDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        {reqLoading ? (
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        {requestsLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <Skeleton className="h-16" />
+            <Card key={i} className="h-32">
+              <CardContent className="flex items-center justify-center p-4">
+                <Skeleton className="h-16 w-full" />
               </CardContent>
             </Card>
           ))
         ) : (
           <>
-            <Card>
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <ClipboardList className="h-5 w-5 text-primary" />
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/40 h-32">
+              <CardContent className="flex flex-col justify-between p-5 h-full">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                    <ClipboardList className="h-5 w-5 text-primary" />
+                  </div>
+                  <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full">Total</span>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{total}</p>
-                  <p className="text-xs text-muted-foreground">Total</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50">
-                  <AlertCircle className="h-5 w-5 text-amber-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {pending}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Pending</p>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{total}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">My Requests</p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-amber-200 h-32">
+              <CardContent className="flex flex-col justify-between p-5 h-full">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 group-hover:bg-amber-100 transition-colors">
+                    <AlertCircle className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Wait</span>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{onhold}</p>
-                  <p className="text-xs text-muted-foreground">On-Hold</p>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{pending}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Pending</p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-blue-200 h-32">
+              <CardContent className="flex flex-col justify-between p-5 h-full">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100 transition-colors">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Hold</span>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {approved}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Approved</p>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{onhold}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">On-Hold</p>
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="flex items-center gap-3 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
+
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200 h-32">
+              <CardContent className="flex flex-col justify-between p-5 h-full">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 group-hover:bg-emerald-100 transition-colors">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">OK</span>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {rejected}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Rejected</p>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{approved}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Approved</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-red-200 h-32">
+              <CardContent className="flex flex-col justify-between p-5 h-full">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 group-hover:bg-red-100 transition-colors">
+                    <AlertCircle className="h-5 w-5 text-red-600" />
+                  </div>
+                  <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Fail</span>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{rejected}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Rejected</p>
                 </div>
               </CardContent>
             </Card>
@@ -238,7 +246,7 @@ export function EmployeeDashboard() {
             </Button>
           </CardHeader>
           <CardContent>
-            {reqLoading ? (
+            {requestsLoading ? (
               <div className="flex flex-col gap-3">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <Skeleton key={i} className="h-14" />
@@ -249,24 +257,31 @@ export function EmployeeDashboard() {
                 No requests yet. Create your first request.
               </p>
             ) : (
-              <div className="flex flex-col gap-2">
+              <div className="divide-y divide-border rounded-xl border border-border overflow-hidden bg-white shadow-sm">
                 {recentRequests.map((req) => (
                   <Link
-                    key={req.id}
-                    href={`/dashboard/requests/${req.id}`}
-                    className="flex items-center justify-between rounded-md border border-border p-3 transition-colors hover:bg-muted/50"
+                    key={req?.id}
+                    href={`/dashboard/requests/${req?.id}`}
+                    className="group flex items-center justify-between px-4 py-4 transition-all duration-200 hover:bg-slate-50"
                   >
-                    <div className="flex flex-col gap-1">
-                      <span className="text-sm font-medium text-foreground">
-                        {req.title}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {req.id} - {format(new Date(req.createdAt), "MMM d")}
-                      </span>
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                        <ClipboardList className="h-5 w-5" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {req.title}
+                        </span>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+                          <span>{format(new Date(req.createdAt), "MMM d, h:mm a")}</span>
+                          <span>•</span>
+                          <span className="font-mono text-[10px] uppercase opacity-70">RE-{req.id.slice(0, 6)}</span>
+                        </div>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      {req.type === "ISSUE" && req.issuePriority && (
-                        <PriorityBadge priority={req.issuePriority} />
+                      {req.type === "ISSUE" && req.issueDetails?.priority && (
+                        <PriorityBadge priority={req.issueDetails.priority} />
                       )}
                       <StatusBadge status={req.status} />
                     </div>
@@ -304,18 +319,20 @@ export function EmployeeDashboard() {
                 No announcements.
               </p>
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="space-y-4">
                 {pinnedAnnouncements.map((ann) => (
                   <div
                     key={ann.id}
-                    className="flex items-start gap-2 rounded-md border border-border p-3"
+                    className="group flex items-start gap-4 rounded-xl border border-border p-4 transition-all duration-200 hover:bg-slate-50 hover:shadow-md"
                   >
-                    <Megaphone className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium text-foreground">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                      <Megaphone className="h-5 w-5" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                         {ann.title}
                       </span>
-                      <span className="line-clamp-2 text-xs text-muted-foreground">
+                      <span className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                         {ann.content}
                       </span>
                     </div>

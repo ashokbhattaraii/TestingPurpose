@@ -20,7 +20,7 @@ type ApiRequestPayload = {
 
 export type CreateRequestPayload = ApiRequestPayload;
 
-type RequestResponse = {
+export type RequestResponse = {
   id: string;
   type: RequestType;
   title: string;
@@ -35,7 +35,7 @@ type RequestResponse = {
     category: "OFFICE" | "MAINTENANCE" | "OTHER";
     itemName: string;
   };
-  status: "PENDING" | "IN_PROGRESS" | "RESOLVED" | "REJECTED";
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
   createdAt: string;
   updatedAt: string;
   user: {

@@ -8,9 +8,10 @@ import {
 import axiosInstance from "@/lib/axios/axios";
 import {
   CreateRequestPayload,
-  GetRequestsResponse,
+  RequestResponse,
 } from "@/lib/type/requestType";
 import { toast } from "@/hooks/use-toast";
+
 export default function useCreateRequestMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -24,7 +25,8 @@ export default function useCreateRequestMutation() {
         title: "Request Created",
         description: "Your service request has been created successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["requests"] });
+      // Invalidate "allRequests" to match the query key used in useGetAllRequestsQuery
+      queryClient.invalidateQueries({ queryKey: ["allRequests"] });
     },
     onError: (error: any) => {
       toast({
@@ -42,14 +44,16 @@ export function useGetAllRequestsQuery() {
   return useQuery({
     queryKey: ["allRequests"],
     queryFn: async () => {
-      const response = await axiosInstance.get("/request/requests");
-
-      return response.data as GetRequestsResponse[];
+      const response = await axiosInstance.get<{
+        message: string;
+        requests: RequestResponse[];
+      }>("/request/requests");
+      return response.data?.requests || [];
     },
-    staleTime: 0,
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
-    refetchInterval: 10 * 2 * 1000, // 2 minutes
+    refetchInterval: 60 * 1000,
     retry: true,
   });
 }

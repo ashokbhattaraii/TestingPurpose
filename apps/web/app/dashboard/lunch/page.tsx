@@ -32,7 +32,7 @@ function getToday() {
 
 function isBefore11AM() {
   const now = new Date();
-  return now.getHours() < 12;
+  return now.getHours() > 11;
 }
 
 export default function LunchTokenPage() {
@@ -82,6 +82,7 @@ export default function LunchTokenPage() {
     handleAttendance({
       isAttending: true,
       preferredLunchOption: preferredLunchOption as MealPreference,
+      userId: user?.id,
     });
   };
 
@@ -90,6 +91,7 @@ export default function LunchTokenPage() {
       isAttending: false,
       preferredLunchOption: (collectedPreference ??
         preferredLunchOption) as MealPreference,
+      userId: user?.id,
     });
   };
 
@@ -267,11 +269,10 @@ export default function LunchTokenPage() {
                 type="button"
                 onClick={() => setPreference("VEG")}
                 disabled={isPending}
-                className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
-                  preferredLunchOption === "VEG"
-                    ? "border-green-500 bg-green-50"
-                    : "border-border hover:border-green-300"
-                }`}
+                className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${preferredLunchOption === "VEG"
+                  ? "border-green-500 bg-green-50"
+                  : "border-border hover:border-green-300"
+                  }`}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                   <Leaf className="h-6 w-6 text-green-600" />
@@ -284,11 +285,10 @@ export default function LunchTokenPage() {
                 type="button"
                 onClick={() => setPreference("NON_VEG")}
                 disabled={isPending}
-                className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${
-                  preferredLunchOption === "NON_VEG"
-                    ? "border-orange-500 bg-orange-50"
-                    : "border-border hover:border-orange-300"
-                }`}
+                className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${preferredLunchOption === "NON_VEG"
+                  ? "border-orange-500 bg-orange-50"
+                  : "border-border hover:border-orange-300"
+                  }`}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100">
                   <Drumstick className="h-6 w-6 text-orange-600" />

@@ -36,11 +36,6 @@ const roleBadgeClass: Record<string, string> = {
 };
 
 export function LoginPage() {
-  const handleLogin = (userId: string) => {};
-
-  async function OAuthHandle() {
-    window.location.href = `${process.env.NEXT_PUBLIC_BASE_URL!}/auth/google`;
-  }
   const { loginWithGoogle, isGoogleLoginPending } = useLogin();
   const demoUser = users[0];
   const otherUsers = users.slice(1);
@@ -80,7 +75,6 @@ export function LoginPage() {
           <CardContent className="pt-2 pb-8 px-6">
             <div className="flex flex-col gap-3">
               {/* Already have account link */}
-            
 
               {/* Google Sign In Button */}
               <button
@@ -89,7 +83,9 @@ export function LoginPage() {
                 className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-background hover:bg-muted/50 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:border-primary/50 hover:shadow-sm"
               >
                 <FcGoogle className="h-5 w-5" />
-                <span className="text-gray-900 dark:text-white">Continue with Google</span>
+                <span className="text-gray-900 dark:text-white">
+                  Continue with Google
+                </span>
               </button>
             </div>
           </CardContent>
@@ -107,13 +103,10 @@ export function LoginPage() {
             </Link>
           </p>
         </div>
-        </div>
+      </div>
     </div>
   );
 }
-
-
-
 
 // "use client";
 
