@@ -9,9 +9,10 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      window.location.href = "/login";
-    }
+    // Do not redirect on 401 here — the auth context handles unauthenticated state
+    // by setting user to null, which the layout then uses to redirect to /login.
+    // A hard redirect from axios would cause a reload loop competing with the
+    // React router redirect already managed by the auth context and layout.
     return Promise.reject(error);
   },
 );

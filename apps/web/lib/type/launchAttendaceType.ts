@@ -1,17 +1,29 @@
 import { MealPreference } from "../types";
+
 type LauncAttendanceType = {
   isAttending: boolean;
   preferredLunchOption: MealPreference;
+  userId?: string;
 };
 
+// Matches the actual API response from GET /launch/attendance-summary
 type LaunchAttendanceSummary = {
-  total: number;
-  attending: number;
+  date: string;
+  summary: {
+    total: number;
+    attending: number;
+  };
   attendances: {
     id: string;
     userId: string;
-    isAttending: LauncAttendanceType;
-  };
+    isAttending: boolean;
+    preferredLunchOption: MealPreference;
+    user?: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  }[];
 };
 
 export type { LauncAttendanceType, LaunchAttendanceSummary };
@@ -23,7 +35,7 @@ type myAttendanceResponse = {
     userId: string;
     isAttending: boolean;
     preferredLunchOption: MealPreference;
-  };
+  } | null;
 };
 
 export type { myAttendanceResponse };

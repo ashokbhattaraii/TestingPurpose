@@ -28,7 +28,8 @@ export function useMarkLaunchAttendance() {
 
   return useMutation({
     mutationKey: ["launch-attendance", "my"],
-    mutationFn: async (payload: LauncAttendanceType) => {
+    // Accept optional userId so the optimistic update can match the correct attendance record
+    mutationFn: async (payload: LauncAttendanceType & { userId?: string }) => {
       const response = await axiosInstance.post("/launch/attendance", {
         isAttending: payload.isAttending,
         preferredLunchOption: payload.preferredLunchOption,
@@ -40,7 +41,7 @@ export function useMarkLaunchAttendance() {
     },
 
     onMutate: async (payload) => {
-      // 1. Cancel in-flight refetches so they don't overwrite optimistic update
+      // Cancel in-flight refetches so they do not overwrite the optimistic update
       await queryClient.cancelQueries({
         queryKey: ["launch-attendance-summary"],
       });
@@ -48,7 +49,7 @@ export function useMarkLaunchAttendance() {
         queryKey: ["lunch-attendance", "my"],
       });
 
-      // 2. Snapshot current values for rollback on error
+      // Snapshot current values for rollback on error
       const previousSummary = queryClient.getQueryData([
         "launch-attendance-summary",
       ]);
@@ -57,33 +58,45 @@ export function useMarkLaunchAttendance() {
         "my",
       ]);
 
-      // 3. Optimistically update summary count
+      // Optimistically update the summary so counts change immediately in the context
       queryClient.setQueryData(["launch-attendance-summary"], (old: any) => {
         if (!old) return old;
-        const attendances = old.attendances ?? [];
-        const alreadyExists = attendances.some(
-          (a: any) => a.userId === old.userId,
-        );
 
-        const updatedAttendances = alreadyExists
-          ? attendances.map((a: any) =>
-              a.userId === old.userId
+        const attendances: any[] = old.attendances ?? [];
+        const currentUserId = payload.userId;
+
+        let updatedAttendances: any[];
+
+        if (currentUserId) {
+          // Update or insert the specific user's attendance record
+          const alreadyExists = attendances.some(
+            (a: any) => a.userId === currentUserId,
+          );
+
+          updatedAttendances = alreadyExists
+            ? attendances.map((a: any) =>
+              a.userId === currentUserId
                 ? {
-                    ...a,
-                    isAttending: payload.isAttending,
-                    preferredLunchOption: payload.preferredLunchOption,
-                  }
+                  ...a,
+                  isAttending: payload.isAttending,
+                  preferredLunchOption: payload.preferredLunchOption,
+                }
                 : a,
             )
-          : payload.isAttending
-            ? [
+            : payload.isAttending
+              ? [
                 ...attendances,
                 {
+                  userId: currentUserId,
                   isAttending: true,
                   preferredLunchOption: payload.preferredLunchOption,
                 },
               ]
-            : attendances;
+              : attendances;
+        } else {
+          // No userId provided — leave attendances list unchanged, server refetch will correct this
+          updatedAttendances = attendances;
+        }
 
         const attending = updatedAttendances.filter(
           (a: any) => a.isAttending,
@@ -96,14 +109,18 @@ export function useMarkLaunchAttendance() {
         };
       });
 
-      // 4. Optimistically update my attendance
+      // Optimistically update my attendance — update the nested attendance object to match
+      // the actual API response shape: { message: string, attendance: { ... } }
       queryClient.setQueryData(["lunch-attendance", "my"], (old: any) => ({
         ...old,
-        isAttending: payload.isAttending,
-        preferredLunchOption: payload.preferredLunchOption,
+        attendance: {
+          ...(old?.attendance ?? {}),
+          isAttending: payload.isAttending,
+          preferredLunchOption: payload.preferredLunchOption,
+        },
       }));
 
-      // 5. Return snapshots for rollback
+      // Return snapshots for rollback
       return { previousSummary, previousMyAttendance };
     },
 

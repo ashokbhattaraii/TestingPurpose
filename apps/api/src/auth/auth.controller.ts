@@ -28,12 +28,14 @@ export class AuthController {
 
       const result = await this.authService.googleLogin(req.user);
 
-      console.log(' Login successful');
+      console.log('Login successful');
+
+      const isProduction = process.env.NODE_ENV === 'production';
 
       res.cookie('access_token', result.access_token, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none',
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
         path: '/',
       });
@@ -41,7 +43,7 @@ export class AuthController {
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       res.redirect(`${frontendUrl}/dashboard`);
     } catch (error) {
-      console.error(' Login error:', error.message);
+      console.error('Login error:', error.message);
 
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       res.redirect(
@@ -69,10 +71,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt'))
   logout(@Req() req, @Res() res) {
+    const isProduction = process.env.NODE_ENV === 'production';
+
     res.clearCookie('access_token', {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
     });
 

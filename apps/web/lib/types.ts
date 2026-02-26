@@ -3,11 +3,11 @@ export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
 export type RequestStatus =
   | "PENDING"
   | "APPROVED"
-  | "ON-HOLD"
   | "REJECTED"
-  | "COMPLETED";
+  | "CANCELLED"
+  | "ON-HOLD"; // Keeping ON-HOLD for UI compatibility if needed, but primarily using the others
 
-export type RequestType = "ISSUE" | "Supplies";
+export type RequestType = "ISSUE" | "SUPPLIES";
 
 export type IssuePriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
