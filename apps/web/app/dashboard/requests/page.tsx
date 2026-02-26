@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
-import { useGetAllRequestsQuery } from "@/hooks/use-createRequest";
+import { useGetAllRequestsQuery } from "@/hooks/request/use-createRequest";
 import {
   Select,
   SelectContent,
@@ -51,7 +51,7 @@ import {
   ISSUE_PRIORITY_LABELS,
   SUPPLIES_CATEGORY_LABELS,
 } from "@/schemas";
-import useCreateRequestMutation from "@/hooks/use-createRequest";
+import useCreateRequestMutation from "@/hooks/request/use-createRequest";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -154,18 +154,16 @@ const normalizePriority = (
 export default function RequestsPage() {
   const { user } = useAuth();
   const isEmployee = user?.role === "EMPLOYEE";
-  const { data: requests, isLoading } = useServiceRequests(
-    isEmployee ? user?.id : undefined,
-  );
-  const { data, isLoading: requestsLoading } = useGetAllRequestsQuery();
+
+  const { data: requests, isLoading } = useGetAllRequestsQuery();
 
   const allRequests = ((
-    data as { message?: string; requests?: any[] } | undefined
+    requests as { message?: string; requests?: any[] } | undefined
   )?.requests ??
     requests ??
     []) as any[];
 
-  console.log("👤 Dashboard - Loading:", isLoading || requestsLoading);
+  console.log("👤 Dashboard - Loading:", isLoading);
   console.log("👤 Dashboard - User:", user);
   console.log("👤 Dashboard - Role:", user?.role);
   console.log("📋 Dashboard - All Requests:", allRequests);

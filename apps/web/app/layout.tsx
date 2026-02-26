@@ -2,10 +2,12 @@ import React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers";
-import { Toaster } from "@/components/ui/toaster";
 
+import { Toaster } from "@/components/ui/toaster";
+import { LunchProvider } from "@/lib/lunch/lunchContext";
+import { QueryProvider } from "@/lib/query-provider";
 const _inter = Inter({ subsets: ["latin"] });
+import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: "WorkOps - Office Utility Management",
@@ -22,9 +24,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <Providers>
-          {children}
-          <Toaster />{" "}
-          {/* Moved Toaster inside Providers to ensure it has access to the context */}
+          <LunchProvider>
+            <QueryProvider>
+              {children}
+              <Toaster />{" "}
+            </QueryProvider>
+            {/* Moved Toaster inside Providers to ensure it has access to the context */}
+          </LunchProvider>
         </Providers>
       </body>
     </html>

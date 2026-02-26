@@ -15,3 +15,15 @@ type LaunchAttendanceSummary = {
 };
 
 export type { LauncAttendanceType, LaunchAttendanceSummary };
+
+type myAttendanceResponse = {
+  message: string;
+  attendance: {
+    id: string;
+    userId: string;
+    isAttending: boolean;
+    preferredLunchOption: MealPreference;
+  };
+};
+
+export type { myAttendanceResponse };

@@ -49,3 +49,8 @@ type RequestResponse = {
 };
 
 export type GetRequestsResponse = RequestResponse[];
+
+export interface GetRequestByIdResponse {
+  message: string;
+  request: RequestResponse; // reuse your existing type
+}

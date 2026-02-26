@@ -17,4 +17,10 @@ export class LaunchController {
   async getAttendanceSummary() {
     return this.launchService.getTodayAttendance();
   }
+
+  @Get('my-attendance')
+  @UseGuards(AuthGuard('jwt'))
+  async getMyAttendance(@CurrentUser() user) {
+    return this.launchService.myAttendance(user.id);
+  }
 }

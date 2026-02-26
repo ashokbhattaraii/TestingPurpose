@@ -86,4 +86,29 @@ export class LaunchService {
       })),
     };
   }
+
+  async myAttendance(userId: string) {
+    const today = this.toDateOnly(new Date());
+    const attendance = await this.prisma.lunchAttendance.findUnique({
+      where: {
+        userId_date: { userId, date: today },
+      },
+
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    });
+    const returnMsg = {
+      message: 'Your attendance for today fetched successfully',
+      attendance,
+    };
+    return returnMsg;
+  }
 }

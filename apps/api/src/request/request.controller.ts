@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator/current-user.decorator';
@@ -21,5 +21,12 @@ export class RequestController {
   getAllRequests(@CurrentUser() user: UserPayload) {
     console.log('Fetching requests from user:', user.id);
     return this.requestService.getRequests();
+  }
+
+  @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
+  getRequestById(@CurrentUser() user: UserPayload, @Param('id') id: string) {
+    console.log('Fetching request with ID:', id);
+    return this.requestService.getRequestById(id);
   }
 }

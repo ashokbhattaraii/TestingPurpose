@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
+import { useGetRequestByIdQuery } from "@/hooks/request/useGetRequest";
 import {
   Select,
   SelectContent,
@@ -74,7 +75,7 @@ export default function RequestDetailPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-  const { data: request, isLoading } = useServiceRequest(id);
+  const { data: requestById, isLoading } = useGetRequestByIdQuery(id);
   const { data: allUsers } = useUsers();
   const updateStatus = useUpdateRequestStatus();
   const assignRequest = useAssignRequest();
@@ -85,8 +86,19 @@ export default function RequestDetailPage() {
   const [assignTo, setAssignTo] = useState<string>("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const formatDate = (value: any, pattern: string) => {
+    if (!value) return "N/A";
+    const newDate = new Date(value).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+    return newDate;
+  };
+
   const isAdminOrSuper = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
-  const isCreator = user?.id === request?.userId;
+  const isCreator = user?.id === requestById?.request.user.id;
+  const request = requestById?.request;
 
   const handleStatusUpdate = () => {
     if (!newStatus || !request) return;
@@ -204,7 +216,7 @@ export default function RequestDetailPage() {
               </CardTitle>
             </div>
             <div className="flex items-center gap-2">
-              <StatusBadge status={request.status} />
+              <StatusBadge status={request?.status as any} />
               {isCreator && request.status === "PENDING" && (
                 <>
                   <Button variant="outline" size="sm" asChild>
@@ -239,81 +251,91 @@ export default function RequestDetailPage() {
               <div>
                 <p className="text-xs text-muted-foreground">Type</p>
                 <p className="text-sm capitalize text-foreground">
-                  {request.type === "Supplies" ? "Supplies Request" : "Issue"}
+                  {request.type === "SUPPLIES" ? "Supplies Request" : "Issue"}
                 </p>
               </div>
             </div>
 
             {/* Issue-specific details */}
-            {request.type === "ISSUE" && request.issueCategory && (
+            {request.type === "ISSUE" && request.issueDetails?.category && (
               <div className="flex items-center gap-2">
                 <Tag className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-xs text-muted-foreground">Category</p>
                   <p className="text-sm text-foreground">
-                    {ISSUE_CATEGORY_LABELS[request.issueCategory]}
+                    {ISSUE_CATEGORY_LABELS[
+                      request.issueDetails
+                        .category as keyof typeof ISSUE_CATEGORY_LABELS
+                    ] || request.issueDetails.category}
                   </p>
                 </div>
               </div>
             )}
 
-            {request.type === "ISSUE" && request.issuePriority && (
+            {request.type === "ISSUE" && request.issueDetails?.priority && (
               <div className="flex items-center gap-2">
                 <Flag className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-xs text-muted-foreground">Priority</p>
                   <Badge
                     variant="outline"
-                    className={`text-xs ${priorityConfig[request.issuePriority]?.className || ""}`}
+                    className={`text-xs ${priorityConfig[request.issueDetails.priority]?.className || ""}`}
                   >
-                    {ISSUE_PRIORITY_LABELS[request.issuePriority]}
+                    {ISSUE_PRIORITY_LABELS[request.issueDetails.priority]}
                   </Badge>
                 </div>
               </div>
             )}
 
-            {request.type === "ISSUE" && request.location && (
+            {request.type === "ISSUE" && request.issueDetails?.location && (
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-xs text-muted-foreground">Location</p>
-                  <p className="text-sm text-foreground">{request.location}</p>
+                  <p className="text-sm text-foreground">
+                    {request.issueDetails.location}
+                  </p>
                 </div>
               </div>
             )}
 
             {/* Supplies-specific details */}
-            {request.type === "Supplies" && request.SuppliesCategory && (
-              <div className="flex items-center gap-2">
-                <Tag className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Supplies Category
-                  </p>
-                  <p className="text-sm text-foreground">
-                    {SUPPLIES_CATEGORY_LABELS[request.SuppliesCategory]}
-                  </p>
+            {request.type === "SUPPLIES" &&
+              request.suppliesDetails?.category && (
+                <div className="flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">
+                      Supplies Category
+                    </p>
+                    <p className="text-sm text-foreground">
+                      {SUPPLIES_CATEGORY_LABELS[
+                        request.suppliesDetails
+                          .category as keyof typeof SUPPLIES_CATEGORY_LABELS
+                      ] || request.suppliesDetails.category}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {request.type === "Supplies" && request.itemName && (
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Item Name</p>
-                  <p className="text-sm text-foreground">{request.itemName}</p>
+            {request.type === "SUPPLIES" &&
+              request.suppliesDetails?.itemName && (
+                <div className="flex items-center gap-2">
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Item Name</p>
+                    <p className="text-sm text-foreground">
+                      {request.suppliesDetails.itemName}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Requested by</p>
-                <p className="text-sm text-foreground">
-                  {request.createdByName}
-                </p>
+                <p className="text-sm text-foreground">{request.user.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -321,95 +343,23 @@ export default function RequestDetailPage() {
               <div>
                 <p className="text-xs text-muted-foreground">Created</p>
                 <p className="text-sm text-foreground">
-                  {format(new Date(request.createdAt), "MMM d, yyyy")}
+                  {formatDate(request.createdAt, "MMM d, yyyy")}
                 </p>
               </div>
             </div>
-
-            {/* Fulfillment info for supplies */}
-            {request.type === "Supplies" && request.isFulfilled && (
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-emerald-600" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Fulfilled</p>
-                  <p className="text-sm text-emerald-600">
-                    {request.fulfilledAt
-                      ? format(new Date(request.fulfilledAt), "MMM d, yyyy")
-                      : "Yes"}
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
 
-          {request.attachments && request.attachments.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <Paperclip className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm font-medium text-foreground">
-                  Attachments ({request.attachments.length})
-                </p>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {request.attachments.map((att) => (
-                  <a
-                    key={att.id}
-                    href={att.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm transition-colors hover:bg-muted/50"
-                  >
-                    {att.type.startsWith("image/") ? (
-                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                    ) : att.type === "application/pdf" ? (
-                      <FileText className="h-4 w-4 text-red-500" />
-                    ) : (
-                      <File className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span className="flex-1 truncate text-foreground">
-                      {att.name}
-                    </span>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {att.size < 1024
-                        ? `${att.size} B`
-                        : att.size < 1024 * 1024
-                          ? `${(att.size / 1024).toFixed(1)} KB`
-                          : `${(att.size / (1024 * 1024)).toFixed(1)} MB`}
-                    </span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Rejection Reason Display */}
-          {request.status === "REJECTED" && request.rejectionReason && (
+          {request.status === "REJECTED" && (
             <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4">
               <div className="flex items-start gap-2">
                 <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-destructive">
-                    Rejection Reason
+                    Request Rejected
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-foreground">
-                    {request.rejectionReason}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Admin Notes Display */}
-          {request.adminNotes && (
-            <div className="rounded-md border border-border bg-muted/30 p-4">
-              <div className="flex items-start gap-2">
-                <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-foreground">
-                    Admin Notes
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed text-foreground">
-                    {request.adminNotes}
+                    This request has been rejected.
                   </p>
                 </div>
               </div>
@@ -443,22 +393,16 @@ export default function RequestDetailPage() {
             </div>
           )}
 
-          {request.assignedToName && (
-            <div className="rounded-md border border-border bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">Assigned to</p>
-              <p className="text-sm font-medium text-foreground">
-                {request.assignedToName}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Last updated:{" "}
-                {format(new Date(request.updatedAt), "MMM d, yyyy h:mm a")}
-              </p>
-            </div>
-          )}
+          <div className="rounded-md border border-border bg-muted/30 p-3">
+            <p className="text-xs text-muted-foreground">Last updated</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {formatDate(request.updatedAt, "MMM d, yyyy h:mm a")}
+            </p>
+          </div>
 
           {/* Admin: Assign Request */}
           {isAdminOrSuper &&
-            request.status !== "APPROVED" &&
+            request.status !== "RESOLVED" &&
             request.status !== "REJECTED" && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <div className="flex items-center gap-2">
@@ -474,7 +418,7 @@ export default function RequestDetailPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {allUsers
-                        ?.filter((u) => u.id !== request.userId)
+                        ?.filter((u) => u.id !== request.user.id)
                         .map((u) => (
                           <SelectItem key={u.id} value={u.id}>
                             {u.name} ({u.department})
@@ -499,7 +443,7 @@ export default function RequestDetailPage() {
 
           {/* Admin: Update Status */}
           {isAdminOrSuper &&
-            request.status !== "APPROVED" &&
+            request.status !== "RESOLVED" &&
             request.status !== "REJECTED" && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <p className="text-sm font-medium text-foreground">
@@ -517,9 +461,9 @@ export default function RequestDetailPage() {
                       <SelectValue placeholder="Select new status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="COMPLETED">Completed</SelectItem>
+                      <SelectItem value="RESOLVED">Resolved</SelectItem>
                       <SelectItem value="PENDING">Pending</SelectItem>
-                      <SelectItem value="ON-HOLD">On-Hold</SelectItem>
+                      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
                       <SelectItem value="REJECTED">Rejected</SelectItem>
                     </SelectContent>
                   </Select>

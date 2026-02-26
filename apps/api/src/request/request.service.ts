@@ -25,10 +25,14 @@ enum SuppliesCategory {
 @Injectable()
 export class RequestService {
   constructor(private prisma: PrismaService) {}
-
   private removeNullish<T>(value: T): T {
     if (Array.isArray(value)) {
       return value.map((v) => this.removeNullish(v)) as T;
+    }
+
+    if (value instanceof Date) {
+      // ← add this
+      return value;
     }
 
     if (value && typeof value === 'object') {
@@ -146,6 +150,45 @@ export class RequestService {
     const returnMsg = {
       message: 'Total requests fetched successfully',
       requests,
+    };
+    return this.removeNullish(returnMsg);
+  }
+  async getRequestById(id: string) {
+    if (!id) {
+      throw new BadRequestException('Request ID is required');
+    }
+    const request = await this.prisma.request.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            department: true,
+            photoURL: true,
+          },
+        },
+        approver: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            department: true,
+          },
+        },
+        issueDetails: true,
+        suppliesDetails: true,
+      },
+    });
+    if (!request) {
+      throw new BadRequestException('Request not found');
+    }
+    const returnMsg = {
+      message: 'Request fetched successfully',
+      request,
     };
     return this.removeNullish(returnMsg);
   }

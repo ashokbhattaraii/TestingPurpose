@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
+import { useLunchContext } from "@/lib/lunch/lunchContext";
 import {
   ClipboardList,
   Clock,
@@ -25,7 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useGetAllRequestsQuery } from "@/hooks/use-createRequest";
+import { useGetAllRequestsQuery } from "@/hooks/request/use-createRequest";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
@@ -65,6 +66,13 @@ function PriorityBadge({
 
 export function EmployeeDashboard() {
   const { user } = useAuth();
+  const { totalTokens, totalAttending, totalVegetarian, totalNonVegetarian } =
+    useLunchContext();
+
+  console.log("🍽️ Lunch Context - Total Attending:", totalAttending);
+  console.log("🍽️ Lunch Context - Total Vegetarian:", totalVegetarian);
+  console.log("🍽️ Lunch Context - Total Non-Vegetarian:", totalNonVegetarian);
+
   const { data, isLoading: requestsLoading } = useGetAllRequestsQuery();
   console.log("👤 Dashboard - Loading:", requestsLoading);
   console.log("👤 Dashboard - User:", user);
@@ -170,15 +178,13 @@ export function EmployeeDashboard() {
               </CardContent>
             </Card>
 
-             <Card>
+            <Card>
               <CardContent className="flex items-center gap-3 p-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
                   <AlertCircle className="h-5 w-5 text-red-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {onhold}
-                  </p>
+                  <p className="text-2xl font-bold text-foreground">{onhold}</p>
                   <p className="text-xs text-muted-foreground">On-Hold</p>
                 </div>
               </CardContent>
@@ -210,7 +216,6 @@ export function EmployeeDashboard() {
                 </div>
               </CardContent>
             </Card>
-           
           </>
         )}
       </div>
