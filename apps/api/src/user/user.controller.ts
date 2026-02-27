@@ -13,4 +13,11 @@ export class UserController {
   getAdminUsers() {
     return this.userService.getUsers();
   }
+
+  @Get('admin')
+  @UseGuards(AuthGuard('jwt'))
+  @Roles(UserRole.SUPER_ADMIN)
+  getAllUsers() {
+    return this.userService.getAdminUsers();
+  }
 }

@@ -81,7 +81,7 @@ export function EmployeeDashboard() {
   // Note: ON-HOLD is not in current schema, using PENDING or approved as placeholder if needed,
   // but for now keeping it as 0 or mapping to another status if available
   const onhold =
-    allRequests?.filter((r) => r.status as string === "ON-HOLD").length ?? 0;
+    allRequests?.filter((r) => r.status === "ON_HOLD").length ?? 0;
   const rejected =
     allRequests?.filter((r) => r.status === "REJECTED").length ?? 0;
   const total = allRequests?.length ?? 0;

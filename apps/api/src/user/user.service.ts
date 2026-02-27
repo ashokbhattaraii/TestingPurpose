@@ -8,4 +8,12 @@ export class UserService {
   async getUsers() {
     return this.prisma.user.findMany();
   }
+
+  async getAdminUsers() {
+    return this.prisma.user.findMany({
+      where: {
+        role: 'ADMIN',
+      },
+    });
+  }
 }
