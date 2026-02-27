@@ -17,8 +17,9 @@ enum UserRole {
 enum RequestStatus {
   PENDING
   APPROVED
+  ON_HOLD
   REJECTED
-  CANCELLED
+  COMPLETED
 }
 
 enum RequestType {

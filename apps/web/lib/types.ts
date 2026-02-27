@@ -3,9 +3,9 @@ export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
 export type RequestStatus =
   | "PENDING"
   | "APPROVED"
+  | "ON_HOLD"
   | "REJECTED"
-  | "CANCELLED"
-  | "ON-HOLD"; // Keeping ON-HOLD for UI compatibility if needed, but primarily using the others
+  | "COMPLETED";
 
 export type RequestType = "ISSUE" | "SUPPLIES";
 

@@ -80,7 +80,7 @@ export function AdminDashboard() {
   const approved =
     allRequests?.filter((r) => r.status === "APPROVED").length ?? 0;
   const onhold =
-    allRequests?.filter((r) => r.status as string === "ON-HOLD").length ?? 0;
+    allRequests?.filter((r) => r.status === "ON_HOLD").length ?? 0;
   const rejected =
     allRequests?.filter((r) => r.status === "REJECTED").length ?? 0;
   const total = allRequests?.length ?? 0;

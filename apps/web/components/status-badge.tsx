@@ -18,11 +18,11 @@ const statusConfig: Record<
     label: "Rejected",
     className: "bg-red-100 text-red-800 border-red-200",
   },
-  CANCELLED: {
-    label: "Cancelled",
+  COMPLETED: {
+    label: "Completed",
     className: "bg-slate-100 text-slate-800 border-slate-200",
   },
-  "ON-HOLD": {
+  ON_HOLD: {
     label: "On Hold",
     className: "bg-blue-100 text-blue-800 border-blue-200",
   },
