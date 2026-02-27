@@ -240,7 +240,7 @@ export default function AnalyticsPage() {
   const isLoading = reqLoading || analyticsLoading;
 
   useEffect(() => {
-    if (user && user.role === "employee") {
+    if (user && user.role === "EMPLOYEE") {
       router.push("/dashboard");
     }
   }, [user, router]);

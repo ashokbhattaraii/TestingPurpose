@@ -76,10 +76,9 @@ export function EmployeeDashboard() {
 
   const pending =
     allRequests?.filter((r) => r.status === "PENDING").length ?? 0;
-  const approved =
-    allRequests?.filter((r) => r.status === "APPROVED").length ?? 0;
-  // Note: ON-HOLD is not in current schema, using PENDING or approved as placeholder if needed,
-  // but for now keeping it as 0 or mapping to another status if available
+  const inProgress =
+    allRequests?.filter((r) => r.status === "IN_PROGRESS").length ?? 0;
+  // Counts for requests in different states
   const onhold =
     allRequests?.filter((r) => r.status === "ON_HOLD").length ?? 0;
   const rejected =
@@ -201,11 +200,11 @@ export function EmployeeDashboard() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 group-hover:bg-emerald-100 transition-colors">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">OK</span>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Work</span>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground tracking-tight">{approved}</p>
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Approved</p>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{inProgress}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">In Progress</p>
                 </div>
               </CardContent>
             </Card>

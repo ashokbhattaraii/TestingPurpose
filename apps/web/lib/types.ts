@@ -2,10 +2,13 @@ export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
 
 export type RequestStatus =
   | "PENDING"
-  | "APPROVED"
-  | "ON_HOLD"
+  | "IN_PROGRESS"
+  | "RESOLVED"
+  | "FULFILLED"
   | "REJECTED"
-  | "COMPLETED";
+  | "CLOSED"
+  | "CANCELLED"
+  | "ON_HOLD";
 
 export type RequestType = "ISSUE" | "SUPPLIES";
 

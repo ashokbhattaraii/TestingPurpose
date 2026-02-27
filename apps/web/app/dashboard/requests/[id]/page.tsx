@@ -409,8 +409,7 @@ export default function RequestDetailPage() {
 
           {/* Admin: Assign Request */}
           {isAdminOrSuper &&
-            request.status !== "APPROVED" &&
-            request.status !== "REJECTED" && (
+            ["PENDING", "ON_HOLD", "IN_PROGRESS"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <div className="flex items-center gap-2">
                   <UserPlus className="h-4 w-4 text-muted-foreground" />
@@ -450,8 +449,7 @@ export default function RequestDetailPage() {
 
           {/* Admin: Update Status */}
           {isAdminOrSuper &&
-            request.status !== "APPROVED" &&
-            request.status !== "REJECTED" && (
+            !["RESOLVED", "FULFILLED", "REJECTED", "CLOSED"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <p className="text-sm font-medium text-foreground">
                   Update Status
@@ -468,11 +466,30 @@ export default function RequestDetailPage() {
                       <SelectValue placeholder="Select new status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="APPROVED">Approved</SelectItem>
-                      <SelectItem value="PENDING">Pending</SelectItem>
-                      <SelectItem value="ON_HOLD">On Hold</SelectItem>
-                      <SelectItem value="COMPLETED">Completed</SelectItem>
-                      <SelectItem value="REJECTED">Rejected</SelectItem>
+                      {/* Only show relevant statuses based on type and exclude current status */}
+                      {request.status !== "IN_PROGRESS" && (
+                        <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                      )}
+                      {request.status !== "ON_HOLD" && (
+                        <SelectItem value="ON_HOLD">On Hold</SelectItem>
+                      )}
+                      {request.type === "ISSUE"
+                        ? request.status !== "RESOLVED" && (
+                          <SelectItem value="RESOLVED">Resolved</SelectItem>
+                        )
+                        : request.status !== "FULFILLED" && (
+                          <SelectItem value="FULFILLED">Fulfilled</SelectItem>
+                        )}
+                      {request.status !== "REJECTED" && (
+                        <SelectItem value="REJECTED">Rejected</SelectItem>
+                      )}
+                      {request.status !== "CLOSED" && (
+                        <SelectItem value="CLOSED">Closed</SelectItem>
+                      )}
+                      {/* Allow moving back to pending if needed, but only if not already pending */}
+                      {request.status !== "PENDING" && (
+                        <SelectItem value="PENDING">Pending</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <Button

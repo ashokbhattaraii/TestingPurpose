@@ -33,3 +33,18 @@ export function useGetAdminUser() {
     retry: true,
   });
 }
+
+export function useGetUserById(userId: string) {
+  return useQuery({
+    queryKey: ["user", userId],
+    queryFn: async () => {
+      const response = await axiosInstance.get(`/user/${userId}`);
+      return response.data as EmployeeType;
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+
+

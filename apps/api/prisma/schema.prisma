@@ -13,13 +13,15 @@ enum UserRole {
   ADMIN
   EMPLOYEE
 }
-
 enum RequestStatus {
-  PENDING
-  APPROVED
-  ON_HOLD
-  REJECTED
-  COMPLETED
+  PENDING      // just submitted, waiting for admin
+  IN_PROGRESS  // assigned to someone, being worked on
+  RESOLVED     // issue fixed (Issue type)
+  FULFILLED    // items delivered (Supplies type)
+  REJECTED     // denied by admin
+  CLOSED       // final state, no further action
+  CANCELLED    // cancelled by the employee themselves
+  ON_HOLD      //
 }
 
 enum RequestType {

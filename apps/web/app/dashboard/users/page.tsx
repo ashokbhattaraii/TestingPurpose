@@ -1,7 +1,9 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useUsers, useUpdateUserRole } from "@/lib/queries";
+import { useUsers } from "@/lib/queries";
+import { useUpdateUserRole } from "@/hooks/users/useManageUser";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,9 +20,45 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { format, isValid, parseISO } from "date-fns";
 import type { UserRole } from "@/lib/types";
-import { Shield, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Shield,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Edit2,
+  MoreHorizontal,
+  User as UserIcon,
+  Building2,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 function getInitials(name: string) {
   return name
@@ -31,16 +69,25 @@ function getInitials(name: string) {
     .slice(0, 2);
 }
 
-const roleBadge: Record<string, string> = {
-  employee: "bg-muted text-muted-foreground",
-  admin: "bg-blue-100 text-blue-800",
-  superadmin: "bg-primary/10 text-primary",
-};
-
-const roleLabel: Record<UserRole, string> = {
-  EMPLOYEE: "Employee",
-  ADMIN: "Admin",
-  SUPER_ADMIN: "Super Admin",
+const roleConfig: Record<
+  UserRole,
+  { label: string; className: string; icon: any }
+> = {
+  EMPLOYEE: {
+    label: "Employee",
+    className: "bg-slate-100 text-slate-700 border-slate-200",
+    icon: UserIcon,
+  },
+  ADMIN: {
+    label: "Admin",
+    className: "bg-blue-50 text-blue-700 border-blue-200",
+    icon: Shield,
+  },
+  SUPER_ADMIN: {
+    label: "Super Admin",
+    className: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    icon: Shield,
+  },
 };
 
 function normalizeRole(role: string | null | undefined): UserRole | null {
@@ -56,17 +103,42 @@ export default function UsersPage() {
   const router = useRouter();
   const { data: allEmployees, isLoading } = useGetUser();
   const updateRole = useUpdateUserRole();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState<UserRole | null>(null);
 
   useEffect(() => {
     if (user && !normalizeRole(user?.role)) {
       router.push("/dashboard");
     }
-  }, [user, normalizeRole, router]);
+  }, [user, router]);
 
-  // Filter users based on search query
+  const handleRoleChange = (userId: string, role: UserRole) => {
+    if (!userId || !role) return;
+    updateRole.mutate(
+      { userId, role },
+      {
+        onSuccess: () => {
+          setIsEditDialogOpen(false);
+          setSelectedUser(null);
+          queryClient.invalidateQueries({ queryKey: ["users"] });
+          toast.success("User role updated successfully");
+        },
+      },
+    );
+  };
+
+  const openEditRole = (u: any) => {
+    setSelectedUser(u);
+    setEditingRole(normalizeRole(u.role) ?? "EMPLOYEE");
+    setIsEditDialogOpen(true);
+  };
+
   const filteredUsers = useMemo(() => {
     if (!allEmployees) return [];
     return allEmployees.filter(
@@ -80,7 +152,6 @@ export default function UsersPage() {
     );
   }, [allEmployees, searchQuery]);
 
-  // Pagination
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedUsers = filteredUsers.slice(
@@ -88,7 +159,6 @@ export default function UsersPage() {
     startIndex + itemsPerPage,
   );
 
-  // Reset to page 1 when search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
@@ -98,229 +168,329 @@ export default function UsersPage() {
 
   if (!isSuperAdmin) return null;
 
-  const handleRoleChange = (userId: string, newRole: UserRole) => {
-    updateRole.mutate(
-      { userId, role: newRole },
-      {
-        onSuccess: () => {
-          // Refresh current user in case super admin changed their own role
-          refreshUser();
-        },
-      },
-    );
-  };
-
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">User Management</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          View all system users and manage their roles. Role changes take effect
-          immediately.
-        </p>
+    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text">
+            User Management
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1 max-w-md">
+            Manage granular access control, view system users, and update their
+            roles across the organization.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full border border-border">
+          <Shield className="h-3.5 w-3.5 text-primary" />
+          <span>Active: {allEmployees?.length ?? 0} Users</span>
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search by name, email, or department..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9 bg-card"
-        />
-      </div>
-
-      {/* Users Count */}
-      <div className="text-xs text-muted-foreground">
-        Showing {paginatedUsers.length > 0 ? startIndex + 1 : 0} to{" "}
-        {Math.min(startIndex + itemsPerPage, filteredUsers.length)} of{" "}
-        {filteredUsers.length} users
+      {/* Modern Search & Filters area */}
+      <div className="grid gap-4 md:flex md:items-center">
+        <div className="relative flex-1 group">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Input
+            placeholder="Search by name, email, department or position..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-11 bg-card border-border/60 hover:border-border focus:ring-1 focus:ring-primary/20 transition-all rounded-xl"
+          />
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col gap-3">
+        <div className="space-y-4">
+          <div className="h-10 w-full bg-muted/20 animate-pulse rounded-lg" />
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-20" />
+            <Skeleton key={i} className="h-20 w-full rounded-xl" />
           ))}
         </div>
       ) : paginatedUsers.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            {filteredUsers.length === 0 && searchQuery
-              ? "No users found matching your search."
-              : "No users available."}
+        <Card className="border-dashed border-2 bg-muted/5 py-20 flex flex-col items-center justify-center text-center">
+          <div className="bg-muted h-12 w-12 rounded-full flex items-center justify-center mb-4">
+            <Search className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <h3 className="font-semibold text-lg">No users found</h3>
+          <p className="text-muted-foreground text-sm max-w-xs px-4">
+            {searchQuery
+              ? `We couldn't find any users matching "${searchQuery}". Try a different term.`
+              : "There are currently no users in the system."}
           </p>
-        </div>
+          {searchQuery && (
+            <Button
+              variant="link"
+              onClick={() => setSearchQuery("")}
+              className="mt-2 text-primary"
+            >
+              Clear search
+            </Button>
+          )}
+        </Card>
       ) : (
-        <div className="grid gap-4">
-          <div className="hidden lg:grid grid-cols-12 gap-4 px-4 py-3 bg-muted/30 rounded-lg border border-border">
-            <div className="col-span-4 text-xs font-semibold text-muted-foreground">
-              User
-            </div>
-            <div className="col-span-3 text-xs font-semibold text-muted-foreground">
-              Department
-            </div>
-            <div className="col-span-2 text-xs font-semibold text-muted-foreground">
-              Joined
-            </div>
-            <div className="col-span-3 text-xs font-semibold text-muted-foreground text-right">
-              Role
-            </div>
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-muted/30">
+                <TableRow className="hover:bg-transparent border-border/50">
+                  <TableHead className="w-[300px] text-xs font-bold uppercase tracking-wider pl-6">
+                    User
+                  </TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-wider">
+                    Department
+                  </TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-wider">
+                    Role
+                  </TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-wider">
+                    Joined
+                  </TableHead>
+                  <TableHead className="text-right pr-6 text-xs font-bold uppercase tracking-wider">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {paginatedUsers.map((u) => {
+                  const isSelf = u.id === user?.id;
+                  const userRole = normalizeRole(u.role) ?? "EMPLOYEE";
+                  const config = roleConfig[userRole];
+                  const Icon = config.icon;
+
+                  return (
+                    <TableRow
+                      key={u.id}
+                      className="group hover:bg-muted/20 transition-colors border-border/50"
+                    >
+                      <TableCell className="pl-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 border border-border/50 shadow-sm ring-2 ring-transparent group-hover:ring-primary/10 transition-all">
+                            {u.photoURL ? (
+                              <img src={u.photoURL} alt={u.name} />
+                            ) : (
+                              <AvatarFallback className="bg-gradient-to-br from-indigo-500/10 to-primary/10 text-primary text-xs font-bold">
+                                {getInitials(u.name)}
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
+                          <div className="flex flex-col min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm font-semibold text-foreground truncate max-w-[150px]">
+                                {u.name}
+                              </span>
+                              {isSelf && (
+                                <Badge className="text-[9px] h-4 bg-primary text-primary-foreground px-1.5 py-0 border-0">
+                                  Me
+                                </Badge>
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground truncate">
+                              {u.email}
+                            </span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-foreground capitalize">
+                            {u.department || "No Dept"}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
+                            {u.position || "Position unset"}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${config.className} flex items-center gap-1.5 px-2.5 py-0.5 border text-[11px] font-bold rounded-full`}
+                        >
+                          <Icon className="h-3 w-3" />
+                          {config.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground tabular-nums">
+                        {formatJoinedAt(u?.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-right pr-6">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
+                            onClick={() =>
+                              router.push(`/dashboard/users/${u.id}`)
+                            }
+                            title="View user details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                            onClick={() => openEditRole(u)}
+                            disabled={isSelf || updateRole.isPending}
+                            title="Edit user role"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40">
+                              <DropdownMenuLabel>
+                                More Options
+                              </DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  router.push(`/dashboard/users/${u.id}`)
+                                }
+                              >
+                                <UserIcon className="mr-2 h-4 w-4" />
+                                View Profile
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                disabled={isSelf}
+                                onClick={() => openEditRole(u)}
+                              >
+                                <Shield className="mr-2 h-4 w-4" />
+                                Change Role
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
 
-          <div className="flex flex-col gap-2">
-            {paginatedUsers.map((u) => {
-              const isSelf = u.id === user?.id;
-              const userRole = normalizeRole(u.role) ?? "EMPLOYEE";
-              return (
-                <Card
-                  key={u.id}
-                  className="overflow-hidden hover:shadow-sm transition-shadow"
+          {/* User Pagination Summary */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground px-2">
+            <span>
+              Showing{" "}
+              <span className="font-semibold text-foreground">
+                {startIndex + 1}-
+                {Math.min(startIndex + itemsPerPage, filteredUsers.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-semibold text-foreground">
+                {filteredUsers.length}
+              </span>{" "}
+              professionals
+            </span>
+          </div>
+
+          {/* Role Change Modal */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-[425px] rounded-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  Update Security Role
+                </DialogTitle>
+                <DialogDescription>
+                  Change the system access level for{" "}
+                  <strong>{selectedUser?.name}</strong>. Access permissions
+                  update immediately.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-6 space-y-4">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {selectedUser && getInitials(selectedUser.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold">
+                      {selectedUser?.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {selectedUser?.email}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 pl-1">
+                    Select New Role
+                  </Label>
+                  <Select
+                    value={editingRole || ""}
+                    onValueChange={(v) => setEditingRole(v as UserRole)}
+                  >
+                    <SelectTrigger className="w-full h-11 rounded-xl">
+                      <SelectValue placeholder="Choose a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="EMPLOYEE" className="py-3">
+                        <div className="flex flex-col">
+                          <span className="font-semibold">Employee</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            Standard access for submitting & viewing own
+                            requests.
+                          </span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="ADMIN" className="py-3">
+                        <div className="flex flex-col">
+                          <span className="font-semibold">Admin</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            Manage announcements, view all requests & analytics.
+                          </span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="SUPER_ADMIN" className="py-3">
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-indigo-600 font-bold">
+                            Super Admin
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">
+                            Full system access, including data management and
+                            user roles.
+                          </span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(false)}
+                  className="rounded-xl h-11 px-6 font-semibold"
                 >
-                  <CardContent className="p-0">
-                    <div className="hidden lg:grid grid-cols-12 gap-4 items-center p-4">
-                      {/* User Info */}
-                      <div className="col-span-4 flex items-center gap-3">
-                        <Avatar className="h-9 w-9 flex-shrink-0">
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                            {getInitials(u.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-foreground truncate">
-                              {u.name}
-                            </span>
-                            {isSelf && (
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] bg-primary/10 text-primary flex-shrink-0"
-                              >
-                                You
-                              </Badge>
-                            )}
-                          </div>
-                          <span className="text-xs text-muted-foreground truncate">
-                            {u.email}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Department */}
-                      <div className="col-span-3">
-                        <span className="text-sm text-foreground">
-                          {u.department}
-                        </span>
-                      </div>
-
-                      {/* Joined Date */}
-                      <div className="col-span-2">
-                        <span className="text-sm text-foreground">
-                          {formatJoinedAt(u?.createdAt)}
-                        </span>
-                      </div>
-
-                      {/* Role Selector */}
-                      <div className="col-span-3 flex items-center justify-end gap-2">
-                        <Shield className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <Select
-                          value={userRole}
-                          onValueChange={(value) =>
-                            handleRoleChange(u.id, value as UserRole)
-                          }
-                          disabled={isSelf || updateRole.isPending}
-                        >
-                          <SelectTrigger className="w-28 h-8 text-xs">
-                            <SelectValue placeholder={roleLabel[userRole]} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="EMPLOYEE">Employee</SelectItem>
-                            <SelectItem value="ADMIN">Admin</SelectItem>
-                            <SelectItem value="SUPER_ADMIN">
-                              Super Admin
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    {/* Mobile Layout */}
-                    <div className="lg:hidden flex flex-col gap-4 p-4">
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-10 w-10 flex-shrink-0">
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                            {getInitials(u.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-medium text-foreground">
-                              {u.name}
-                            </span>
-                            {isSelf && (
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] bg-primary/10 text-primary"
-                              >
-                                You
-                              </Badge>
-                            )}
-                          </div>
-                          <span className="text-xs text-muted-foreground mt-1">
-                            {u.email}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-2 text-xs">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            Department
-                          </span>
-                          <span className="text-foreground font-medium">
-                            {u.department}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Joined</span>
-                          <span className="text-foreground font-medium">
-                            {formatJoinedAt(u?.createdAt)}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 pt-2 border-t border-border">
-                        <Shield className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          Role
-                        </span>
-                        <div className="flex-1" />
-                        <Select
-                          value={userRole}
-                          onValueChange={(value) =>
-                            handleRoleChange(u.id, value as UserRole)
-                          }
-                          disabled={isSelf || updateRole.isPending}
-                        >
-                          <SelectTrigger className="w-28 h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="EMPLOYEE">Employee</SelectItem>
-                            <SelectItem value="ADMIN">Admin</SelectItem>
-                            <SelectItem value="SUPER_ADMIN">
-                              Super Admin
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() =>
+                    handleRoleChange(selectedUser?.id, editingRole!)
+                  }
+                  disabled={
+                    updateRole.isPending ||
+                    editingRole === normalizeRole(selectedUser?.role)
+                  }
+                  className="rounded-xl h-11 px-6 font-bold shadow-lg shadow-primary/20"
+                >
+                  {updateRole.isPending ? "Updating..." : "Save Role Change"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {/* Pagination */}
           {totalPages > 1 && (
