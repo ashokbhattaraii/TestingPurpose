@@ -27,17 +27,13 @@ export default function DashboardPage() {
 
   console.log("✅ Rendering dashboard for role:", user.role);
 
-  if (user.role === "EMPLOYEE") {
+  if (user?.role === "EMPLOYEE") {
     return <EmployeeDashboard />;
   }
-  if (user.role === "ADMIN") {
+  if (user?.role === "ADMIN") {
     return <AdminDashboard />;
   }
-  if (user.role === "SUPER_ADMIN") {
+  if (user?.role === "SUPER_ADMIN") {
     return <SuperadminDashboard />;
   }
-
-  // Fallback
-  return <EmployeeDashboard />;
-  console.log("⚠️ Unknown role, rendering employee dashboard as fallback");
 }

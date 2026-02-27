@@ -24,7 +24,7 @@ enum SuppliesCategory {
 }
 @Injectable()
 export class RequestService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   private removeNullish<T>(value: T): T {
     if (Array.isArray(value)) {
       return value.map((v) => this.removeNullish(v)) as T;
@@ -72,23 +72,23 @@ export class RequestService {
         issueDetails:
           dto.type === RequestType.ISSUE
             ? {
-                create: {
-                  priority: dto.issueDetails!.priority as $Enums.IssuePriority,
-                  category: dto.issueDetails!
-                    .category as unknown as $Enums.IssueCategory,
-                  location: dto.issueDetails!.location,
-                },
-              }
+              create: {
+                priority: dto.issueDetails!.priority as $Enums.IssuePriority,
+                category: dto.issueDetails!
+                  .category as unknown as $Enums.IssueCategory,
+                location: dto.issueDetails!.location,
+              },
+            }
             : undefined,
         suppliesDetails:
           dto.type === RequestType.SUPPLIES
             ? {
-                create: {
-                  category: dto.suppliesDetails!
-                    .category as $Enums.SuppliesCategory,
-                  itemName: dto.suppliesDetails!.itemName,
-                },
-              }
+              create: {
+                category: dto.suppliesDetails!
+                  .category as $Enums.SuppliesCategory,
+                itemName: dto.suppliesDetails!.itemName,
+              },
+            }
             : undefined,
       },
       select: {
@@ -186,10 +186,30 @@ export class RequestService {
     if (!request) {
       throw new BadRequestException('Request not found');
     }
-    const returnMsg = {
+    return this.removeNullish({
       message: 'Request fetched successfully',
       request,
+    });
+  }
+
+  async updateRequestStatus(id: string, dto: { status: $Enums.RequestStatus; rejectionReason?: string; adminNotes?: string }) {
+    const request = await this.prisma.request.update({
+      where: { id },
+      data: {
+        status: dto.status,
+        rejectionReason: dto.rejectionReason,
+        adminNotes: dto.adminNotes,
+        approvedAt: (dto.status === 'RESOLVED' || dto.status === 'FULFILLED') ? new Date() : undefined,
+      },
+      include: {
+        user: true,
+        issueDetails: true,
+        suppliesDetails: true,
+      },
+    });
+    return {
+      message: 'Status updated successfully',
+      request,
     };
-    return this.removeNullish(returnMsg);
   }
 }

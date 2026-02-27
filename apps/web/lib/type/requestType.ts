@@ -35,7 +35,7 @@ export type RequestResponse = {
     category: "OFFICE" | "MAINTENANCE" | "OTHER";
     itemName: string;
   };
-  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+  status: "PENDING" | "IN_PROGRESS" | "RESOLVED" | "FULFILLED" | "REJECTED" | "CLOSED" | "CANCELLED" | "ON_HOLD";
   createdAt: string;
   updatedAt: string;
   user: {

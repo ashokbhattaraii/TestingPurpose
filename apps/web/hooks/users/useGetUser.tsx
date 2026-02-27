@@ -24,7 +24,7 @@ export function useGetAdminUser() {
     queryFn: async () => {
       const response = await axiosInstance.get("/user/admin");
 
-      return response.data as EmployeeType; // Ensure the response is typed correctly
+      return response.data as EmployeeType;
     },
     staleTime: 0,
     gcTime: 5 * 60 * 1000, // 5 minutes
@@ -33,3 +33,18 @@ export function useGetAdminUser() {
     retry: true,
   });
 }
+
+export function useGetUserById(userId: string) {
+  return useQuery({
+    queryKey: ["user", userId],
+    queryFn: async () => {
+      const response = await axiosInstance.get(`/user/${userId}`);
+      return response.data as EmployeeType;
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+
+

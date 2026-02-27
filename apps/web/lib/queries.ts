@@ -15,6 +15,7 @@ import {
   notifications,
   getSortedAnnouncements,
 } from "./data";
+import axiosInstance from "./axios/axios";
 
 // Simulate async fetch
 function delay<T>(data: T, ms = 300): Promise<T> {
@@ -112,7 +113,7 @@ export function useUpdateUserRole() {
 export function useUpdateRequestStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       status,
       rejectionReason,
@@ -121,17 +122,14 @@ export function useUpdateRequestStatus() {
       status: RequestStatus;
       rejectionReason?: string;
     }) => {
-      const request = serviceRequests.find((r) => r.id === id);
-      if (request) {
-        request.status = status;
-        request.updatedAt = new Date().toISOString();
-        if (status === "REJECTED" && rejectionReason) {
-          request.rejectionReason = rejectionReason;
-        }
-      }
-      return delay(request);
+      const response = await axiosInstance.post(`/request/${id}/status`, {
+        status,
+        rejectionReason,
+      });
+      return response.data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["request"] });
       queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
       queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
@@ -204,7 +202,7 @@ export function useAssignRequest() {
         request.assignedToName = assignedToName;
         request.updatedAt = new Date().toISOString();
         if (request.status === "PENDING") {
-          request.status = "APPROVED";
+          request.status = "IN_PROGRESS";
         }
       }
       // Create a notification for the assigned user

@@ -62,7 +62,7 @@ import {
   ISSUE_PRIORITY_LABELS,
   SUPPLIES_CATEGORY_LABELS,
 } from "@/schemas";
-
+import { useGetAdminUser } from "@/hooks/users/useGetUser";
 const priorityConfig = {
   LOW: { label: "Low", className: "bg-muted text-muted-foreground" },
   MEDIUM: { label: "Medium", className: "bg-amber-100 text-amber-800" },
@@ -74,6 +74,9 @@ export default function RequestDetailPage() {
   const { user } = useAuth();
   const router = useRouter();
   const params = useParams();
+  const { data: adminUser, isLoading: isGetAdminLoading } = useGetAdminUser();
+
+  console.log("Admin User Data:", adminUser);
   const id = params.id as string;
   const { data: requestById, isLoading } = useGetRequestByIdQuery(id);
   const { data: allUsers } = useUsers();
@@ -140,7 +143,11 @@ export default function RequestDetailPage() {
 
   const handleAssign = () => {
     if (!assignTo || !request || !user) return;
-    const targetUser = allUsers?.find((u) => u.id === assignTo);
+    const targetUser = Array.isArray(adminUser)
+      ? adminUser.find((u: any) => u.id === assignTo)
+      : adminUser?.id === assignTo
+        ? adminUser
+        : null;
     if (!targetUser) return;
     assignRequest.mutate(
       {
@@ -402,8 +409,7 @@ export default function RequestDetailPage() {
 
           {/* Admin: Assign Request */}
           {isAdminOrSuper &&
-            request.status !== "RESOLVED" &&
-            request.status !== "REJECTED" && (
+            ["PENDING", "ON_HOLD", "IN_PROGRESS"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <div className="flex items-center gap-2">
                   <UserPlus className="h-4 w-4 text-muted-foreground" />
@@ -417,7 +423,7 @@ export default function RequestDetailPage() {
                       <SelectValue placeholder="Select a team member" />
                     </SelectTrigger>
                     <SelectContent>
-                      {allUsers
+                      {(Array.isArray(adminUser) ? adminUser : [adminUser])
                         ?.filter((u) => u.id !== request.user.id)
                         .map((u) => (
                           <SelectItem key={u.id} value={u.id}>
@@ -443,8 +449,7 @@ export default function RequestDetailPage() {
 
           {/* Admin: Update Status */}
           {isAdminOrSuper &&
-            request.status !== "RESOLVED" &&
-            request.status !== "REJECTED" && (
+            !["RESOLVED", "FULFILLED", "REJECTED", "CLOSED"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <p className="text-sm font-medium text-foreground">
                   Update Status
@@ -461,10 +466,30 @@ export default function RequestDetailPage() {
                       <SelectValue placeholder="Select new status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="RESOLVED">Resolved</SelectItem>
-                      <SelectItem value="PENDING">Pending</SelectItem>
-                      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                      <SelectItem value="REJECTED">Rejected</SelectItem>
+                      {/* Only show relevant statuses based on type and exclude current status */}
+                      {request.status !== "IN_PROGRESS" && (
+                        <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                      )}
+                      {request.status !== "ON_HOLD" && (
+                        <SelectItem value="ON_HOLD">On Hold</SelectItem>
+                      )}
+                      {request.type === "ISSUE"
+                        ? request.status !== "RESOLVED" && (
+                          <SelectItem value="RESOLVED">Resolved</SelectItem>
+                        )
+                        : request.status !== "FULFILLED" && (
+                          <SelectItem value="FULFILLED">Fulfilled</SelectItem>
+                        )}
+                      {request.status !== "REJECTED" && (
+                        <SelectItem value="REJECTED">Rejected</SelectItem>
+                      )}
+                      {request.status !== "CLOSED" && (
+                        <SelectItem value="CLOSED">Closed</SelectItem>
+                      )}
+                      {/* Allow moving back to pending if needed, but only if not already pending */}
+                      {request.status !== "PENDING" && (
+                        <SelectItem value="PENDING">Pending</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <Button
