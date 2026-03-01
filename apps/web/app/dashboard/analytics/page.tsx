@@ -1,7 +1,8 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useAnalytics, useServiceRequests } from "@/lib/queries";
+import { useAnalytics } from "@/lib/queries";
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -63,7 +64,7 @@ import type { ServiceRequest, RequestStatus } from "@/lib/types";
 
 // Extend ServiceRequest to include missing properties if not in the type definition
 declare global {
-  namespace JSX {}
+  namespace JSX { }
 }
 
 declare module "@/lib/types" {
@@ -284,7 +285,7 @@ export default function AnalyticsPage() {
         return base.filter(
           (r) =>
             r.status.charAt(0).toUpperCase() +
-              r.status.slice(1).replace("-", " ") ===
+            r.status.slice(1).replace("-", " ") ===
             drillDown.filterValue,
         );
       default:

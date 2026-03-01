@@ -35,10 +35,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
+    if (pathname === "/login") {
+      setIsLoading(false);
+      return;
+    }
     loadUser();
-  }, []);
+  }, [pathname]);
 
   const loadUser = async () => {
     try {

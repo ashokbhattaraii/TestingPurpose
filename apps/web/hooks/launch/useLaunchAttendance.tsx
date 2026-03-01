@@ -162,13 +162,14 @@ export function useMarkLaunchAttendance() {
   });
 }
 
-export function useLaunchAttendanceSummary() {
+export function useLaunchAttendanceSummary(enabled: boolean = true) {
   return useQuery({
     queryKey: ["launch-attendance-summary"],
     queryFn: async () => {
       const response = await axiosInstance.get("/launch/attendance-summary");
       return response.data as LaunchAttendanceSummary;
     },
+    enabled: enabled,
     staleTime: 0,
     refetchOnWindowFocus: true,
   });

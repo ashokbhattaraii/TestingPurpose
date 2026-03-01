@@ -2,12 +2,12 @@
 
 import React, { useState, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useCreateRequest } from "@/lib/queries";
+
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import useCreateRequestMutation from "@/hooks/request/use-createRequest";
+import useCreateRequestMutation from "@/hooks/request/useCreateRequest";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -161,18 +161,18 @@ export default function NewRequestPage() {
       attachments: attachments.map((a) => a.name),
       ...(data.type === "ISSUE"
         ? {
-            issueDetails: {
-              priority: data.issuePriority!,
-              category: data.issueCategory!,
-              location: data.location?.trim() || undefined,
-            },
-          }
+          issueDetails: {
+            priority: data.issuePriority!,
+            category: data.issueCategory!,
+            location: data.location?.trim() || undefined,
+          },
+        }
         : {
-            suppliesDetails: {
-              category: data.suppliesCategory!,
-              itemName: data.itemName!,
-            },
-          }),
+          suppliesDetails: {
+            category: data.suppliesCategory!,
+            itemName: data.itemName!,
+          },
+        }),
     };
 
     mutate(payload, {
@@ -183,7 +183,7 @@ export default function NewRequestPage() {
       onError: (error: any) => {
         toast.error(
           error?.response?.data?.message ||
-            "An error occurred while creating the request.",
+          "An error occurred while creating the request.",
         );
       },
     });

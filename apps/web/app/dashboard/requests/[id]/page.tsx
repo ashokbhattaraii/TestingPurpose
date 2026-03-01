@@ -1,14 +1,11 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import {
-  useServiceRequest,
-  useUpdateRequestStatus,
-  useAssignRequest,
-  useUsers,
-  useDeleteRequest,
-  useReopenRequest,
-} from "@/lib/queries";
+import { useReopenRequest } from "@/hooks/request/useReopenRequest";
+import { useDeleteRequest } from "@/hooks/request/useDeleteRequest";
+import { useAssignRequest } from "@/hooks/request/useAssignRequest";
+import { useUpdateRequestStatus } from "@/hooks/request/useUpdateRequestStatus";
+import { useUsers } from "@/lib/queries";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -423,11 +420,11 @@ export default function RequestDetailPage() {
                       <SelectValue placeholder="Select a team member" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(Array.isArray(adminUser) ? adminUser : [adminUser])
-                        ?.filter((u) => u.id !== request.user.id)
+                      {(Array.isArray(adminUser) ? adminUser : adminUser ? [adminUser] : [])
+                        ?.filter((u) => u?.id && u.id !== request.user?.id)
                         .map((u) => (
                           <SelectItem key={u.id} value={u.id}>
-                            {u.name} ({u.department})
+                            {u?.name} ({u.department})
                           </SelectItem>
                         ))}
                     </SelectContent>

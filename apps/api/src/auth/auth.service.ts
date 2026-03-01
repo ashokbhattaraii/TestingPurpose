@@ -9,7 +9,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private supabase: SupabaseService,
-  ) {}
+  ) { }
 
   async googleLogin(googleUser: any) {
     console.log('🔍 Processing Google login for:', googleUser.email);
@@ -84,6 +84,15 @@ export class AuthService {
           email: googleUser.email,
           name: `${googleUser.firstName} ${googleUser.lastName}`,
           photoURL: googleUser.picture,
+          connectedAccounts: {
+            create: {
+              provider: "google",
+              providerAccountId: googleUser.googleId,
+              accessToken: googleUser.accessToken,
+              refreshToken: googleUser.refreshToken,
+              expiresAt: googleUser.expiresAt,
+            }
+          },
           role: role,
           isActive: true,
           lastLoginAt: new Date(),

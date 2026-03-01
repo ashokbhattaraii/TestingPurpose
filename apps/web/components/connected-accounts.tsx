@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Github, Linkedin, Mail, Trash2, Plus, Check } from "lucide-react";
+import { Slack, Mail, Trash2, Plus, Check } from "lucide-react";
 import type { SocialAccount, SocialProvider } from "@/lib/types";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -38,17 +38,11 @@ const socialProviders: Record<
     color: "bg-red-50 border-red-200",
     textColor: "text-red-700",
   },
-  github: {
-    label: "GitHub",
-    icon: <Github className="h-4 w-4" />,
-    color: "bg-gray-50 border-gray-200",
-    textColor: "text-gray-700",
-  },
-  linkedin: {
-    label: "LinkedIn",
-    icon: <Linkedin className="h-4 w-4" />,
-    color: "bg-blue-50 border-blue-200",
-    textColor: "text-blue-700",
+  slack: {
+    label: "Slack",
+    icon: <Slack className="h-4 w-4" />,
+    color: "bg-purple-50 border-purple-200",
+    textColor: "text-purple-700",
   },
 };
 

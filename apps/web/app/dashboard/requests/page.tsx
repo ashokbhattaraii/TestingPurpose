@@ -1,13 +1,13 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useServiceRequests } from "@/lib/queries";
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
-import { useGetAllRequestsQuery } from "@/hooks/request/use-createRequest";
+import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
 import {
   Select,
   SelectContent,
@@ -52,7 +52,7 @@ import {
   ISSUE_PRIORITY_LABELS,
   SUPPLIES_CATEGORY_LABELS,
 } from "@/schemas";
-import useCreateRequestMutation from "@/hooks/request/use-createRequest";
+import useCreateRequestMutation from "@/hooks/request/useCreateRequest";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -84,9 +84,9 @@ function PriorityBadge({
   const Icon = config.icon;
   return (
     <span
-      className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${config.className}`}
+      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider shadow-sm ${config.className}`}
     >
-      <Icon className="h-3 w-3" />
+      <Icon className="h-3.5 w-3.5" />
       {config.label}
     </span>
   );
@@ -246,10 +246,10 @@ export default function RequestsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Service Requests
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base font-medium text-muted-foreground mt-1">
             {isEmployee
               ? "Your submitted service requests."
               : "All service requests across the organization."}
@@ -399,19 +399,19 @@ export default function RequestsPage() {
 
                       <div className="flex flex-col flex-1 gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex flex-col gap-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/70 bg-muted px-2 py-0.5 rounded">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground/80 bg-muted px-2.5 py-0.5 rounded-md">
                               {req.id.slice(0, 8)}
                             </span>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-2 py-0.5 border border-border rounded">
+                            <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/70 px-2.5 py-0.5 border border-border rounded-md shadow-sm">
                               {getCategoryLabel(req)}
                             </span>
                             <span
                               className={cn(
-                                "flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold uppercase rounded-full",
+                                "flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-bold uppercase rounded-full shadow-sm hover:shadow transition-shadow",
                                 isSupplies
-                                  ? "bg-blue-50 text-blue-600 border border-blue-100"
-                                  : "bg-orange-50 text-orange-600 border border-orange-100"
+                                  ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                  : "bg-orange-50 text-orange-700 border border-orange-200"
                               )}
                             >
                               <div className={cn("h-1 w-1 rounded-full animate-pulse", isSupplies ? "bg-blue-500" : "bg-orange-500")} />
@@ -419,19 +419,19 @@ export default function RequestsPage() {
                             </span>
                           </div>
 
-                          <div className="space-y-1">
-                            <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                          <div className="space-y-1.5">
+                            <h3 className="text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-1">
                               {req.title}
                             </h3>
-                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1.5">
-                                <Users className="h-3.5 w-3.5" />
-                                <span className="font-medium">{req.user?.name ?? req.createdByName ?? "Unknown"}</span>
+                                <Users className="h-4 w-4" />
+                                <span className="font-semibold text-foreground/80">{req.user?.name ?? req.createdByName ?? "Unknown"}</span>
                               </div>
                               {isSupplies && req.suppliesDetails?.itemName && (
                                 <>
                                   <span className="text-muted-foreground/30">•</span>
-                                  <span className="font-medium bg-slate-100 px-2 rounded tracking-tight italic">
+                                  <span className="font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-md tracking-tight">
                                     Item: {req.suppliesDetails.itemName}
                                   </span>
                                 </>
@@ -448,8 +448,8 @@ export default function RequestsPage() {
                               )}
                               <StatusBadge status={req.status} />
                             </div>
-                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                              <CalendarIcon className="h-3.5 w-3.5" />
+                            <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium">
+                              <CalendarIcon className="h-4 w-4" />
                               {formatRequestDate(req.createdAt)}
                             </div>
                           </div>

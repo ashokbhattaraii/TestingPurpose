@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator/current-user.decorator';
 
 import type { UserPayload } from '../common/decorators/current-user.decorator/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
+import { AssignRequestDto } from './dto/assign-request.dto';
+import { Roles } from 'src/common/decorators/roles-decorator/roles.decorator';
 @Controller('request')
 export class RequestController {
   constructor(private readonly requestService: RequestService) { }
@@ -32,10 +35,36 @@ export class RequestController {
 
   @Post(':id/status')
   @UseGuards(AuthGuard('jwt'))
+  @Roles('ADMIN', 'SUPER_ADMIN')
   updateStatus(
     @Param('id') id: string,
-    @Body() dto: { status: any; rejectionReason?: string; adminNotes?: string },
+    @Body() dto: UpdateRequestStatusDto,
   ) {
     return this.requestService.updateRequestStatus(id, dto);
+  }
+
+  @Post(':id/assign')
+  @UseGuards(AuthGuard('jwt'))
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  assign(
+    @Param('id') id: string,
+    @Body() dto: AssignRequestDto,
+  ) {
+    return this.requestService.assignRequest(id, dto);
+  }
+
+  @Post(':id/reopen')
+  @UseGuards(AuthGuard('jwt'))
+
+  reopen(
+    @Param('id') id: string,
+  ) {
+    return this.requestService.reopenRequest(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard('jwt'))
+  remove(@Param('id') id: string) {
+    return this.requestService.deleteRequest(id);
   }
 }

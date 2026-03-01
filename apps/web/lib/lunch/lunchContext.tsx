@@ -12,8 +12,11 @@ export interface LunchContextType {
 
 const lunchContext = createContext<LunchContextType | undefined>(undefined);
 
+import { useAuth } from "@/lib/auth-context";
+
 export const LunchProvider = ({ children }: { children: React.ReactNode }) => {
-  const { data: attendanceSummary } = useLaunchAttendanceSummary();
+  const { user } = useAuth();
+  const { data: attendanceSummary } = useLaunchAttendanceSummary(!!user);
 
   // Debug: log raw API data to verify structure
   useEffect(() => {

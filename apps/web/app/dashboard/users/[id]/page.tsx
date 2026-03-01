@@ -17,7 +17,8 @@ import {
     Shield,
     User as UserIcon,
     CircleCheck,
-    CircleAlert
+    CircleAlert,
+    Clock
 } from "lucide-react";
 import { format, parseISO, isValid } from "date-fns";
 
@@ -94,179 +95,200 @@ export default function UserDetailPage() {
     const RoleIcon = roleInfo.icon;
 
     return (
-        <div className="flex flex-col pb-10">
-            {/* Header with Back Button */}
-            <div className="mb-6">
-                <Button variant="ghost" size="sm" onClick={() => router.back()} className="rounded-full hover:bg-muted font-medium">
-                    <ChevronLeft className="mr-1 h-4 w-4" /> Back to Users
-                </Button>
+        <div className="flex flex-col pb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Header with Navigation */}
+            <div className="flex items-center justify-between py-6 border-b border-border/50 mb-8">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.back()}
+                        className="h-9 w-9 rounded-full p-0 hover:bg-slate-100 transition-colors"
+                    >
+                        <ChevronLeft className="h-5 w-5 text-slate-600" />
+                    </Button>
+                    <div>
+                        <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider">User Directory</h2>
+                        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Personnel Profile</h1>
+                    </div>
+                </div>
+                <div className="flex gap-3">
+
+                    <Button size="sm" className="h-9 px-4 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all active:scale-95">
+                        Send Message
+                    </Button>
+                </div>
             </div>
 
-            {/* Profile Cover & Main Info */}
-            <div className="relative mb-20">
-                <div className="h-48 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl opacity-90 shadow-lg shadow-indigo-100" />
+            {/* Profile Information Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                <div className="absolute -bottom-16 left-8 flex flex-col md:flex-row md:items-end gap-6">
-                    <Avatar className="h-36 w-36 border-4 border-background shadow-xl ring-2 ring-primary/5">
-                        {user.photoURL ? (
-                            <img src={user.photoURL} alt={user.name} />
-                        ) : (
-                            <AvatarFallback className="bg-indigo-50 text-indigo-600 text-3xl font-bold">
-                                {getInitials(user.name)}
-                            </AvatarFallback>
-                        )}
-                    </Avatar>
-
-                    <div className="flex flex-col pb-2">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-extrabold tracking-tight text-foreground truncate">
-                                {user.name}
-                            </h1>
-                            <Badge className={`${roleInfo.className} shadow-sm border px-3 py-1 rounded-full text-[11px] font-bold`}>
+                {/* Profile Identity Card */}
+                <div className="lg:col-span-12">
+                    <div className="bg-white border border-border/60 rounded-2xl overflow-hidden shadow-sm">
+                        <div className="h-32 w-full bg-slate-50 border-b border-border/40 flex items-center justify-end px-8">
+                            <Badge className={`${roleInfo.className} shadow-none border px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wider uppercase`}>
                                 <RoleIcon className="mr-1.5 h-3.5 w-3.5" />
                                 {roleInfo.label}
                             </Badge>
-                            {user.isActive && (
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                                    <CircleCheck className="h-3 w-3" /> ACTIVE
-                                </div>
-                            )}
                         </div>
-                        <p className="text-muted-foreground font-medium flex items-center gap-1.5 mt-1">
-                            <Mail className="h-3.5 w-3.5" /> {user.email}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Secondary Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-2">
-                {/* Left Column: Essential Info */}
-                <div className="lg:col-span-2 space-y-8">
-                    <Card className="rounded-2xl shadow-sm border-border/60">
-                        <CardHeader className="border-b border-border/40 pb-4">
-                            <CardTitle className="text-lg font-bold flex items-center gap-2 tracking-tight">
-                                <Building2 className="h-5 w-5 text-primary/70" />
-                                Professional Identity
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                                <div className="group">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 mb-1.5 flex items-center gap-1.5">
-                                        <Building2 className="h-3 w-3" /> Department
-                                    </p>
-                                    <p className="text-sm font-semibold bg-muted/30 p-2.5 rounded-xl border border-border/50 transition-colors group-hover:border-primary/20">
-                                        {user.department || "Organization General"}
-                                    </p>
+                        <div className="px-8 pb-8 flex flex-col md:flex-row items-start md:items-end gap-6 -mt-12">
+                            <Avatar className="h-32 w-32 border-4 border-white shadow-md ring-1 ring-slate-100 bg-white">
+                                {user.photoURL ? (
+                                    <img src={user.photoURL} alt={user.name} className="object-cover" />
+                                ) : (
+                                    <AvatarFallback className="bg-slate-100 text-slate-600 text-3xl font-bold">
+                                        {getInitials(user.name)}
+                                    </AvatarFallback>
+                                )}
+                            </Avatar>
+                            <div className="flex-1 pb-2">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+                                        {user.name}
+                                    </h1>
+                                    {user.isActive && (
+                                        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100 text-[10px] font-bold px-2 py-0.5">
+                                            ACTIVE
+                                        </Badge>
+                                    )}
                                 </div>
-
-                                <div className="group">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 mb-1.5 flex items-center gap-1.5">
-                                        <Shield className="h-3 w-3" /> Current Position
-                                    </p>
-                                    <p className="text-sm font-semibold bg-muted/30 p-2.5 rounded-xl border border-border/50 transition-colors group-hover:border-primary/20">
-                                        {user.position || "Professional Member"}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="group">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 mb-1.5 flex items-center gap-1.5">
-                                        <Calendar className="h-3 w-3" /> Onboarding Date
-                                    </p>
-                                    <div className="p-2.5 rounded-xl bg-indigo-50/30 border border-indigo-100/50">
-                                        <p className="text-sm font-bold text-indigo-700">
-                                            {user.createdAt ? format(parseISO(user.createdAt), "MMMM d, yyyy") : "Date unset"}
-                                        </p>
-                                        <p className="text-[10px] text-indigo-600/70 mt-0.5">Member for over {formatDistanceToNow(user.createdAt)}</p>
+                                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2">
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium whitespace-nowrap">
+                                        <Mail className="h-4 w-4 opacity-70" /> {user.email}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium whitespace-nowrap">
+                                        <Building2 className="h-4 w-4 opacity-70" /> {user.department || "Independent Professional"}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium whitespace-nowrap">
+                                        <MapPin className="h-4 w-4 opacity-70" /> {user.address || "Corporate Office"}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                <div className="group">
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 mb-1.5 flex items-center gap-1.5">
-                                        <CircleCheck className="h-3 w-3" /> Last Active
+                {/* Left Content Area: Details & Bio */}
+                <div className="lg:col-span-8 space-y-8">
+                    {/* Professional Info Card */}
+                    <Card className="rounded-2xl border-border/50 shadow-none bg-white">
+                        <CardHeader className="pt-8 px-8">
+                            <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2 tracking-tight uppercase tracking-widest text-xs opacity-60">
+                                Professional Insights
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="px-8 pb-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Department</label>
+                                    <p className="text-base font-medium text-slate-800 border-b border-slate-50 pb-2">
+                                        {user.department || "Operations & Strategy"}
                                     </p>
-                                    <p className="text-sm font-medium p-2.5 rounded-xl bg-card border border-border/40 shadow-sm">
-                                        {user.lastLoginAt ? format(parseISO(user.lastLoginAt), "MMM d, yyyy 'at' h:mm a") : "Never logged in"}
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Job Position</label>
+                                    <p className="text-base font-medium text-slate-800 border-b border-slate-50 pb-2">
+                                        {user.position || "Senior Professional Staff"}
                                     </p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Access Level</label>
+                                    <p className="text-base font-medium text-slate-800 border-b border-slate-50 pb-2 flex items-center gap-2">
+                                        <Shield className="h-4 w-4 text-slate-400" />
+                                        {roleInfo.label} Managed Account
+                                    </p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Joined Date</label>
+                                    <div className="flex items-center justify-between border-b border-slate-50 pb-2">
+                                        <p className="text-base font-medium text-slate-800">
+                                            {user.createdAt ? format(parseISO(user.createdAt), "MMM d, yyyy") : "N/A"}
+                                        </p>
+                                        <span className="text-[11px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full uppercase">
+                                            {formatDistanceToNow(user.createdAt)} Tenure
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="rounded-2xl shadow-sm border-border/60">
-                        <CardHeader className="border-b border-border/40 pb-4">
-                            <CardTitle className="text-lg font-bold flex items-center gap-2 tracking-tight">
-                                <UserIcon className="h-5 w-5 text-primary/70" />
-                                About User
+                    {/* Biography Card */}
+                    <Card className="rounded-2xl border-border/50 shadow-none bg-white">
+                        <CardHeader className="pt-8 px-8">
+                            <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2 tracking-tight uppercase tracking-widest text-xs opacity-60">
+                                User Statement
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-6">
-                            <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 text-sm leading-relaxed text-slate-700 min-h-[120px]">
-                                {user.bio || "This professional hasn't added a biography yet. A brief introduction helps colleagues understand their role better."}
+                        <CardContent className="px-8 pb-10">
+                            <div className="text-base leading-relaxed text-slate-600 max-w-none">
+                                {user.bio || "No professional biography has been provided by this user. This section typically outlines the individual's core competencies, project involvements, and professional background within the organization."}
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Right Column: Contact & Metadata */}
-                <div className="space-y-8">
-                    <Card className="rounded-2xl shadow-sm border-border/60 bg-gradient-to-br from-white to-slate-50">
-                        <CardHeader>
-                            <CardTitle className="text-base font-bold tracking-tight">Contact Details</CardTitle>
+                {/* Right Content Area: Meta Info */}
+                <div className="lg:col-span-4 space-y-8">
+                    {/* Activity Tracking */}
+                    <Card className="rounded-2xl border-border/50 shadow-none bg-white overflow-hidden">
+                        <div className="h-1 w-full bg-slate-900" />
+                        <CardHeader className="pt-6 px-6">
+                            <CardTitle className="text-sm font-bold text-slate-900 uppercase tracking-wider opacity-60">System Metadata</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="flex items-center gap-3">
-                                <div className="h-9 w-9 bg-primary/5 rounded-full flex items-center justify-center text-primary shadow-sm border border-primary/10">
-                                    <Mail className="h-4 w-4" />
+                        <CardContent className="px-6 pb-6 space-y-5">
+                            <div className="flex items-start gap-4">
+                                <div className="mt-1 h-8 w-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 border border-slate-100">
+                                    <Clock className="h-4 w-4" />
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-muted-foreground/70 uppercase">Work Email</span>
-                                    <span className="text-xs font-semibold">{user.email}</span>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                                <div className="h-9 w-9 bg-primary/5 rounded-full flex items-center justify-center text-primary shadow-sm border border-primary/10">
-                                    <Phone className="h-4 w-4" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-muted-foreground/70 uppercase">Mobile</span>
-                                    <span className="text-xs font-semibold">{user.phone || "Not provided"}</span>
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Last Access</p>
+                                    <p className="text-sm font-semibold text-slate-700">
+                                        {user.lastLoginAt ? format(parseISO(user.lastLoginAt), "MMM d, yyyy HH:mm") : "None recorded"}
+                                    </p>
                                 </div>
                             </div>
-
-                            <div className="flex items-center gap-3">
-                                <div className="h-9 w-9 bg-primary/5 rounded-full flex items-center justify-center text-primary shadow-sm border border-primary/10">
-                                    <MapPin className="h-4 w-4" />
+                            <div className="flex items-start gap-4">
+                                <div className="mt-1 h-8 w-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 border border-slate-100">
+                                    <Shield className="h-4 w-4" />
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-muted-foreground/70 uppercase">Primary Location</span>
-                                    <span className="text-xs font-semibold">{user.address || "Organization Headquarters"}</span>
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Unique Identifier</p>
+                                    <p className="text-sm font-mono text-slate-500 bg-slate-50 px-2 py-0.5 rounded mt-1 overflow-hidden truncate max-w-[180px]">
+                                        {user.uid || user.id}
+                                    </p>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="rounded-2xl shadow-sm border-border/60 border-l-4 border-l-indigo-500 overflow-hidden">
-                        <CardContent className="pt-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-sm">System Access</h3>
-                                <Shield className="h-4 w-4 text-indigo-500" />
-                            </div>
-                            <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-                                Current access levels allow this professional to {user.role === 'SUPER_ADMIN' ? 'manage the entire system configuration, users, and organization data.' : user.role === 'ADMIN' ? 'facilitate member requests, manage announcements and review analytics.' : 'participate in organization activities and submit requests.'}
-                            </p>
-                            <div className="flex flex-col gap-1.5">
-                                <div className="flex justify-between text-[10px]">
-                                    <span className="font-bold text-muted-foreground">ID REFERENCE</span>
-                                    <span className="font-mono text-indigo-600 bg-indigo-50 px-1.5 rounded">{user.uid?.slice(0, 8)}...</span>
+                    {/* Quick Tools / Communication */}
+                    <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-lg shadow-slate-200">
+                        <h3 className="text-lg font-bold mb-2 tracking-tight">Organization Contact</h3>
+                        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+                            Official communication channels should be used for all professional outreach regarding organizational matters.
+                        </p>
+                        <div className="space-y-4">
+                            <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
+                                <Mail className="h-4 w-4 text-slate-300" />
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email</span>
+                                    <span className="text-xs font-medium text-slate-200 truncate max-w-[180px]">{user.email}</span>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                            <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
+                                <Phone className="h-4 w-4 text-slate-300" />
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Extension</span>
+                                    <span className="text-xs font-medium text-slate-200">{user.phone || "+977 (Official Line)"}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <Button className="w-full mt-6 bg-white text-slate-900 hover:bg-slate-100 font-bold py-5 rounded-xl transition-all">
+                            Generate Report
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,7 +1,7 @@
-import { $Enums } from '@prisma/client';
+import { RequestStatus } from '@prisma/client';
 
 export class UpdateRequestStatusDto {
-    status: $Enums.RequestStatus;
+    status: RequestStatus;
     rejectionReason?: string;
     adminNotes?: string;
 }

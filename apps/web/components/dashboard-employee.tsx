@@ -3,10 +3,10 @@ import { useState } from "react";
 
 import { useAuth } from "@/lib/auth-context";
 import {
-  useServiceRequests,
   useAnnouncements,
   useLunchTokens,
 } from "@/lib/queries";
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useGetAllRequestsQuery } from "@/hooks/request/use-createRequest";
+import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },

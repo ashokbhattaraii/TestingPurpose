@@ -22,27 +22,7 @@ function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
 }
 
-export function useServiceRequests(userId?: string) {
-  return useQuery({
-    queryKey: ["serviceRequests", userId],
-    queryFn: () => {
-      const filtered = userId
-        ? serviceRequests.filter((r) => r.userId === userId)
-        : serviceRequests;
-      return delay([...filtered]);
-    },
-  });
-}
-
-export function useServiceRequest(id: string) {
-  return useQuery({
-    queryKey: ["serviceRequest", id],
-    queryFn: () => {
-      const found = serviceRequests.find((r) => r.id === id);
-      return delay(found || null);
-    },
-  });
-}
+// Note: Request-related hooks have been moved to @/hooks/request/ folder
 
 export function useAnnouncements() {
   return useQuery({
@@ -65,28 +45,6 @@ export function useAnalytics() {
   });
 }
 
-export function useCreateRequest() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (
-      newRequest: Omit<ServiceRequest, "id" | "createdAt" | "updatedAt">,
-    ) => {
-      const request: ServiceRequest = {
-        ...newRequest,
-        id: `SR-${String(serviceRequests.length + 1).padStart(3, "0")}`,
-        status: "PENDING",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      serviceRequests.unshift(request);
-      return delay(request);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["analytics"] });
-    },
-  });
-}
 
 export function useUpdateUserRole() {
   const queryClient = useQueryClient();
@@ -110,122 +68,6 @@ export function useUpdateUserRole() {
   });
 }
 
-export function useUpdateRequestStatus() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      id,
-      status,
-      rejectionReason,
-    }: {
-      id: string;
-      status: RequestStatus;
-      rejectionReason?: string;
-    }) => {
-      const response = await axiosInstance.post(`/request/${id}/status`, {
-        status,
-        rejectionReason,
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["request"] });
-      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
-      queryClient.invalidateQueries({ queryKey: ["analytics"] });
-    },
-  });
-}
-
-export function useReopenRequest() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      id,
-      userId,
-      userName,
-    }: {
-      id: string;
-      userId: string;
-      userName: string;
-    }) => {
-      const request = serviceRequests.find((r) => r.id === id);
-      if (request) {
-        request.status = "PENDING";
-        request.rejectionReason = undefined;
-        request.updatedAt = new Date().toISOString();
-      }
-      // Notify admins that the request was reopened
-      const adminUsers = users.filter(
-        (u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN",
-      );
-      adminUsers.forEach((admin) => {
-        const notif: Notification = {
-          id: `n-${Date.now()}-${admin.id}`,
-          userId: admin.id,
-          title: "Request Reopened",
-          message: `${userName} reopened request ${id}: ${request?.title || ""}`,
-          read: false,
-          createdAt: new Date().toISOString(),
-          link: `/dashboard/requests/${id}`,
-        };
-        notifications.unshift(notif);
-      });
-      return delay(request);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["analytics"] });
-    },
-  });
-}
-
-export function useAssignRequest() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      requestId,
-      assignedToId,
-      assignedToName,
-      assignedByName,
-    }: {
-      requestId: string;
-      assignedToId: string;
-      assignedToName: string;
-      assignedByName: string;
-    }) => {
-      const request = serviceRequests.find((r) => r.id === requestId);
-      if (request) {
-        request.assignedTo = assignedToId;
-        request.assignedToName = assignedToName;
-        request.updatedAt = new Date().toISOString();
-        if (request.status === "PENDING") {
-          request.status = "IN_PROGRESS";
-        }
-      }
-      // Create a notification for the assigned user
-      const notif: Notification = {
-        id: `n-${Date.now()}`,
-        userId: assignedToId,
-        title: "New Assignment",
-        message: `${assignedByName} assigned you to request ${requestId}: ${request?.title || ""}`,
-        read: false,
-        createdAt: new Date().toISOString(),
-        link: `/dashboard/requests/${requestId}`,
-      };
-      notifications.unshift(notif);
-      return delay(request);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["analytics"] });
-    },
-  });
-}
 
 // --- Lunch Token Hooks ---
 
@@ -396,43 +238,3 @@ export function usePinAnnouncement() {
   });
 }
 
-// --- Delete Request Hook ---
-
-export function useDeleteRequest() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (requestId: string) => {
-      const index = serviceRequests.findIndex((r) => r.id === requestId);
-      if (index > -1) {
-        serviceRequests.splice(index, 1);
-      }
-      return delay(null);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
-      queryClient.invalidateQueries({ queryKey: ["analytics"] });
-    },
-  });
-}
-
-// --- Update Request Hook ---
-
-export function useUpdateRequest() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (updates: Partial<ServiceRequest> & { id: string }) => {
-      const request = serviceRequests.find((r) => r.id === updates.id);
-      if (request) {
-        Object.assign(request, updates);
-        request.updatedAt = new Date().toISOString();
-      }
-      return delay(request);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["serviceRequest"] });
-      queryClient.invalidateQueries({ queryKey: ["analytics"] });
-    },
-  });
-}

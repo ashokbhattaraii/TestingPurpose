@@ -1,27 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRequestDto } from './dto/create-request.dto';
-import { $Enums } from '@prisma/client';
+import { RequestStatus, RequestType, IssuePriority, IssueCategory, SuppliesCategory } from '@prisma/client';
+import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
+import { AssignRequestDto } from './dto/assign-request.dto';
 
-enum RequestType {
-  ISSUE = 'ISSUE',
-  SUPPLIES = 'SUPPLIES',
-}
-enum IssuePriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-}
-enum IssueCategory {
-  HARDWARE = 'HARDWARE',
-  SOFTWARE = 'SOFTWARE',
-  NETWORK = 'NETWORK',
-}
-enum SuppliesCategory {
-  OFFICE = 'OFFICE',
-  MAINTENANCE = 'MAINTENANCE',
-  OTHER = 'OTHER',
-}
 @Injectable()
 export class RequestService {
   constructor(private prisma: PrismaService) { }
@@ -64,18 +47,18 @@ export class RequestService {
     const request = await this.prisma.request.create({
       data: {
         userId,
-        type: dto.type as $Enums.RequestType,
+        type: dto.type as RequestType,
         title: dto.title,
         description: dto.description ?? '',
         attachments: dto.attachments ?? [],
-        status: 'PENDING' as const,
+        status: 'PENDING' as RequestStatus,
         issueDetails:
           dto.type === RequestType.ISSUE
             ? {
               create: {
-                priority: dto.issueDetails!.priority as $Enums.IssuePriority,
+                priority: dto.issueDetails!.priority as IssuePriority,
                 category: dto.issueDetails!
-                  .category as unknown as $Enums.IssueCategory,
+                  .category as unknown as IssueCategory,
                 location: dto.issueDetails!.location,
               },
             }
@@ -85,7 +68,7 @@ export class RequestService {
             ? {
               create: {
                 category: dto.suppliesDetails!
-                  .category as $Enums.SuppliesCategory,
+                  .category as SuppliesCategory,
                 itemName: dto.suppliesDetails!.itemName,
               },
             }
@@ -192,7 +175,7 @@ export class RequestService {
     });
   }
 
-  async updateRequestStatus(id: string, dto: { status: $Enums.RequestStatus; rejectionReason?: string; adminNotes?: string }) {
+  async updateRequestStatus(id: string, dto: UpdateRequestStatusDto) {
     const request = await this.prisma.request.update({
       where: { id },
       data: {
@@ -202,7 +185,16 @@ export class RequestService {
         approvedAt: (dto.status === 'RESOLVED' || dto.status === 'FULFILLED') ? new Date() : undefined,
       },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            department: true,
+
+          },
+        },
         issueDetails: true,
         suppliesDetails: true,
       },
@@ -210,6 +202,64 @@ export class RequestService {
     return {
       message: 'Status updated successfully',
       request,
+    };
+  }
+
+  async assignRequest(id: string, dto: AssignRequestDto) {
+    const request = await this.prisma.request.update({
+      where: { id },
+      data: {
+        approverId: dto.assignedToId,
+        status: 'IN_PROGRESS' as RequestStatus,
+      },
+      include: {
+        user: true,
+        approver: true,
+        issueDetails: true,
+        suppliesDetails: true,
+      },
+    });
+    return {
+      message: 'Request assigned successfully',
+      request,
+    };
+  }
+
+  async reopenRequest(id: string) {
+    const request = await this.prisma.request.update({
+      where: { id },
+      data: {
+        status: 'PENDING' as RequestStatus,
+        rejectionReason: null,
+        approverId: null,
+        approvedAt: null,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            department: true,
+          },
+        },
+        issueDetails: true,
+        suppliesDetails: true,
+      },
+    });
+    return {
+      message: 'Request reopened successfully',
+      request,
+    };
+  }
+
+  async deleteRequest(id: string) {
+    await this.prisma.request.delete({
+      where: { id },
+    });
+    return {
+      message: 'Request deleted successfully',
     };
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useServiceRequests } from "@/lib/queries";
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ import {
 import { format } from "date-fns";
 import Link from "next/link";
 import { useState } from "react";
+import { ServiceRequest } from "@/lib/types";
 
 function getInitials(name: string) {
   return name
@@ -39,7 +40,7 @@ const roleLabel: Record<string, string> = {
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { data: requests } = useServiceRequests(user?.id ?? "");
+  const { data: requestsData } = useServiceRequests(user?.id ?? "");
   const [isEditingAvatar, setIsEditingAvatar] = useState(false);
 
   if (!user) return null;
@@ -57,7 +58,11 @@ export default function ProfilePage() {
     : null;
   const socialAccounts = (user as any).socialAccounts ?? [];
 
-  const recentRequests = requests?.slice(0, 5) ?? [];
+  const requestsArray = (Array.isArray(requestsData)
+    ? requestsData
+    : (requestsData as any)?.requests ?? []) as ServiceRequest[];
+
+  const recentRequests = requestsArray.slice(0, 5);
 
   return (
     <div className="mx-auto max-w-4xl flex flex-col gap-6">
@@ -254,7 +259,7 @@ export default function ProfilePage() {
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {recentRequests.map((req) => (
+              {recentRequests.map((req: any) => (
                 <Link
                   key={req.id}
                   href={`/dashboard/requests/${req.id}`}

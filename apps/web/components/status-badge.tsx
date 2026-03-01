@@ -45,7 +45,7 @@ export function StatusBadge({ status }: { status: RequestStatus }) {
   return (
     <Badge
       variant="outline"
-      className={cn("text-xs font-medium", config.className)}
+      className={cn("text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm", config.className)}
     >
       {config.label}
     </Badge>
