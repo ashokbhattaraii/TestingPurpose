@@ -30,12 +30,12 @@ export class AuthController {
 
       console.log('Login successful');
 
-      const isProduction = process.env.NODE_ENV === 'production';
+      const isProduction = process.env.NODE_ENV === 'Production';
 
       res.cookie('access_token', result.access_token, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none',
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
         path: '/',
       });
@@ -71,12 +71,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt'))
   logout(@Req() req, @Res() res) {
-    const isProduction = process.env.NODE_ENV === 'production';
-
+    const isProduction = process.env.NODE_ENV === 'Production';
     res.clearCookie('access_token', {
       httpOnly: true,
       secure: isProduction,
-      sameSite: "none",
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
     });
 

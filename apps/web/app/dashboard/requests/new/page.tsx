@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/form";
 import {
   requestSchema,
+  type RequestFormValues,
   ISSUE_CATEGORIES,
   ISSUE_PRIORITIES,
   SUPPLIES_CATEGORIES,
@@ -49,17 +50,6 @@ import {
 import type { Attachment } from "@/lib/types";
 import error from "next/error";
 import { CreateRequestPayload } from "@/lib/type/requestType"; // fix import path
-
-type RequestFormValues = {
-  type: "ISSUE" | "SUPPLIES";
-  title: string;
-  description?: string;
-  issuePriority?: "LOW" | "MEDIUM" | "HIGH";
-  issueCategory?: "HARDWARE" | "SOFTWARE" | "NETWORK";
-  location?: string;
-  suppliesCategory?: "OFFICE" | "MAINTENANCE" | "OTHER";
-  itemName?: string;
-};
 
 // ✅ keep non-hook constants at module level
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -80,7 +70,7 @@ export default function NewRequestPage() {
       title: "",
       description: "",
       issuePriority: "MEDIUM",
-      issueCategory: "SOFTWARE",
+      issueCategory: "TECHNICAL",
       location: "",
     },
   });
@@ -94,7 +84,7 @@ export default function NewRequestPage() {
         title: form.getValues("title"),
         description: form.getValues("description") || "",
         issuePriority: "MEDIUM",
-        issueCategory: "SOFTWARE",
+        issueCategory: "TECHNICAL",
         location: "",
       });
     } else {
@@ -102,7 +92,7 @@ export default function NewRequestPage() {
         type: "SUPPLIES",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
-        suppliesCategory: "OFFICE",
+        suppliesCategory: "OFFICE_Supplies",
         itemName: "",
       });
     }

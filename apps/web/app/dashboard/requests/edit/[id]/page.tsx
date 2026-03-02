@@ -62,7 +62,7 @@ export default function EditRequestPage() {
         location: "",
       };
     }
-    if (request.type === "ISSUE" || request.type === "Issue") {
+    if (request.type === "ISSUE") {
       return {
         type: "ISSUE",
         title: request.title,
@@ -73,10 +73,10 @@ export default function EditRequestPage() {
       };
     }
     return {
-      type: "Supplies",
+      type: "SUPPLIES",
       title: request.title,
       description: request.description || "",
-      SuppliesCategory: request.suppliesDetails?.category || "OFFICE_Supplies",
+      suppliesCategory: request?.suppliesDetails?.category || "OFFICE_Supplies",
       itemName: request.suppliesDetails?.itemName || "",
     };
   }, [request]);
@@ -95,7 +95,7 @@ export default function EditRequestPage() {
 
   const requestType = form.watch("type");
 
-  const handleTypeChange = (newType: "ISSUE" | "Supplies") => {
+  const handleTypeChange = (newType: "ISSUE" | "SUPPLIES") => {
     if (newType === "ISSUE") {
       form.reset({
         type: "ISSUE",
@@ -107,17 +107,17 @@ export default function EditRequestPage() {
       });
     } else {
       form.reset({
-        type: "Supplies",
+        type: "SUPPLIES",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
-        SuppliesCategory: "OFFICE_Supplies",
+        suppliesCategory: "OFFICE_Supplies",
         itemName: "",
       });
     }
   };
 
   // Check authorization
-  const isCreator = user?.id === request?.userId;
+  const isCreator = user?.id === request?.user.id;
   const isNotPending = request && request.status !== "PENDING";
 
   if (isLoading) {
@@ -171,7 +171,7 @@ export default function EditRequestPage() {
       {
         id: request.id,
         ...values,
-        itemName: values.type === "Supplies" ? values.itemName : "",
+        itemName: values.type === "SUPPLIES" ? values.itemName : "",
       },
       {
         onSuccess: () => {
@@ -220,7 +220,7 @@ export default function EditRequestPage() {
                       <RadioGroup
                         onValueChange={(val) => {
                           field.onChange(val);
-                          handleTypeChange(val as "ISSUE" | "Supplies");
+                          handleTypeChange(val as "ISSUE" | "SUPPLIES");
                         }}
                         value={field.value}
                         className="flex gap-4"
@@ -239,7 +239,7 @@ export default function EditRequestPage() {
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
                           <RadioGroupItem
-                            value="Supplies"
+                            value="SUPPLIES"
                             id="edit-type-Supplies"
                           />
                           <span className="font-medium text-foreground">
@@ -372,11 +372,11 @@ export default function EditRequestPage() {
               )}
 
               {/* Supplies-specific fields */}
-              {requestType === "Supplies" && (
+              {requestType === "SUPPLIES" && (
                 <>
                   <FormField
                     control={form.control}
-                    name="SuppliesCategory"
+                    name="suppliesCategory"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Supplies Category *</FormLabel>

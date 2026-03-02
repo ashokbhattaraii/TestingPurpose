@@ -1,20 +1,21 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios/axios";
 import { toast } from "@/hooks/use-toast";
+import { IssueCategory, IssuePriority, SuppliesCategory, RequestType } from "@/lib/types";
 
 interface UpdateRequestPayload {
     id: string;
-    type?: "ISSUE" | "Supplies";
+    type?: RequestType;
     title?: string;
     description?: string;
     attachments?: string[];
     issueDetails?: {
-        priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-        category: "TECHNICAL" | "FACILITY" | "HR" | "ADMINISTRATIVE" | "SECURITY" | "OTHER";
+        priority: IssuePriority;
+        category: IssueCategory;
         location?: string;
     };
     suppliesDetails?: {
-        category: "OFFICE_SUPPLIES" | "EQUIPMENT" | "STATIONERY" | "PANTRY" | "CLEANING" | "TECHNOLOGY" | "OTHER";
+        category: SuppliesCategory;
         itemName: string;
     };
 }
@@ -27,13 +28,13 @@ export function useUpdateRequestMutation() {
             ...data
         }: {
             id: string;
-            type: "ISSUE" | "Supplies";
+            type: RequestType;
             title: string;
             description?: string;
-            issuePriority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-            issueCategory?: "TECHNICAL" | "FACILITY" | "HR" | "ADMINISTRATIVE" | "SECURITY" | "OTHER";
+            issuePriority?: IssuePriority;
+            issueCategory?: IssueCategory;
             location?: string;
-            SuppliesCategory?: "OFFICE_SUPPLIES" | "EQUIPMENT" | "STATIONERY" | "PANTRY" | "CLEANING" | "TECHNOLOGY" | "OTHER" | "OFFICE_Supplies";
+            suppliesCategory?: SuppliesCategory;
             itemName?: string;
         }) => {
             // transform the payload mapping to backend DTO structure
@@ -50,9 +51,9 @@ export function useUpdateRequestMutation() {
                     category: data.issueCategory as any,
                     location: data.location,
                 };
-            } else if (data.type === "Supplies") {
+            } else if (data.type === "SUPPLIES") {
                 payload.suppliesDetails = {
-                    category: (data.SuppliesCategory === "OFFICE_Supplies" ? "OFFICE_SUPPLIES" : data.SuppliesCategory) as any,
+                    category: data.suppliesCategory as any,
                     itemName: data.itemName || "",
                 };
             }

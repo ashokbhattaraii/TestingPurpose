@@ -1,3 +1,5 @@
+import { IssueCategory, IssuePriority, SuppliesCategory, RequestType as AppRequestType, RequestStatus } from "@/lib/types";
+
 enum RequestType {
   ISSUE = "ISSUE",
   SUPPLIES = "SUPPLIES",
@@ -8,12 +10,12 @@ type ApiRequestPayload = {
   description?: string;
   attachments: string[];
   issueDetails?: {
-    priority: "LOW" | "MEDIUM" | "HIGH";
-    category: "HARDWARE" | "SOFTWARE" | "NETWORK";
+    priority: IssuePriority;
+    category: IssueCategory;
     location?: string;
   };
   suppliesDetails?: {
-    category: "OFFICE" | "MAINTENANCE" | "OTHER";
+    category: SuppliesCategory;
     itemName: string;
   };
 };
@@ -22,20 +24,20 @@ export type CreateRequestPayload = ApiRequestPayload;
 
 export type RequestResponse = {
   id: string;
-  type: RequestType;
+  type: AppRequestType;
   title: string;
   description: string;
   attachments: string[];
   issueDetails?: {
-    priority: "LOW" | "MEDIUM" | "HIGH";
-    category: "HARDWARE" | "SOFTWARE" | "NETWORK";
+    priority: IssuePriority;
+    category: IssueCategory;
     location?: string;
   };
   suppliesDetails?: {
-    category: "OFFICE" | "MAINTENANCE" | "OTHER";
+    category: SuppliesCategory;
     itemName: string;
   };
-  status: "PENDING" | "IN_PROGRESS" | "RESOLVED" | "FULFILLED" | "REJECTED" | "CLOSED" | "CANCELLED" | "ON_HOLD";
+  status: RequestStatus;
   createdAt: string;
   updatedAt: string;
   user: {
@@ -54,3 +56,4 @@ export interface GetRequestByIdResponse {
   message: string;
   request: RequestResponse; // reuse your existing type
 }
+
