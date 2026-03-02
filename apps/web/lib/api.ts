@@ -11,7 +11,7 @@ export async function fetchWithAuth(
     body?: any;
   } = {},
 ) {
-  console.log("Calling:", `${API_URL}${endpoint}`);
+
 
   try {
     const response = await axiosInstance({
