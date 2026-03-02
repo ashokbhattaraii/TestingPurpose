@@ -26,7 +26,8 @@ export async function proxy(request: NextRequest) {
       // Verify with 10s clock tolerance to prevent "instant deletion" 
       // caused by minor server time differences (clock skew)
       const verified = await jwtVerify(token, secret, {
-        clockTolerance: 10,
+        clockTolerance: 100,
+
       });
 
       payload = verified.payload;
