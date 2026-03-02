@@ -1,37 +1,57 @@
 import { NextResponse, NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-export async function proxy(request: NextRequest) {
-  const token = request.cookies.get("access_token")?.value;
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get("access_token")?.value;
 
-  // 1. Verify the Token
+  // 1. VERCEL BUILD BYPASS
+  // Prevents "Internal Error" by allowing the build server to crawl pages 
+  // without triggering a redirect loop.
+  if (
+    request.headers.get("x-middleware-preflight") ||
+    pathname.includes("_next") ||
+    process.env.VERCEL_ENV === "preview" && !token // Optional: easier debugging in preview
+  ) {
+    return NextResponse.next();
+  }
+
+  // 2. TOKEN VERIFICATION
   let isValid = false;
-  if (token) {
+  const secretKey = process.env.JWT_SECRET;
+
+  if (token && secretKey) {
     try {
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-      await jwtVerify(token, secret); // MUST be awaited
+      const secret = new TextEncoder().encode(secretKey);
+      await jwtVerify(token, secret);
       isValid = true;
     } catch (err) {
-      // If token is invalid/expired, it's best to delete the cookie
-      const response = NextResponse.redirect(new URL("/login", request.url));
-      response.cookies.delete("access_token");
-      return response;
+      console.error("Middleware JWT Error:");
+      // If we are on a protected page and the token is actually invalid, 
+      // redirect and clear the junk cookie.
+      if (pathname.startsWith("/dashboard") || pathname.startsWith("/requests")) {
+        const response = NextResponse.redirect(new URL("/login", request.url));
+        response.cookies.delete("access_token");
+        return response;
+      }
     }
   }
 
-  // 2. Define Protected and Auth Routes
+  // 3. DEFINE ROUTE GROUPS
   const isAuthPage = pathname === "/login" || pathname === "/";
   const isProtectedPage =
     pathname.startsWith("/dashboard") || pathname.startsWith("/requests");
 
-  // 3. Logic: If logged in, don't allow access to Login/Landing pages
+  // 4. REDIRECT LOGIC
+
+  // If logged in, don't allow access to Login/Landing pages
   if (isAuthPage && isValid) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // 4. Logic: If NOT logged in, don't allow access to Protected pages
+  // If NOT logged in, don't allow access to Protected pages
   if (isProtectedPage && !isValid) {
+    // Only redirect if it's not a build-time request
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
