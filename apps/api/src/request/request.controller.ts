@@ -8,7 +8,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AssignRequestDto } from './dto/assign-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
-import { Roles } from 'src/common/decorators/roles-decorator/roles.decorator';
+import { Roles } from '../common/decorators/roles-decorator/roles.decorator';
 @Controller('request')
 export class RequestController {
   constructor(private readonly requestService: RequestService) { }

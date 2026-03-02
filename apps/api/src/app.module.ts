@@ -24,4 +24,4 @@ import { LaunchModule } from './launch/launch.module';
   providers: [AppService, SupabaseService],
   exports: [AuthModule, SupabaseModule],
 })
-export class AppModule {}
+export class AppModule { }

@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
-import { Roles } from 'src/common/decorators/roles-decorator/roles.decorator';
+import { Roles } from '../common/decorators/roles-decorator/roles.decorator';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
-import { UpdateUserRoleDto } from 'src/dto/updateUserRole.dto';
+import { UpdateUserRoleDto } from '../dto/updateUserRole.dto';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
