@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { getCurrentUser, apiLogout } from "./api";
+import router from "next/navigation";
 
 interface User {
   id: string;
@@ -36,9 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
-    if (pathname === "/login") {
+    // Treat the home page and login page as public routes
+    const publicRoutes = ["/", "/login"];
+    if (publicRoutes.includes(pathname)) {
       setIsLoading(false);
       return;
     }
@@ -48,10 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadUser = async () => {
     try {
       const userData = await getCurrentUser();
-      console.log("✅ User loaded:", userData.email);
+      console.log("User loaded:", userData.email);
       setUser(userData);
     } catch (error) {
-      console.log("❌ No user found");
+      console.log("No user found");
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -70,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Logout error:", error);
     } finally {
       setUser(null);
+      router.push("/login");
     }
   };
   return (

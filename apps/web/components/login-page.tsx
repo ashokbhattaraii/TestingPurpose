@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -8,11 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Building2, ArrowRight } from "lucide-react";
+import { Building2, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { users } from "@/lib/data";
 import { useLogin } from "@/hooks/use-login";
 import { FcGoogle } from "react-icons/fc";
+import { useToast } from "./ui/use-toast";
 
 function getInitials(name: string) {
   return name
@@ -36,9 +38,17 @@ const roleBadgeClass: Record<string, string> = {
 };
 
 export function LoginPage() {
-  const { loginWithGoogle, isGoogleLoginPending } = useLogin();
+  const { loginWithGoogle, isGoogleLoginPending, loginWithGoogleSuccess } = useLogin();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const demoUser = users[0];
+  const { toast } = useToast();
   const otherUsers = users.slice(1);
+
+  const handleGoogleLogin = () => {
+    setIsLoggingIn(true);
+    loginWithGoogle();
+
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background via-primary/5 to-background px-4 relative">
@@ -79,12 +89,17 @@ export function LoginPage() {
               {/* Google Sign In Button */}
               <button
                 type="button"
-                onClick={() => loginWithGoogle()}
-                className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-background hover:bg-muted/50 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:border-primary/50 hover:shadow-sm"
+                onClick={handleGoogleLogin}
+                disabled={isLoggingIn || isGoogleLoginPending}
+                className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-background hover:bg-muted/50 px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:border-primary/50 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <FcGoogle className="h-5 w-5" />
+                {isLoggingIn || isGoogleLoginPending ? (
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                ) : (
+                  <FcGoogle className="h-5 w-5" />
+                )}
                 <span className="text-gray-900 dark:text-white">
-                  Continue with Google
+                  {isLoggingIn || isGoogleLoginPending ? "Redirecting..." : "Continue with Google"}
                 </span>
               </button>
             </div>

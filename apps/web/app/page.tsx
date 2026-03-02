@@ -23,31 +23,8 @@ import {
 } from "@/components/home";
 
 export default function HomePage() {
-  const { isLoading, user } = useAuth();
-  const router = useRouter();
+
   const [activeSection, setActiveSection] = useState<string>("");
-
-  console.log(
-    "👤From app page  Current user:",
-    user?.email,
-    "Role:",
-    user?.role,
-  );
-
-  useEffect(() => {
-    if (!isLoading && user) {
-      router.push("/dashboard");
-    }
-  }, [isLoading, user, router]);
-
-  if (isLoading || user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
   const features: FeatureCard[] = [
     {
       icon: Clock,

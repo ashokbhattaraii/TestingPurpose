@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState, type ReactNode } from "react";
-
+import { usePathname } from "next/navigation";
 export function QueryProvider({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -16,11 +16,14 @@ export function QueryProvider({ children }: { children: ReactNode }) {
         },
       }),
   );
+  const pathname = usePathname();
+  const publicRoutes = ["/", "/login"];
+  const isPublicRoute = publicRoutes.includes(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools />
+      {!isPublicRoute && <ReactQueryDevtools />}
     </QueryClientProvider>
   );
 }
