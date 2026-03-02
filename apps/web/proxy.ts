@@ -15,7 +15,7 @@ export async function proxy(request: NextRequest) {
     } catch (err) {
       // If token is invalid/expired, it's best to delete the cookie
       const response = NextResponse.redirect(new URL("/login", request.url));
-
+      response.cookies.delete("access_token");
       return response;
     }
   }
@@ -39,12 +39,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  /*
-   * Match all request paths except for the ones starting with:
-   * - api (API routes)
-   * - _next/static (static files)
-   * - _next/image (image optimization files)
-   * - favicon.ico (favicon file)
-   */
+
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
