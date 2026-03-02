@@ -40,6 +40,9 @@ export class AuthController {
         path: '/',
       });
 
+      console.log('Cookie set:', res.getHeader('set-cookie'));
+
+
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       res.redirect(`${frontendUrl}/dashboard`);
     } catch (error) {
