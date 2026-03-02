@@ -2,7 +2,8 @@
 
 import React from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useServiceRequest, useUpdateRequest } from "@/lib/queries";
+import { useGetRequestByIdQuery } from "@/hooks/request/useGetRequest";
+import { useUpdateRequestMutation } from "@/hooks/request/useUpdateRequest";
 import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,8 +47,9 @@ export default function EditRequestPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
-  const { data: request, isLoading } = useServiceRequest(id);
-  const updateRequest = useUpdateRequest();
+  const { data: requestById, isLoading } = useGetRequestByIdQuery(id);
+  const request = requestById?.request;
+  const updateRequest = useUpdateRequestMutation();
 
   const getDefaultValues = React.useCallback((): RequestFormValues => {
     if (!request) {
@@ -60,22 +62,22 @@ export default function EditRequestPage() {
         location: "",
       };
     }
-    if (request.type === "ISSUE") {
+    if (request.type === "ISSUE" || request.type === "Issue") {
       return {
         type: "ISSUE",
         title: request.title,
         description: request.description || "",
-        issuePriority: request.issuePriority || "MEDIUM",
-        issueCategory: request.issueCategory || "TECHNICAL",
-        location: request.location || "",
+        issuePriority: request.issueDetails?.priority || "MEDIUM",
+        issueCategory: request.issueDetails?.category || "TECHNICAL",
+        location: request.issueDetails?.location || "",
       };
     }
     return {
       type: "Supplies",
       title: request.title,
       description: request.description || "",
-      SuppliesCategory: request.SuppliesCategory || "OFFICE_Supplies",
-      itemName: request.itemName || "",
+      SuppliesCategory: request.suppliesDetails?.category || "OFFICE_Supplies",
+      itemName: request.suppliesDetails?.itemName || "",
     };
   }, [request]);
 

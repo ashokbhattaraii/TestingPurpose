@@ -4,6 +4,7 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { RequestStatus, RequestType, IssuePriority, IssueCategory, SuppliesCategory } from '@prisma/client';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AssignRequestDto } from './dto/assign-request.dto';
+import { UpdateRequestDto } from './dto/update-request.dto';
 
 @Injectable()
 export class RequestService {
@@ -171,6 +172,95 @@ export class RequestService {
     }
     return this.removeNullish({
       message: 'Request fetched successfully',
+      request,
+    });
+  }
+
+  async updateRequest(id: string, userId: string, dto: UpdateRequestDto) {
+    const existing = await this.prisma.request.findUnique({
+      where: { id },
+      include: { issueDetails: true, suppliesDetails: true },
+    });
+    if (!existing) {
+      throw new BadRequestException('Request not found');
+    }
+    if (existing.userId !== userId) {
+      throw new BadRequestException('Not authorized to update this request');
+    }
+    if (existing.status !== 'PENDING') {
+      throw new BadRequestException('Only PENDING requests can be edited');
+    }
+
+    // Determine type for relations logic
+    const newType = dto.type ?? existing.type;
+
+    const request = await this.prisma.request.update({
+      where: { id },
+      data: {
+        title: dto.title ?? existing.title,
+        description: dto.description !== undefined ? dto.description : existing.description,
+        type: newType,
+        attachments: dto.attachments ?? existing.attachments,
+        issueDetails:
+          newType === RequestType.ISSUE
+            ? {
+              upsert: {
+                create: {
+                  priority:
+                    (dto.issueDetails?.priority as IssuePriority) || IssuePriority.MEDIUM,
+                  category:
+                    (dto.issueDetails?.category as unknown as IssueCategory) ||
+                    'TECHNICAL',
+                  location: dto.issueDetails?.location || null,
+                },
+                update: {
+                  priority: dto.issueDetails?.priority as IssuePriority,
+                  category: dto.issueDetails?.category as unknown as IssueCategory,
+                  location: dto.issueDetails?.location,
+                },
+              },
+            }
+            : existing.issueDetails
+              ? { delete: true }
+              : undefined,
+        suppliesDetails:
+          newType === RequestType.SUPPLIES
+            ? {
+              upsert: {
+                create: {
+                  category:
+                    (dto.suppliesDetails?.category as SuppliesCategory) ||
+                    'OFFICE_SUPPLIES',
+                  itemName: dto.suppliesDetails?.itemName || '',
+                },
+                update: {
+                  category: dto.suppliesDetails?.category as SuppliesCategory,
+                  itemName: dto.suppliesDetails?.itemName,
+                },
+              },
+            }
+            : existing.suppliesDetails
+              ? { delete: true }
+              : undefined,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            department: true,
+            photoURL: true,
+          },
+        },
+        issueDetails: true,
+        suppliesDetails: true,
+      },
+    });
+
+    return this.removeNullish({
+      message: 'Request updated successfully',
       request,
     });
   }

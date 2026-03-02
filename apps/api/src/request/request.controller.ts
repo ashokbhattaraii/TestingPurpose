@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator/current-user.decorator';
@@ -7,6 +7,7 @@ import type { UserPayload } from '../common/decorators/current-user.decorator/cu
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AssignRequestDto } from './dto/assign-request.dto';
+import { UpdateRequestDto } from './dto/update-request.dto';
 import { Roles } from 'src/common/decorators/roles-decorator/roles.decorator';
 @Controller('request')
 export class RequestController {
@@ -31,6 +32,16 @@ export class RequestController {
   getRequestById(@CurrentUser() user: UserPayload, @Param('id') id: string) {
     console.log('Fetching request with ID:', id);
     return this.requestService.getRequestById(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard('jwt'))
+  updateRequest(
+    @CurrentUser() user: UserPayload,
+    @Param('id') id: string,
+    @Body() dto: UpdateRequestDto,
+  ) {
+    return this.requestService.updateRequest(id, user.id, dto);
   }
 
   @Post(':id/status')
