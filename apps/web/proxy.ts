@@ -2,61 +2,35 @@ import { NextResponse, NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
   const token = request.cookies.get("access_token")?.value;
+  const { pathname } = request.nextUrl;
 
-  // 1. VERCEL BUILD & PREFETCH BYPASS
-  // Prevents the "Internal Error" during deployment and unnecessary checks for background pre-fetching
-  const isPrefetch = request.headers.get("next-router-prefetch") === "1";
-  const isBuildRequest = request.headers.get("x-middleware-preflight") === "1";
-
-  if (isPrefetch || isBuildRequest || pathname.includes("_next")) {
-    return NextResponse.next();
-  }
-
-  // 2. TOKEN VERIFICATION
+  // 1. Verify the Token
   let isValid = false;
-  let payload = null;
-  const secretKey = process.env.JWT_SECRET;
-
-  if (token && secretKey) {
+  if (token) {
     try {
-      const secret = new TextEncoder().encode(secretKey);
-
-      // Verify with 10s clock tolerance to prevent "instant deletion" 
-      // caused by minor server time differences (clock skew)
-      const verified = await jwtVerify(token, secret, {
-        clockTolerance: 100,
-
-      });
-
-      payload = verified.payload;
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+      await jwtVerify(token, secret); // MUST be awaited
       isValid = true;
     } catch (err) {
-      console.error("JWT Verification failed:", err instanceof Error ? err.message : "Invalid token");
+      // If token is invalid/expired, it's best to delete the cookie
+      const response = NextResponse.redirect(new URL("/login", request.url));
 
-      // ONLY delete the cookie if the user is attempting to access a PROTECTED route.
-      // This prevents the redirect loop on the login/landing pages.
-      if (pathname.startsWith("/dashboard") || pathname.startsWith("/requests")) {
-        const response = NextResponse.redirect(new URL("/login", request.url));
-        response.cookies.delete("access_token");
-        return response;
-      }
+      return response;
     }
   }
 
-  // 3. DEFINE ROUTE GROUPS
+  // 2. Define Protected and Auth Routes
   const isAuthPage = pathname === "/login" || pathname === "/";
-  const isProtectedPage = pathname.startsWith("/dashboard") || pathname.startsWith("/requests");
+  const isProtectedPage =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/requests");
 
-  // 4. NAVIGATION LOGIC
-
-  // Logic: If logged in, don't allow access to Login/Landing pages
+  // 3. Logic: If logged in, don't allow access to Login/Landing pages
   if (isAuthPage && isValid) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Logic: If NOT logged in, don't allow access to Protected pages
+  // 4. Logic: If NOT logged in, don't allow access to Protected pages
   if (isProtectedPage && !isValid) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -64,7 +38,13 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Ensure the matcher excludes static assets and API routes
 export const config = {
+  /*
+   * Match all request paths except for the ones starting with:
+   * - api (API routes)
+   * - _next/static (static files)
+   * - _next/image (image optimization files)
+   * - favicon.ico (favicon file)
+   */
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
