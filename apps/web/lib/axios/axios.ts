@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api/v1",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://testing-purpose-api.vercel.app/api/v1",
   withCredentials: true,
 });
 //api
