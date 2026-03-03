@@ -1,25 +1,37 @@
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { DashboardShell } from "@/components/dashboard-shell";
-import { jwtVerify } from "jose";
+"use client";
 
-export default async function DashboardLayout({
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { DashboardShell } from "@/components/dashboard-shell";
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
 
-  if (!token) {
-    redirect("/login");
+  console.log("🔒 Dashboard Layout - Loading:", isLoading);
+  console.log("🔒 Dashboard Layout - User:", user);
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      console.log("🔒 No user, redirecting to login");
+      router.push("/login");
+    }
+  }, [isLoading, user, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
-  try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
-    await jwtVerify(token, secret);
-  } catch (err) {
-    redirect("/login");
+  if (!user) {
+    return null;
   }
 
   return (
