@@ -1,5 +1,5 @@
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://testing-purpose-api.vercel.app/api/v1";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
 import axiosInstance from "./axios/axios";
 
@@ -11,7 +11,7 @@ export async function fetchWithAuth(
     body?: any;
   } = {},
 ) {
-
+  console.log("Calling:", `${API_URL}${endpoint}`);
 
   try {
     const response = await axiosInstance({
