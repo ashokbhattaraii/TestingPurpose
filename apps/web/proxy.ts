@@ -27,6 +27,7 @@ export async function proxy(request: NextRequest) {
     // ✅ Only delete cookie + redirect if accessing a meaningful page
     // DO NOT delete cookie on every failed verify — it may be a timing issue
     const response = NextResponse.redirect(new URL("/login", request.url));
+    console.error("JWT verify failed:", err, "| Secret defined:", !!process.env.JWT_SECRET);
     response.cookies.delete("access_token");
     return response;
   }
