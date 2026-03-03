@@ -13,9 +13,10 @@ export default async function HomePage() {
       await jwtVerify(token, secret);
       redirect("/dashboard");
     } catch (err) {
-      // Invalid token, just show home
+
     }
   }
+  //as
 
   return <HomePageClient />;
 }
