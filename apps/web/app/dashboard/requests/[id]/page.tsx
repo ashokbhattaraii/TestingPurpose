@@ -406,6 +406,7 @@ export default function RequestDetailPage() {
 
           {/* Admin: Assign Request */}
           {isAdminOrSuper &&
+            !isCreator &&
             ["PENDING", "ON_HOLD", "IN_PROGRESS"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <div className="flex items-center gap-2">
@@ -421,12 +422,22 @@ export default function RequestDetailPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {(Array.isArray(adminUser) ? adminUser : adminUser ? [adminUser] : [])
-                        ?.filter((u) => u?.id && u.id !== request.user?.id)
-                        .map((u) => (
-                          <SelectItem key={u.id} value={u.id}>
-                            {u?.name} ({u.department})
-                          </SelectItem>
-                        ))}
+                        ?.filter((u) => u?.id)
+                        .map((u) => {
+                          const isReqCreator = u.id === request.user?.id;
+                          return (
+                            <SelectItem key={u.id} value={u.id} disabled={isReqCreator}>
+                              <div className="flex items-center justify-between w-full min-w-[150px]">
+                                <span>{u?.name} ({u.department})</span>
+                                {isReqCreator && (
+                                  <Badge variant="secondary" className="ml-2 text-[10px] px-1 py-0 h-4 font-normal">
+                                    Creator
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
                     </SelectContent>
                   </Select>
                   <Button
@@ -446,6 +457,7 @@ export default function RequestDetailPage() {
 
           {/* Admin: Update Status */}
           {isAdminOrSuper &&
+            !isCreator &&
             !["RESOLVED", "FULFILLED", "REJECTED", "CLOSED"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <p className="text-sm font-medium text-foreground">

@@ -265,7 +265,15 @@ export class RequestService {
     });
   }
 
-  async updateRequestStatus(id: string, dto: UpdateRequestStatusDto) {
+  async updateRequestStatus(id: string, adminId: string, dto: UpdateRequestStatusDto) {
+    const existing = await this.prisma.request.findUnique({ where: { id } });
+    if (!existing) {
+      throw new BadRequestException('Request not found');
+    }
+    if (existing.userId === adminId) {
+      throw new BadRequestException('You cannot update the status of your own request');
+    }
+
     const request = await this.prisma.request.update({
       where: { id },
       data: {
@@ -295,7 +303,18 @@ export class RequestService {
     };
   }
 
-  async assignRequest(id: string, dto: AssignRequestDto) {
+  async assignRequest(id: string, adminId: string, dto: AssignRequestDto) {
+    const existing = await this.prisma.request.findUnique({ where: { id } });
+    if (!existing) {
+      throw new BadRequestException('Request not found');
+    }
+    if (existing.userId === adminId) {
+      throw new BadRequestException('You cannot assign your own request');
+    }
+    if (existing.userId === dto.assignedToId) {
+      throw new BadRequestException('You cannot assign a request to its creator');
+    }
+
     const request = await this.prisma.request.update({
       where: { id },
       data: {

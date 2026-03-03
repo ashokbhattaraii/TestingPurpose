@@ -48,20 +48,22 @@ export class RequestController {
   @UseGuards(AuthGuard('jwt'))
   @Roles('ADMIN', 'SUPER_ADMIN')
   updateStatus(
+    @CurrentUser() user: UserPayload,
     @Param('id') id: string,
     @Body() dto: UpdateRequestStatusDto,
   ) {
-    return this.requestService.updateRequestStatus(id, dto);
+    return this.requestService.updateRequestStatus(id, user.id, dto);
   }
 
   @Post(':id/assign')
   @UseGuards(AuthGuard('jwt'))
   @Roles('ADMIN', 'SUPER_ADMIN')
   assign(
+    @CurrentUser() user: UserPayload,
     @Param('id') id: string,
     @Body() dto: AssignRequestDto,
   ) {
-    return this.requestService.assignRequest(id, dto);
+    return this.requestService.assignRequest(id, user.id, dto);
   }
 
   @Post(':id/reopen')
