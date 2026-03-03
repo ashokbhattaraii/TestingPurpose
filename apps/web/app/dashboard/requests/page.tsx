@@ -164,10 +164,10 @@ export default function RequestsPage() {
     requests ??
     []) as any[];
 
-  console.log("👤 Dashboard - Loading:", isLoading);
-  console.log("👤 Dashboard - User:", user);
-  console.log("👤 Dashboard - Role:", user?.role);
-  console.log("📋 Dashboard - All Requests:", allRequests);
+  console.log(" Dashboard - Loading:", isLoading);
+  console.log(" Dashboard - User:", user);
+  console.log(" Dashboard - Role:", user?.role);
+  console.log(" Dashboard - All Requests:", allRequests);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -175,8 +175,12 @@ export default function RequestsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const baseRequests = isEmployee
+    ? allRequests.filter((r) => r.user?.id === user?.id)
+    : allRequests;
+
   const filtered =
-    allRequests.filter((req) => {
+    baseRequests.filter((req) => {
       const matchSearch =
         req.title?.toLowerCase().includes(search.toLowerCase()) ||
         req.id?.toLowerCase().includes(search.toLowerCase());

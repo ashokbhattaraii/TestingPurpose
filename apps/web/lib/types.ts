@@ -31,7 +31,7 @@ export type SuppliesCategory =
   | "TECHNOLOGY"
   | "OTHER";
 
-export type SocialProvider = "google" | "slack";
+export type SocialProvider = "google" | "slack" | "github" | "linkedin";
 export interface SocialAccount {
   provider: SocialProvider;
   email: string;

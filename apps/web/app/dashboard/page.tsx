@@ -21,11 +21,11 @@ export default function DashboardPage() {
   }
 
   if (!user) {
-    console.log("❌ No user found, should redirect to login");
+    console.log(" No user found, should redirect to login");
     return null;
   }
 
-  console.log("✅ Rendering dashboard for role:", user.role);
+  console.log(" Rendering dashboard for role:", user.role);
 
   if (user?.role === "EMPLOYEE") {
     return <EmployeeDashboard />;

@@ -87,13 +87,13 @@ export function AdminDashboard() {
 
   const [search, setSearch] = useState("");
 
-  // ✅ Show ONLY user's requests for the new "Your Recent Requests" section
+  //  Show ONLY user's requests for the new "Your Recent Requests" section
   const userRequests =
     allRequests?.filter((r) => r.user?.id === user?.id) ?? [];
 
   const recentUserRequests = userRequests.slice(0, 5);
 
-  // ✅ Active requests for system-wide view (PENDING)
+  //  Active requests for system-wide view (PENDING)
   const filteredRequests =
     allRequests?.filter(
       (r) =>

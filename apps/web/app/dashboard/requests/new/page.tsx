@@ -51,13 +51,13 @@ import type { Attachment } from "@/lib/types";
 import error from "next/error";
 import { CreateRequestPayload } from "@/lib/type/requestType"; // fix import path
 
-// ✅ keep non-hook constants at module level
+//  keep non-hook constants at module level
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_FILES = 5;
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 
 export default function NewRequestPage() {
-  // ✅ hooks must be inside component
+  //  hooks must be inside component
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);

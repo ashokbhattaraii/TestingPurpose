@@ -24,8 +24,9 @@ export async function proxy(request: NextRequest) {
         await jwtVerify(token, secret);
         isValid = true;
     } catch (err) {
-        // ✅ Only delete cookie + redirect if accessing a meaningful page
+        //  Only delete cookie + redirect if accessing a meaningful page
         // DO NOT delete cookie on every failed verify — it may be a timing issue
+        console.error("JWT Verification failed in Next.js middleware:", err);
         const response = NextResponse.redirect(new URL("/login", request.url));
         response.cookies.delete("access_token");
         return response;

@@ -246,10 +246,15 @@ export default function AnalyticsPage() {
     }
   }, [user, router]);
 
+  // Normalize requests because API might return `{ requests: [] }` instead of direct array
+  const normalizedRequests: ServiceRequest[] = useMemo(() => {
+    return (((allRequests as any)?.requests) ?? allRequests ?? []) as ServiceRequest[];
+  }, [allRequests]);
+
   // Compute filtered analytics from raw requests
   const filteredRequests = useMemo(() => {
-    if (!allRequests) return [];
-    let filtered = filterByTimePeriod(allRequests, timePeriod);
+    if (!normalizedRequests || !Array.isArray(normalizedRequests)) return [];
+    let filtered = filterByTimePeriod(normalizedRequests, timePeriod);
     if (categoryFilter !== "all") {
       filtered = filtered.filter((r) => r.category === categoryFilter);
     }
@@ -266,8 +271,8 @@ export default function AnalyticsPage() {
 
   // Drill-down: get filtered requests for a clicked chart segment
   const drillDownRequests = useMemo(() => {
-    if (!drillDown || !allRequests) return [];
-    let base = filterByTimePeriod(allRequests, timePeriod);
+    if (!drillDown || !normalizedRequests || !Array.isArray(normalizedRequests)) return [];
+    let base = filterByTimePeriod(normalizedRequests, timePeriod);
     if (categoryFilter !== "all")
       base = base.filter((r) => r.category === categoryFilter);
     if (statusFilter !== "all")
@@ -291,7 +296,7 @@ export default function AnalyticsPage() {
       default:
         return [];
     }
-  }, [drillDown, allRequests, timePeriod, categoryFilter, statusFilter]);
+  }, [drillDown, normalizedRequests, timePeriod, categoryFilter, statusFilter]);
 
   // Drill-down pagination & search
   const DRILLDOWN_PAGE_SIZE = 10;

@@ -74,22 +74,22 @@ export function EmployeeDashboard() {
 
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
 
-  const pending =
-    allRequests?.filter((r) => r.status === "PENDING").length ?? 0;
-  const inProgress =
-    allRequests?.filter((r) => r.status === "IN_PROGRESS").length ?? 0;
-  // Counts for requests in different states
-  const onhold =
-    allRequests?.filter((r) => r.status === "ON_HOLD").length ?? 0;
-  const rejected =
-    allRequests?.filter((r) => r.status === "REJECTED").length ?? 0;
-  const total = allRequests?.length ?? 0;
-
   const [search, setSearch] = useState("");
 
-  // ✅ Show ONLY user's requests in "Your Recent Requests"
+  //  Show ONLY user's requests in "Your Recent Requests"
   const userRequests =
     allRequests?.filter((r) => r.user?.id === user?.id) ?? [];
+
+  const pending =
+    userRequests.filter((r) => r.status === "PENDING").length ?? 0;
+  const inProgress =
+    userRequests.filter((r) => r.status === "IN_PROGRESS").length ?? 0;
+  // Counts for requests in different states
+  const onhold =
+    userRequests.filter((r) => r.status === "ON_HOLD").length ?? 0;
+  const rejected =
+    userRequests.filter((r) => r.status === "REJECTED").length ?? 0;
+  const total = userRequests.length ?? 0;
 
   const recentRequests =
     userRequests
