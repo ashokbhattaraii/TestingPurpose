@@ -51,7 +51,7 @@ export default function AnnouncementsPage() {
   const [pinnedFilter, setPinnedFilter] = useState<string>("all")
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
-  const canCreate = user?.role === "admin" || user?.role === "superadmin"
+  const canCreate = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" || user?.role === "admin" || user?.role === "superadmin"
 
   const filtered = announcements?.filter((ann) => {
     const matchSearch =
@@ -328,11 +328,10 @@ export default function AnnouncementsPage() {
                         title={ann.pinned ? "Unpin announcement" : "Pin announcement"}
                       >
                         <Pin
-                          className={`h-3.5 w-3.5 ${
-                            ann.pinned
+                          className={`h-3.5 w-3.5 ${ann.pinned
                               ? "fill-primary text-primary"
                               : "text-muted-foreground"
-                          }`}
+                            }`}
                         />
                       </Button>
                     )}
