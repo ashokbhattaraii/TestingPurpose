@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import {
-  useServiceRequests,
   useAnnouncements,
-  useLunchTokens,
+
 } from "@/lib/queries";
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,7 +27,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { useLaunchAttendanceSummary } from "@/hooks/launch/useLaunchAttendance";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
-import { useGetAllRequestsQuery } from "@/hooks/request/use-createRequest";
+import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
@@ -77,23 +77,23 @@ export function AdminDashboard() {
 
   const pending =
     allRequests?.filter((r) => r.status === "PENDING").length ?? 0;
-  const approved =
-    allRequests?.filter((r) => r.status === "APPROVED").length ?? 0;
+  const inProgress =
+    allRequests?.filter((r) => r.status === "IN_PROGRESS").length ?? 0;
   const onhold =
-    allRequests?.filter((r) => r.status as string === "ON-HOLD").length ?? 0;
+    allRequests?.filter((r) => r.status === "ON_HOLD").length ?? 0;
   const rejected =
     allRequests?.filter((r) => r.status === "REJECTED").length ?? 0;
   const total = allRequests?.length ?? 0;
 
   const [search, setSearch] = useState("");
 
-  // ✅ Show ONLY user's requests for the new "Your Recent Requests" section
+  //  Show ONLY user's requests for the new "Your Recent Requests" section
   const userRequests =
     allRequests?.filter((r) => r.user?.id === user?.id) ?? [];
 
   const recentUserRequests = userRequests.slice(0, 5);
 
-  // ✅ Active requests for system-wide view (PENDING)
+  //  Active requests for system-wide view (PENDING)
   const filteredRequests =
     allRequests?.filter(
       (r) =>
@@ -184,11 +184,11 @@ export function AdminDashboard() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 group-hover:bg-emerald-100 transition-colors">
                     <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">OK</span>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Work</span>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground tracking-tight">{approved}</p>
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Approved</p>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{inProgress}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">In Progress</p>
                 </div>
               </CardContent>
             </Card>

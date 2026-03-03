@@ -2,10 +2,13 @@ export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
 
 export type RequestStatus =
   | "PENDING"
-  | "APPROVED"
+  | "IN_PROGRESS"
+  | "RESOLVED"
+  | "FULFILLED"
   | "REJECTED"
+  | "CLOSED"
   | "CANCELLED"
-  | "ON-HOLD"; // Keeping ON-HOLD for UI compatibility if needed, but primarily using the others
+  | "ON_HOLD";
 
 export type RequestType = "ISSUE" | "SUPPLIES";
 
@@ -28,7 +31,7 @@ export type SuppliesCategory =
   | "TECHNOLOGY"
   | "OTHER";
 
-export type SocialProvider = "google" | "github" | "linkedin";
+export type SocialProvider = "google" | "slack" | "github" | "linkedin";
 export interface SocialAccount {
   provider: SocialProvider;
   email: string;

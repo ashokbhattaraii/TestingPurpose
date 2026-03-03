@@ -30,15 +30,18 @@ export class AuthController {
 
       console.log('Login successful');
 
-      const isProduction = process.env.NODE_ENV === 'production';
+      const isProduction = process.env.NODE_ENV === 'Production';
 
       res.cookie('access_token', result.access_token, {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
+        secure: true,
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000,
         path: '/',
       });
+
+      console.log('Cookie set:', res.getHeader('set-cookie'));
+
 
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       res.redirect(`${frontendUrl}/dashboard`);
@@ -71,12 +74,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt'))
   logout(@Req() req, @Res() res) {
-    const isProduction = process.env.NODE_ENV === 'production';
-
+    const isProduction = process.env.NODE_ENV === 'Production';
     res.clearCookie('access_token', {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
+      sameSite: 'none',
       path: '/',
     });
 

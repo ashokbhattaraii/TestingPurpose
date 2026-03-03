@@ -33,7 +33,7 @@ export async function fetchWithAuth(
     return response.data;
   } catch (error: any) {
     const status = error.response?.status;
-    console.log("📥 Response status:", status);
+    console.log(" Response status:", status);
 
     if (status === 401) {
       console.error("Unauthorized");

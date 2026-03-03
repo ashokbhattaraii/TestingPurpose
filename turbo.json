@@ -1,10 +1,13 @@
 {
     "$schema": "https://turbo.build/schema.json",
-    "ui": "tui",
+    "ui": "stream",
     "tasks": {
         "build": {
             "dependsOn": [
                 "^build"
+            ],
+            "env": [
+                "JWT_SECRET"
             ],
             "inputs": [
                 "$TURBO_DEFAULT$",

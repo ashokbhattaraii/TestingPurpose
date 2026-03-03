@@ -138,7 +138,7 @@ export const users: User[] = [
 export const serviceRequests: ServiceRequest[] = [
   {
     id: "SR-001",
-    type: "Supplies",
+    type: "SUPPLIES",
     title: "Restock coffee and tea Supplies",
     description:
       "The pantry is running low on coffee beans, tea bags, and sugar packets.",
@@ -160,7 +160,7 @@ export const serviceRequests: ServiceRequest[] = [
     issueCategory: "FACILITY",
     issuePriority: "HIGH",
     location: "Meeting Room B, 2nd Floor",
-    status: "APPROVED",
+    status: "IN_PROGRESS",
     userId: "u2",
     createdByName: "Priya Thapa",
     assignedTo: "u3",
@@ -179,7 +179,7 @@ export const serviceRequests: ServiceRequest[] = [
     issueCategory: "FACILITY",
     issuePriority: "LOW",
     location: "3rd Floor",
-    status: "APPROVED",
+    status: "IN_PROGRESS",
     userId: "u1",
     createdByName: "Aarav Sharma",
     assignedTo: "u4",
@@ -191,12 +191,12 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-004",
-    type: "Supplies",
+    type: "SUPPLIES",
     title: "Refill water dispenser on 2nd floor",
     description: "Water dispenser near the engineering bay is empty.",
     SuppliesCategory: "PANTRY",
     itemName: "Water dispenser refill",
-    status: "APPROVED",
+    status: "IN_PROGRESS",
     userId: "u2",
     createdByName: "Priya Thapa",
     assignedTo: "u3",
@@ -224,12 +224,12 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-006",
-    type: "Supplies",
+    type: "SUPPLIES",
     title: "Restock printer paper",
     description: "All printers on the 2nd floor are out of A4 paper.",
     SuppliesCategory: "OFFICE_Supplies",
     itemName: "A4 Printer Paper",
-    status: "APPROVED",
+    status: "IN_PROGRESS",
     userId: "u2",
     createdByName: "Priya Thapa",
     assignedTo: "u4",
@@ -257,7 +257,7 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-008",
-    type: "Supplies",
+    type: "SUPPLIES",
     title: "Request for standing desk",
     description: "Would like a standing desk converter for workstation E-05.",
     SuppliesCategory: "EQUIPMENT",
@@ -279,7 +279,7 @@ export const serviceRequests: ServiceRequest[] = [
     issueCategory: "FACILITY",
     issuePriority: "MEDIUM",
     location: "2nd Floor Pantry",
-    status: "APPROVED",
+    status: "IN_PROGRESS",
     userId: "u1",
     createdByName: "Aarav Sharma",
     assignedTo: "u3",
@@ -291,12 +291,12 @@ export const serviceRequests: ServiceRequest[] = [
   },
   {
     id: "SR-010",
-    type: "Supplies",
+    type: "SUPPLIES",
     title: "Restock snacks in pantry",
     description: "The snack shelf in the main pantry has been empty for days.",
     SuppliesCategory: "PANTRY",
     itemName: "Assorted snacks",
-    status: "APPROVED",
+    status: "IN_PROGRESS",
     isFulfilled: true,
     fulfilledAt: "2026-01-23T14:00:00Z",
     userId: "u2",
@@ -367,7 +367,7 @@ export const lunchTokens: LunchToken[] = [
     userId: "u1",
     userName: "Aarav Sharma",
     date: "2026-02-08",
-    preferredLunchOption: "veg",
+    preferredLunchOption: "VEG",
     collectedAt: "2026-02-08T09:30:00Z",
   },
   {
@@ -375,7 +375,7 @@ export const lunchTokens: LunchToken[] = [
     userId: "u2",
     userName: "Priya Thapa",
     date: "2026-02-08",
-    preferredLunchOption: "non-veg",
+    preferredLunchOption: "NON_VEG",
     collectedAt: "2026-02-08T10:15:00Z",
   },
   {
@@ -383,7 +383,7 @@ export const lunchTokens: LunchToken[] = [
     userId: "u3",
     userName: "Bikash Karki",
     date: "2026-02-08",
-    preferredLunchOption: "veg",
+    preferredLunchOption: "VEG",
     collectedAt: "2026-02-08T10:45:00Z",
   },
 ];
@@ -493,9 +493,8 @@ export const analyticsData: AnalyticsData = {
   ],
   requestsByStatus: [
     { status: "Pending", count: 3 },
-    { status: "Approved", count: 6 },
-    { status: "ON-HOLD", count: 6 },
+    { status: "In Progress", count: 6 },
+    { status: "ON_HOLD", count: 6 },
     { status: "Rejected", count: 1 },
-    
   ],
 };

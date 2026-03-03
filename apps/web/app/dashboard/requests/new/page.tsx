@@ -2,12 +2,12 @@
 
 import React, { useState, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useCreateRequest } from "@/lib/queries";
+
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import useCreateRequestMutation from "@/hooks/request/use-createRequest";
+import useCreateRequestMutation from "@/hooks/request/useCreateRequest";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/form";
 import {
   requestSchema,
+  type RequestFormValues,
   ISSUE_CATEGORIES,
   ISSUE_PRIORITIES,
   SUPPLIES_CATEGORIES,
@@ -50,24 +51,13 @@ import type { Attachment } from "@/lib/types";
 import error from "next/error";
 import { CreateRequestPayload } from "@/lib/type/requestType"; // fix import path
 
-type RequestFormValues = {
-  type: "ISSUE" | "SUPPLIES";
-  title: string;
-  description?: string;
-  issuePriority?: "LOW" | "MEDIUM" | "HIGH";
-  issueCategory?: "HARDWARE" | "SOFTWARE" | "NETWORK";
-  location?: string;
-  suppliesCategory?: "OFFICE" | "MAINTENANCE" | "OTHER";
-  itemName?: string;
-};
-
-// ✅ keep non-hook constants at module level
+//  keep non-hook constants at module level
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_FILES = 5;
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 
 export default function NewRequestPage() {
-  // ✅ hooks must be inside component
+  //  hooks must be inside component
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -80,7 +70,7 @@ export default function NewRequestPage() {
       title: "",
       description: "",
       issuePriority: "MEDIUM",
-      issueCategory: "SOFTWARE",
+      issueCategory: "TECHNICAL",
       location: "",
     },
   });
@@ -94,7 +84,7 @@ export default function NewRequestPage() {
         title: form.getValues("title"),
         description: form.getValues("description") || "",
         issuePriority: "MEDIUM",
-        issueCategory: "SOFTWARE",
+        issueCategory: "TECHNICAL",
         location: "",
       });
     } else {
@@ -102,7 +92,7 @@ export default function NewRequestPage() {
         type: "SUPPLIES",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
-        suppliesCategory: "OFFICE",
+        suppliesCategory: "OFFICE_Supplies",
         itemName: "",
       });
     }
@@ -161,18 +151,18 @@ export default function NewRequestPage() {
       attachments: attachments.map((a) => a.name),
       ...(data.type === "ISSUE"
         ? {
-            issueDetails: {
-              priority: data.issuePriority!,
-              category: data.issueCategory!,
-              location: data.location?.trim() || undefined,
-            },
-          }
+          issueDetails: {
+            priority: data.issuePriority!,
+            category: data.issueCategory!,
+            location: data.location?.trim() || undefined,
+          },
+        }
         : {
-            suppliesDetails: {
-              category: data.suppliesCategory!,
-              itemName: data.itemName!,
-            },
-          }),
+          suppliesDetails: {
+            category: data.suppliesCategory!,
+            itemName: data.itemName!,
+          },
+        }),
     };
 
     mutate(payload, {
@@ -183,7 +173,7 @@ export default function NewRequestPage() {
       onError: (error: any) => {
         toast.error(
           error?.response?.data?.message ||
-            "An error occurred while creating the request.",
+          "An error occurred while creating the request.",
         );
       },
     });

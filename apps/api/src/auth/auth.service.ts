@@ -9,10 +9,10 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private supabase: SupabaseService,
-  ) {}
+  ) { }
 
   async googleLogin(googleUser: any) {
-    console.log('🔍 Processing Google login for:', googleUser.email);
+    console.log(' Processing Google login for:', googleUser.email);
 
     const supabaseClient = this.supabase.getClient();
 
@@ -62,12 +62,12 @@ export class AuthService {
 
       supabaseUserId = authData.user.id;
       isNewUser = true;
-      console.log('✅ Created new user in Supabase Auth:', supabaseUserId);
+      console.log(' Created new user in Supabase Auth:', supabaseUserId);
     }
 
     // Now handle Prisma user record
     if (!user) {
-      console.log('➕ Creating user in public schema');
+      console.log(' Creating user in public schema');
 
       // Determine role based on email
       // anusha.rajlawat@rumsan.net is admin and aishwarya.maharjan@rumsan.net is super admin, rest are employees
@@ -84,15 +84,24 @@ export class AuthService {
           email: googleUser.email,
           name: `${googleUser.firstName} ${googleUser.lastName}`,
           photoURL: googleUser.picture,
+          connectedAccounts: {
+            create: {
+              provider: "google",
+              providerAccountId: googleUser.googleId,
+              accessToken: googleUser.accessToken,
+              refreshToken: googleUser.refreshToken,
+              expiresAt: googleUser.expiresAt,
+            }
+          },
           role: role,
           isActive: true,
           lastLoginAt: new Date(),
         },
       });
-      console.log('✅ User created in public schema:', user.id);
+      console.log(' User created in public schema:', user.id);
     } else if (!user.uid) {
       // User exists but doesn't have UID - link it
-      console.log('✏️ Linking existing user to Supabase Auth');
+      console.log('️ Linking existing user to Supabase Auth');
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
@@ -104,7 +113,7 @@ export class AuthService {
       });
     } else {
       // User exists with UID - just update
-      console.log('✏️ Updating existing user in public schema');
+      console.log('️ Updating existing user in public schema');
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
@@ -113,10 +122,10 @@ export class AuthService {
           photoURL: googleUser.picture,
         },
       });
-      console.log('✅ User updated in public schema');
+      console.log(' User updated in public schema');
     }
 
-    console.log('🔐 Generating JWT token');
+    console.log(' Generating JWT token');
 
     const payload = {
       sub: user.id,

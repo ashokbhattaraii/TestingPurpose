@@ -4,9 +4,9 @@ import { useMutation } from "@tanstack/react-query";
 
 async function startGoogleLogin(): Promise<void> {
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001/api/v1";
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
   if (!baseUrl) {
-    throw new Error("NEXT_PUBLIC_BASE_URL is not set");
+    throw new Error("NEXT_PUBLIC_API_URL is not set");
   }
 
   window.location.href = `${baseUrl}/auth/google`;
@@ -22,6 +22,7 @@ export function useLogin() {
     loginWithGoogle: mutation.mutate,
     loginWithGoogleAsync: mutation.mutateAsync,
     isGoogleLoginPending: mutation.isPending,
+    loginWithGoogleSuccess: mutation.isSuccess,
     googleLoginError: mutation.error,
   };
 }

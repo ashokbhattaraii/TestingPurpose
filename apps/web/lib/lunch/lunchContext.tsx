@@ -12,16 +12,24 @@ export interface LunchContextType {
 
 const lunchContext = createContext<LunchContextType | undefined>(undefined);
 
-export const LunchProvider = ({ children }: { children: React.ReactNode }) => {
-  const { data: attendanceSummary } = useLaunchAttendanceSummary();
+import { useAuth } from "@/lib/auth-context";
 
-  // Debug: log raw API data to verify structure
-  useEffect(() => {
-    console.log(
-      "attendanceSummary raw data:",
-      JSON.stringify(attendanceSummary, null, 2),
-    );
-  }, [attendanceSummary]);
+import { usePathname } from "next/navigation";
+
+export const LunchProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  const pathname = usePathname();
+
+  // Do not fetch lunch tokens data if we are on the public home page or login page
+  const publicRoutes = ["/", "/login"];
+  const isPublicRoute = publicRoutes.includes(pathname);
+
+  // Only run the query if a user is logged in AND we are NOT on a public route
+  const { data: attendanceSummary } = useLaunchAttendanceSummary(
+    !!user && !isPublicRoute
+  );
+
+
 
   const contextValue: LunchContextType = useMemo(() => {
     if (!attendanceSummary) {

@@ -25,8 +25,10 @@ export default function useCreateRequestMutation() {
         title: "Request Created",
         description: "Your service request has been created successfully.",
       });
-      // Invalidate "allRequests" to match the query key used in useGetAllRequestsQuery
+      // Invalidate both keys to ensure all components are updated
       queryClient.invalidateQueries({ queryKey: ["allRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
     },
     onError: (error: any) => {
       toast({
@@ -41,7 +43,7 @@ export default function useCreateRequestMutation() {
 }
 
 export function useGetAllRequestsQuery() {
-  return useQuery({
+  return useQuery<RequestResponse[]>({
     queryKey: ["allRequests"],
     queryFn: async () => {
       const response = await axiosInstance.get<{
