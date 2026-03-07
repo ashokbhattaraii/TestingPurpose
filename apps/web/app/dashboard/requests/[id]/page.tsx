@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { useGetRequestByIdQuery } from "@/hooks/request/useGetRequest";
+
 import {
   Select,
   SelectContent,
@@ -51,13 +52,15 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { useState } from "react";
 import type { RequestStatus } from "@/lib/types";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import {
   ISSUE_CATEGORY_LABELS,
   ISSUE_PRIORITY_LABELS,
   SUPPLIES_CATEGORY_LABELS,
 } from "@/schemas";
 import { useGetAdminUser } from "@/hooks/users/useGetUser";
+import { useCancelRequest } from "@/hooks/request/useCancelRequest";
+import { title } from "process";
 const priorityConfig = {
   LOW: { label: "Low", className: "bg-muted text-muted-foreground" },
   MEDIUM: { label: "Medium", className: "bg-amber-100 text-amber-800" },
@@ -68,6 +71,7 @@ const priorityConfig = {
 export default function RequestDetailPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
   const params = useParams();
   const { data: adminUser, isLoading: isGetAdminLoading } = useGetAdminUser();
 
@@ -100,7 +104,7 @@ export default function RequestDetailPage() {
   const handleStatusUpdate = () => {
     if (!newStatus || !request) return;
     if (newStatus === "REJECTED" && !rejectionReason.trim()) {
-      toast.error("Please provide a reason for rejection.");
+      toast({ variant: "destructive", title: "Please provide a reason for rejection." });
       return;
     }
     updateStatus.mutate(
@@ -113,7 +117,7 @@ export default function RequestDetailPage() {
       },
       {
         onSuccess: () => {
-          toast.success(`Request status updated to ${newStatus}.`);
+          toast({ title: `Request status updated to ${newStatus}.` });
           setNewStatus("");
           setRejectionReason("");
         },
@@ -127,9 +131,10 @@ export default function RequestDetailPage() {
       { id: request.id, userId: user.id, userName: user.name },
       {
         onSuccess: () => {
-          toast.success(
-            "Request has been reopened. Admins have been notified.",
-          );
+          toast({
+            title: "Request has been reopened. Admins have been notified.",
+
+          });
         },
       },
     );
@@ -152,19 +157,33 @@ export default function RequestDetailPage() {
       },
       {
         onSuccess: () => {
-          toast.success(
-            `Request assigned to ${targetUser.name}. They have been notified.`,
-          );
+          toast({
+            title: `Request assigned to ${targetUser.name}. They have been notified.`,
+          });
           setAssignTo("");
         },
       },
     );
   };
-
+  const { mutate: cancelRequest, isPending: isCancelPending } = useCancelRequest()
   const handleCancelCommand = () => {
-    // Intentionally empty. The user will manually write code related to cancel.
-    toast.info("Cancel functionality needs to be implemented manually.");
-    setIsCancelDialogOpen(false);
+    //hanlde cancellation of the request by the user who created
+    if (!request || !user) {
+      toast({ variant: "destructive", title: "Request not found." })
+      return
+    }
+    if (request?.user.id !== user?.id) {
+      toast({ variant: "destructive", title: "You are not authorized to cancel this request." })
+      return
+    }
+
+    cancelRequest(request?.id || "", {
+      onSuccess: () => {
+        toast({ title: "Request cancelled successfully", variant: "default" })
+      }
+
+    })
+
   };
 
   if (isLoading) {
