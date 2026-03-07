@@ -12,16 +12,13 @@ export async function GET(request: Request) {
 
     if (token) {
 
-        (await
-            // Set the cookie on the NEXT.js domain (e.g. testing-purpose-web.vercel.app)
-            // We set httpOnly: false so that our client-side axiosInstance can read it easily for Authorization headers.
-            cookies()).set('access_token', token, {
-                httpOnly: false,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                path: '/',
-                maxAge: 7 * 24 * 60 * 60, // 7 days
-            });
+        (await cookies()).set('access_token', token, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 7 * 24 * 60 * 60, // 7 days
+        });
 
         // Once the cookie is securely stored in the user's browser for the FRONTEND domain,
         // we redirect them to the dashboard. The middleware.ts will now find this cookie instantly.
