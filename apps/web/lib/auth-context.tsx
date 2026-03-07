@@ -40,23 +40,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Treat the home page and login page as public routes
-    const publicRoutes = ["/", "/login"];
-    if (publicRoutes.includes(pathname)) {
-      setIsLoading(false);
-      return;
-    }
     loadUser();
   }, [pathname]);
 
   const loadUser = async () => {
     try {
       const userData = await getCurrentUser();
-      console.log("User loaded:", userData.email);
+      console.log("User loaded:", userData?.email);
       setUser(userData);
+
+      // If user is logged in and on a public route, redirect to dashboard
+      const publicRoutes = ["/", "/login"];
+      if (publicRoutes.includes(pathname)) {
+        router.push("/dashboard");
+      }
     } catch (error) {
       console.log("No user found");
       setUser(null);
+
+      // If user is not logged in and on a protected route, redirect to login
+      const publicRoutes = ["/", "/login"];
+      if (!publicRoutes.includes(pathname)) {
+        router.push("/login");
+      }
     } finally {
       setIsLoading(false);
     }
