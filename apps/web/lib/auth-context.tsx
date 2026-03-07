@@ -40,23 +40,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Treat the home page and login page as public routes
-    const publicRoutes = ["/", "/login"];
-    if (publicRoutes.includes(pathname)) {
-      setIsLoading(false);
-      return;
-    }
     loadUser();
-  }, [pathname]);
+
+    // Periodically check if the access_token cookie has expired/been removed.
+    // If it's missing, log the user out and redirect immediately without needing a page refresh.
+    const interval = setInterval(() => {
+      if (typeof window !== "undefined") {
+        const publicRoutes = ["/", "/login"];
+        const match = document.cookie.match(/(^| )access_token=([^;]+)/);
+
+        // If the cookie is gone, and we are NOT on a public route, kick the user out.
+        if (!match && !publicRoutes.includes(pathname)) {
+          console.log("Session expired. Redirecting to login...");
+          setUser(null);
+          router.push("/login"); // Instantly redirect
+        }
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [pathname, router]);
 
   const loadUser = async () => {
     try {
       const userData = await getCurrentUser();
-      console.log("User loaded:", userData.email);
+      console.log("User loaded:", userData?.email);
       setUser(userData);
+
+      // If user is logged in and on a public route, redirect to dashboard
+      const publicRoutes = ["/", "/login"];
+      if (publicRoutes.includes(pathname)) {
+        router.push("/dashboard");
+      }
     } catch (error) {
       console.log("No user found");
       setUser(null);
+
+      // If user is not logged in and on a protected route, redirect to login
+      const publicRoutes = ["/", "/login"];
+      if (!publicRoutes.includes(pathname)) {
+        router.push("/login");
+      }
     } finally {
       setIsLoading(false);
     }

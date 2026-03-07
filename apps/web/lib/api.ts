@@ -51,6 +51,14 @@ export async function getCurrentUser() {
 }
 
 export async function apiLogout() {
+  // Clear frontend NEXT.js domain-bound cookies
+  try {
+    await fetch("/api/auth/logout", { method: "POST" });
+  } catch (error) {
+    console.warn("Failed to clear frontend cookie", error);
+  }
+
+  // Clear backend NestJS cookies & invalidate session
   return fetchWithAuth("/auth/logout", {
     method: "POST",
   });

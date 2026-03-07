@@ -32,19 +32,8 @@ export class AuthController {
 
       const isProduction = process.env.NODE_ENV === 'Production';
 
-      res.cookie('access_token', result.access_token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        path: '/',
-      });
-
-      console.log('Cookie set:', res.getHeader('set-cookie'));
-
-
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      res.redirect(`${frontendUrl}/dashboard`);
+      res.redirect(`${frontendUrl}/api/auth/callback?token=${result.access_token}`);
     } catch (error) {
       console.error('Login error:', error.message);
 

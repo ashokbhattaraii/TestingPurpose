@@ -74,5 +74,13 @@ export class RequestController {
   ) {
     return this.requestService.reopenRequest(id);
   }
+  @Patch(':id/cancel')
+  @UseGuards(AuthGuard('jwt'))
+  cancel(
+    @Param('id') id: string,
+  ) {
+    
+    return this.requestService.cancelRequest(id);
+  }
 
 }

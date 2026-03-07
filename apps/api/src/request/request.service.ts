@@ -360,4 +360,28 @@ export class RequestService {
     };
   }
 
+  async cancelRequest(id: string) {
+    const existingRequest = await this.prisma.request.findUnique({ where: { id: id } })
+    if (!existingRequest) {
+      throw new BadRequestException("Request not found")
+    }
+    const request = await this.prisma.request.update({
+      where: { id: id },
+      data: {
+        status: RequestStatus.CANCELLED
+
+      },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, role: true, department: true }
+        },
+        issueDetails: true,
+        suppliesDetails: true,
+      }
+    }
+
+    )
+
+  }
+
 }

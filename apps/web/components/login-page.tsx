@@ -14,7 +14,7 @@ import Link from "next/link";
 import { users } from "@/lib/data";
 import { useLogin } from "@/hooks/use-login";
 import { FcGoogle } from "react-icons/fc";
-import { useToast } from "./ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 function getInitials(name: string) {
   return name
