@@ -56,14 +56,6 @@ export interface User {
   };
 }
 
-export interface Attachment {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  url: string;
-}
-
 export interface ServiceRequest {
   id: string;
   type: RequestType;
@@ -79,9 +71,6 @@ export interface ServiceRequest {
   // Supplies-specific fields
   SuppliesCategory?: SuppliesCategory;
   itemName: string;
-
-  // Common fields
-  attachments?: Attachment[];
 
   // Approval
   approverId?: string;

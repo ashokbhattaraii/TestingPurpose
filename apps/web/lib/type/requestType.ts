@@ -8,7 +8,6 @@ type ApiRequestPayload = {
   type: "ISSUE" | "SUPPLIES";
   title: string;
   description?: string;
-  attachments: string[];
   issueDetails?: {
     priority: IssuePriority;
     category: IssueCategory;
@@ -27,7 +26,6 @@ export type RequestResponse = {
   type: AppRequestType;
   title: string;
   description: string;
-  attachments: string[];
   issueDetails?: {
     priority: IssuePriority;
     category: IssueCategory;

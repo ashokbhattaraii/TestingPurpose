@@ -51,7 +51,6 @@ export class RequestService {
         type: dto.type as RequestType,
         title: dto.title,
         description: dto.description ?? '',
-        attachments: dto.attachments ?? [],
         status: 'PENDING' as RequestStatus,
         issueDetails:
           dto.type === RequestType.ISSUE
@@ -82,7 +81,6 @@ export class RequestService {
         status: true,
         title: true,
         description: true,
-        attachments: true,
         approverId: true,
         approvedAt: true,
         rejectionReason: true,
@@ -200,7 +198,6 @@ export class RequestService {
         title: dto.title ?? existing.title,
         description: dto.description !== undefined ? dto.description : existing.description,
         type: newType,
-        attachments: dto.attachments ?? existing.attachments,
         issueDetails:
           newType === RequestType.ISSUE
             ? {
@@ -363,12 +360,4 @@ export class RequestService {
     };
   }
 
-  async deleteRequest(id: string) {
-    await this.prisma.request.delete({
-      where: { id },
-    });
-    return {
-      message: 'Request deleted successfully',
-    };
-  }
 }

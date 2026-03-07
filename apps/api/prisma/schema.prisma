@@ -130,7 +130,6 @@ model Request {
   // Common fields
   title       String
   description String?
-  attachments String[]
 
   // Approval
   approverId      String?

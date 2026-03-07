@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { useReopenRequest } from "@/hooks/request/useReopenRequest";
-import { useDeleteRequest } from "@/hooks/request/useDeleteRequest";
 import { useAssignRequest } from "@/hooks/request/useAssignRequest";
 import { useUpdateRequestStatus } from "@/hooks/request/useUpdateRequestStatus";
 import { useUsers } from "@/lib/queries";
@@ -38,7 +37,6 @@ import {
   Flag,
   UserPlus,
   Edit2,
-  Trash2,
   FileText,
   ImageIcon,
   File,
@@ -79,12 +77,11 @@ export default function RequestDetailPage() {
   const { data: allUsers } = useUsers();
   const updateStatus = useUpdateRequestStatus();
   const assignRequest = useAssignRequest();
-  const deleteRequest = useDeleteRequest();
   const reopenRequest = useReopenRequest();
   const [newStatus, setNewStatus] = useState<RequestStatus | "">("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [assignTo, setAssignTo] = useState<string>("");
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
   const formatDate = (value: any, pattern: string) => {
     if (!value) return "N/A";
@@ -164,17 +161,10 @@ export default function RequestDetailPage() {
     );
   };
 
-  const handleDelete = () => {
-    if (!request) return;
-    deleteRequest.mutate(request.id, {
-      onSuccess: () => {
-        toast.success("Request deleted successfully.");
-        router.push("/dashboard/requests");
-      },
-      onError: () => {
-        toast.error("Failed to delete request.");
-      },
-    });
+  const handleCancelCommand = () => {
+    // Intentionally empty. The user will manually write code related to cancel.
+    toast.info("Cancel functionality needs to be implemented manually.");
+    setIsCancelDialogOpen(false);
   };
 
   if (isLoading) {
@@ -232,10 +222,9 @@ export default function RequestDetailPage() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => setIsDeleteDialogOpen(true)}
+                    onClick={() => setIsCancelDialogOpen(true)}
                   >
-                    <Trash2 className="mr-1 h-4 w-4" />
-                    Delete
+                    Cancel
                   </Button>
                 </>
               )}
@@ -541,27 +530,25 @@ export default function RequestDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Cancel Confirmation Dialog */}
       <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        open={isCancelDialogOpen}
+        onOpenChange={setIsCancelDialogOpen}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Request</AlertDialogTitle>
+            <AlertDialogTitle>Cancel Request</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this request? This action cannot
-              be undone.
+              Are you sure you want to cancel this request?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Back</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteRequest.isPending}
+              onClick={handleCancelCommand}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteRequest.isPending ? "Deleting..." : "Delete"}
+              Cancel Request
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

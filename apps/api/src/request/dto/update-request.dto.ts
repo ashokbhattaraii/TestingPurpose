@@ -46,9 +46,6 @@ export class UpdateRequestDto {
     @IsOptional()
     description?: string;
 
-    @IsOptional()
-    attachments?: string[];
-
     // ISSUE-specific fields
     @ValidateNested()
     @Type(() => UpdateIssueDetailsDto)

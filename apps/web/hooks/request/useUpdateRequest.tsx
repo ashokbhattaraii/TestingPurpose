@@ -8,7 +8,6 @@ interface UpdateRequestPayload {
     type?: RequestType;
     title?: string;
     description?: string;
-    attachments?: string[];
     issueDetails?: {
         priority: IssuePriority;
         category: IssueCategory;

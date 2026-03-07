@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator/current-user.decorator';
@@ -75,9 +75,4 @@ export class RequestController {
     return this.requestService.reopenRequest(id);
   }
 
-  @Delete(':id')
-  @UseGuards(AuthGuard('jwt'))
-  remove(@Param('id') id: string) {
-    return this.requestService.deleteRequest(id);
-  }
 }
