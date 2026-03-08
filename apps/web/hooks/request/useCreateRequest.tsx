@@ -49,7 +49,7 @@ export function useGetAllRequestsQuery() {
       const response = await axiosInstance.get<{
         message: string;
         requests: RequestResponse[];
-      }>("/request/requests");
+      }>("/request/all");
       return response.data?.requests || [];
     },
     staleTime: 60 * 1000,

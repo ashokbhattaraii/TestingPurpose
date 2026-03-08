@@ -16,15 +16,13 @@ export class RequestController {
   @Post('create')
   @UseGuards(AuthGuard('jwt'))
   create(@Body() dto: CreateRequestDto, @CurrentUser() user: UserPayload) {
-    console.log('Creating request for user:', user.id);
     return this.requestService.createRequest(user.id, dto);
   }
 
-  @Get('requests')
+  @Get('all')
   @UseGuards(AuthGuard('jwt'))
   getAllRequests(@CurrentUser() user: UserPayload) {
-    console.log('Fetching requests from user:', user.id);
-    return this.requestService.getRequests();
+    return this.requestService.findAll();
   }
 
   @Get(':id')
@@ -79,7 +77,7 @@ export class RequestController {
   cancel(
     @Param('id') id: string,
   ) {
-    
+
     return this.requestService.cancelRequest(id);
   }
 
