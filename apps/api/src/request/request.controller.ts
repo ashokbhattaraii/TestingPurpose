@@ -21,7 +21,7 @@ export class RequestController {
 
   @Get('all')
   @UseGuards(AuthGuard('jwt'))
-  getAllRequests(@CurrentUser() user: UserPayload) {
+  getAllRequests() {
     return this.requestService.findAll();
   }
 

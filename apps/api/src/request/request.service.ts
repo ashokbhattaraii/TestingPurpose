@@ -111,7 +111,7 @@ export class RequestService {
     return this.removeNullish(returnMsg);
   }
 
-  async getRequests() {
+  async findAll() {
     const requests = await this.prisma.request.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
