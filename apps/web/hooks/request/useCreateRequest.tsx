@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 import axiosInstance from "@/lib/axios/axios";
 import {
@@ -43,15 +44,20 @@ export default function useCreateRequestMutation() {
 }
 
 export function useGetAllRequestsQuery() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   return useQuery<RequestResponse[]>({
     queryKey: ["allRequests"],
     queryFn: async () => {
       const response = await axiosInstance.get<{
         message: string;
         requests: RequestResponse[];
-      }>("/request/all");
+      }>("/request/requests");
       return response.data?.requests || [];
     },
+    enabled: isClient,
     staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,

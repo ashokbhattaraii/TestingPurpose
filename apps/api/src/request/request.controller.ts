@@ -19,10 +19,10 @@ export class RequestController {
     return this.requestService.createRequest(user.id, dto);
   }
 
-  @Get('all')
+  @Get('requests')
   @UseGuards(AuthGuard('jwt'))
-  getAllRequests() {
-    return this.requestService.findAll();
+  getAllRequests(@CurrentUser() user: UserPayload) {
+    return this.requestService.getRequests();
   }
 
   @Get(':id')
