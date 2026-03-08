@@ -25,15 +25,6 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If the API returns a 401 Unauthorized, automatically redirect to login
-    if (error.response && error.response.status === 401) {
-      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
-        console.log("Response 401. Session expired. Redirecting to login...");
-        // Clear the cookie just to be safe so the AuthContext interval catches it too
-        document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        window.location.href = "/login";
-      }
-    }
     return Promise.reject(error);
   },
 );

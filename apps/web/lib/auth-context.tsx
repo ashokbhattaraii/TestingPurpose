@@ -41,25 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     loadUser();
-
-    // Periodically check if the access_token cookie has expired/been removed.
-    // If it's missing, log the user out and redirect immediately without needing a page refresh.
-    const interval = setInterval(() => {
-      if (typeof window !== "undefined") {
-        const publicRoutes = ["/", "/login"];
-        const match = document.cookie.match(/(^| )access_token=([^;]+)/);
-
-        // If the cookie is gone, and we are NOT on a public route, kick the user out.
-        if (!match && !publicRoutes.includes(pathname)) {
-          console.log("Session expired. Redirecting to login...");
-          setUser(null);
-          router.push("/login"); // Instantly redirect
-        }
-      }
-    }, 5000); // Check every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [pathname, router]);
+  }, [pathname]);
 
   const loadUser = async () => {
     try {

@@ -11,8 +11,6 @@ export async function GET(request: Request) {
     }
 
     if (token) {
-
-
         (await cookies()).set('access_token', token, {
             httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
