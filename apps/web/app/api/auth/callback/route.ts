@@ -11,14 +11,12 @@ export async function GET(request: Request) {
     }
 
     if (token) {
-
-
         (await cookies()).set('access_token', token, {
             httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
-            maxAge: 7 * 24 * 60 * 60, // 7 days
+            maxAge: 2 * 60, // 7 days
         });
 
         // Once the cookie is securely stored in the user's browser for the FRONTEND domain,
