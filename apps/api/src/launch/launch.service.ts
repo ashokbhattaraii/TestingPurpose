@@ -7,36 +7,46 @@ import { LaunchType } from '@prisma/client';
 export class LaunchService {
   constructor(private prisma: PrismaService) { }
 
-  private toDateOnly(date: Date): Date {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  private getKathmanduDateOnly(): Date {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kathmandu',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date());
+    
+    const year = parts.find(p => p.type === 'year')?.value;
+    const month = parts.find(p => p.type === 'month')?.value;
+    const day = parts.find(p => p.type === 'day')?.value;
+
+    // Prisma considers Date objects to be stored as ISODate. Use UTC midnight to avoid local timezone shifts.
+    return new Date(`${year}-${month}-${day}T00:00:00.000Z`);
   }
 
   private checkAttendanceWindow(): void {
-    const now = new Date();
-    const start = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      9,
-      45,
-    );
-    const end = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      11,
-      0,
-    );
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kathmandu',
+      hour: 'numeric',
+      minute: 'numeric',
+      hourCycle: 'h23'
+    }).formatToParts(new Date());
 
-    // if (now < start || now > end) {
-    //   throw new BadRequestException(
-    //     'Attendance can only be marked between 9:45 AM and 11:00 AM',
-    //   );
-    // }
+    const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+    const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+    
+    const currentMinutes = hour * 60 + minute;
+    const startMinutes = 9 * 60 + 45; // 585
+    const endMinutes = 11 * 60;       // 660
+    if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
+      throw new BadRequestException(
+        'Attendance can only be marked between 9:45 AM and 11:00 AM',
+      );
+    }
   }
 
   async launchAttendance(userId: string, dto: LaunchAttendanceDto) {
-    const today = this.toDateOnly(new Date());
+    this.checkAttendanceWindow();
+    const today = this.getKathmanduDateOnly();
     console.log('Checking attendance window...', dto);
     const attendance = await this.prisma.lunchAttendance.upsert({
       where: { userId_date: { userId, date: today } },
@@ -61,7 +71,7 @@ export class LaunchService {
   }
 
   async getTodayAttendance() {
-    const today = this.toDateOnly(new Date());
+    const today = this.getKathmanduDateOnly();
 
     const records = await this.prisma.lunchAttendance.findMany({
       where: { date: today },
@@ -88,7 +98,7 @@ export class LaunchService {
   }
 
   async myAttendance(userId: string) {
-    const today = this.toDateOnly(new Date());
+    const today = this.getKathmanduDateOnly();
     const attendance = await this.prisma.lunchAttendance.findUnique({
       where: {
         userId_date: { userId, date: today },

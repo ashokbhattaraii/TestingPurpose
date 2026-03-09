@@ -29,6 +29,9 @@ export class UserService {
         name: true,
         email: true,
         department: true,
+        org_unit: true,
+        job_title: true,
+        employment_type: true,
         role: true,
       }
     })

@@ -1,15 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { SupabaseService } from '../supabase/supabase.service';
+import type { RsOfficeClient, AuthResult } from '@rumsan/user';
+import { RS_OFFICE_CLIENT } from '../rsoffice/rsoffice.module';
+import { CryptoService } from './crypto.service';
+
 @Injectable()
 export class AuthService {
+  private readonly appId: string;
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
     private supabase: SupabaseService,
-  ) { }
+    @Inject(RS_OFFICE_CLIENT) private readonly client: RsOfficeClient,
+    private readonly crypto: CryptoService,
+  ) {
+    const appId = process.env.APP_ID;
+    if (!appId) throw new Error('APP_ID env var is required');
+    this.appId = appId;
+  }
 
   async googleLogin(googleUser: any) {
     console.log(' Processing Google login for:', googleUser.email);
@@ -69,13 +81,15 @@ export class AuthService {
     if (!user) {
       console.log(' Creating user in public schema');
 
-      // Determine role based on email
-      // anusha.rajlawat@rumsan.net is admin and aishwarya.maharjan@rumsan.net is super admin, rest are employees
+      // Determine role based on Rumsan dynamic role
+      // We map the rumsan string to the UserRole prisma enum 
+      // Safely default to EMPLOYEE since Prisma expects SUPER_ADMIN | ADMIN | EMPLOYEE
       let role: UserRole = 'EMPLOYEE';
-      if (googleUser.email === 'lucyheartfillia662@gmail.com') {
-        role = 'ADMIN';
-      } else if (googleUser.email === 'aishwarya.maharjan@rumsan.net') {
+      const rRole = googleUser.rumsanRole?.toUpperCase();
+      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') {
         role = 'SUPER_ADMIN';
+      } else if (rRole === 'ADMIN') {
+        role = 'ADMIN';
       }
 
       user = await this.prisma.user.create({
@@ -94,6 +108,9 @@ export class AuthService {
             }
           },
           role: role,
+          org_unit: googleUser.orgUnit,
+          job_title: googleUser.jobTitle,
+          employment_type: googleUser.employmentType,
           isActive: true,
           lastLoginAt: new Date(),
         },
@@ -102,22 +119,35 @@ export class AuthService {
     } else if (!user.uid) {
       // User exists but doesn't have UID - link it
       console.log('️ Linking existing user to Supabase Auth');
+
+      let role: UserRole = user.role;
+      const rRole = googleUser.rumsanRole?.toUpperCase();
+      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') role = 'SUPER_ADMIN';
+      else if (rRole === 'ADMIN') role = 'ADMIN';
+
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
           uid: supabaseUserId,
           name: `${googleUser.firstName} ${googleUser.lastName}`,
           photoURL: googleUser.picture,
+          role: role,
           lastLoginAt: new Date(),
         },
       });
     } else {
       // User exists with UID - just update
       console.log('️ Updating existing user in public schema');
+      let role: UserRole = user.role;
+      const rRole = googleUser.rumsanRole?.toUpperCase();
+      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') role = 'SUPER_ADMIN';
+      else if (rRole === 'ADMIN') role = 'ADMIN';
+
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
           lastLoginAt: new Date(),
+          role: role,
           name: `${googleUser.firstName} ${googleUser.lastName}`,
           photoURL: googleUser.picture,
         },
@@ -132,6 +162,8 @@ export class AuthService {
       uid: user.uid,
       email: user.email,
       role: user.role,
+     
+
     };
 
     const access_token = this.jwtService.sign(payload);
@@ -145,7 +177,31 @@ export class AuthService {
         name: user.name,
         role: user.role,
         photoURL: user.photoURL,
+        department: user.department,
+        org_unit: user.org_unit,
+        job_title: user.job_title,
+        employment_type: user.employment_type,
       },
     };
+  }
+
+  /**
+   * Authenticate a user via Google ID token using the three‑step app auth flow
+   * provided by `@rumsan/user`.
+   *
+   * 1. GET  /auth/challenge?app_id=<APP_ID>   → short‑lived challenge JWT
+   * 2. Sign the challenge with the app’s secp256k1 private key
+   * 3. POST /auth/google (X‑App‑Id, id_token, challenge, app_signature)
+   *    → user JWT
+   */
+  async loginWithGoogle(idToken: string): Promise<AuthResult> {
+    const { challenge } = await this.client.auth.getChallenge({ appId: this.appId })
+
+    const appSignature = this.crypto.signChallenge(challenge)
+
+    return this.client.auth.googleLogin(
+      { id_token: idToken, challenge, app_signature: appSignature },
+      { appId: this.appId },
+    )
   }
 }

@@ -76,6 +76,9 @@ model User {
   // Profile Information
   phone            String?
   department       String?
+  org_unit         String?
+  job_title        String?
+  employment_type  String?
   position         String?
   startDate        DateTime?
   bio              String?

@@ -31,6 +31,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/adapter-pg": "6.19.2",
     "@prisma/client": "6.19.2",
+    "@rumsan/user": "^0.4.100",
     "@supabase/supabase-js": "^2.96.0",
     "cookie-parser": "^1.4.7",
     "iterare": "^1.2.0",
