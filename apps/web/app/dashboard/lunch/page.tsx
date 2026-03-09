@@ -32,7 +32,7 @@ function getToday() {
 
 function isBefore11AM() {
   const now = new Date();
-  return now.getHours() > 11;
+  return now.getHours() < 11;
 }
 
 export default function LunchTokenPage() {
