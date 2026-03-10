@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@types/phoenix": "^1.6.7",
+    "patch-package": "^8.0.1",
     "prisma": "^6.19.2",
     "turbo": "^2.8.12"
   },
