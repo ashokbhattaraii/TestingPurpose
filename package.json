@@ -23,12 +23,13 @@
     "migrate": "dotenv -e .env prisma migrate dev --schema=prisma/schema.prisma",
     "db:generate": "prisma generate --schema=apps/api/prisma/schema.prisma",
     "db:push": "prisma db push --schema=apps/api/prisma/schema.prisma",
-    "db:studio": "prisma studio --schema=apps/api/prisma/schema.prisma"
+    "db:studio": "prisma studio --schema=apps/api/prisma/schema.prisma",
+    "postinstall": "node scripts/patch-esm.js"
   },
   "dependencies": {
     "@nestjs/swagger": "^11.2.6",
     "@prisma/client": "^6.19.2",
-    "jose": "3",
+    "jose": "^4.15.5",
     "pg": "^8.18.0",
     "react-feather": "^2.0.10",
     "react-icons": "^5.5.0",
@@ -39,10 +40,6 @@
     "patch-package": "^8.0.1",
     "prisma": "^6.19.2",
     "turbo": "^2.8.12"
-  },
-  "overrides": {
-    "jose": "3",
-    "@noble/curves": "^1.0.0"
   },
   "engines": {
     "node": ">=18"
