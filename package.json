@@ -39,6 +39,9 @@
     "prisma": "^6.19.2",
     "turbo": "^2.8.12"
   },
+  "overrides": {
+    "jose": "^4.15.5"
+  },
   "engines": {
     "node": ">=18"
   },
