@@ -41,7 +41,8 @@
     "turbo": "^2.8.12"
   },
   "overrides": {
-    "jose": "^4.15.5"
+    "jose": "3",
+    "@noble/curves": "^1.0.0"
   },
   "engines": {
     "node": ">=18"

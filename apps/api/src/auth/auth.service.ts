@@ -84,12 +84,12 @@ export class AuthService {
       // Determine role based on Rumsan dynamic role
       // We map the rumsan string to the UserRole prisma enum 
       // Safely default to EMPLOYEE since Prisma expects SUPER_ADMIN | ADMIN | EMPLOYEE
-      let role: UserRole = 'EMPLOYEE';
+      let role: UserRole = UserRole.EMPLOYEE;
       const rRole = googleUser.rumsanRole?.toUpperCase();
       if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') {
-        role = 'SUPER_ADMIN';
+        role = UserRole.SUPER_ADMIN;
       } else if (rRole === 'ADMIN') {
-        role = 'ADMIN';
+        role = UserRole.ADMIN;
       }
 
       user = await this.prisma.user.create({
@@ -122,8 +122,8 @@ export class AuthService {
 
       let role: UserRole = user.role;
       const rRole = googleUser.rumsanRole?.toUpperCase();
-      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') role = 'SUPER_ADMIN';
-      else if (rRole === 'ADMIN') role = 'ADMIN';
+      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') role = UserRole.SUPER_ADMIN;
+      else if (rRole === 'ADMIN') role = UserRole.ADMIN;
 
       user = await this.prisma.user.update({
         where: { id: user.id },
@@ -140,8 +140,8 @@ export class AuthService {
       console.log('️ Updating existing user in public schema');
       let role: UserRole = user.role;
       const rRole = googleUser.rumsanRole?.toUpperCase();
-      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') role = 'SUPER_ADMIN';
-      else if (rRole === 'ADMIN') role = 'ADMIN';
+      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') role = UserRole.SUPER_ADMIN;
+      else if (rRole === 'ADMIN') role = UserRole.ADMIN;
 
       user = await this.prisma.user.update({
         where: { id: user.id },
