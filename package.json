@@ -28,7 +28,7 @@
   "dependencies": {
     "@nestjs/swagger": "^11.2.6",
     "@prisma/client": "^6.19.2",
-    "jose": "^4.15.5",
+    "jose": "3",
     "pg": "^8.18.0",
     "react-feather": "^2.0.10",
     "react-icons": "^5.5.0",
