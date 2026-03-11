@@ -1,11 +1,14 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LaunchAttendanceDto } from '../dto/launch.dto';
 import { LaunchType } from '@prisma/client';
-
+import { SlackService } from '../slack/slack.service';
+import { time } from 'console';
+import { Cron } from '@nestjs/schedule';
 @Injectable()
 export class LaunchService {
-  constructor(private prisma: PrismaService) { }
+  private readonly logger = new Logger(LaunchService.name);
+  constructor(private prisma: PrismaService, private slackService: SlackService) { }
 
   private getKathmanduDateOnly(): Date {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -22,6 +25,38 @@ export class LaunchService {
     // Prisma considers Date objects to be stored as ISODate. Use UTC midnight to avoid local timezone shifts.
     return new Date(`${year}-${month}-${day}T00:00:00.000Z`);
   }
+  @Cron('0 11 * * 1-5', { timeZone: 'Asia/Kathmandu' })
+  async scheduledLunchSlackReport() {
+    const today = this.getKathmanduDateOnly();
+    const records = await this.prisma.lunchAttendance.findMany({
+      where: { date: today },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const vegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.VEG)
+    const nonVegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.NON_VEG)
+    const vegNames = vegPeople.map((r) => r.user.name)
+    const nonVegNames = nonVegPeople.map((r) => r.user.name)
+
+    const data = {
+      date: today.toISOString().split('T')[0],
+      total: records.length,
+      vegCount: vegPeople.length,
+      nonVegCount: nonVegPeople.length,
+      vegNames,
+      nonVegNames,
+    }
+
+    await this.slackService.sendLunchSummary(data)
+
+
+
+  }
+
+
 
   private checkAttendanceWindow(): void {
     const parts = new Intl.DateTimeFormat('en-US', {
