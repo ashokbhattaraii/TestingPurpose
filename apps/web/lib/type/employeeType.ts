@@ -25,7 +25,7 @@ export interface EmployeeType {
   email: string;
   name: string;
   photoURL: string;
-  role: "EMPLOYEE" | "ADMIN" | "SUPER_ADMIN";
+  roles: string[];
   phone: string | null;
   department: string | null;
   org_unit: string | null;

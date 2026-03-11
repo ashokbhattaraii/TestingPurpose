@@ -16,7 +16,7 @@ interface User {
   uid: string;
   email: string;
   name: string;
-  role: string;
+  roles: string[];
   photoURL?: string;
   department?: string;
   org_unit?: string;

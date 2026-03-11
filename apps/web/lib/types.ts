@@ -43,7 +43,7 @@ export interface User {
   name: string;
   email: string;
   avatar: string;
-  role: UserRole;
+  roles: string[];
   department: string;
   joinedAt: string;
   status: "active" | "inactive";

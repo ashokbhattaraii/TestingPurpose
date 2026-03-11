@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Post, Get, UseGuards, Request } 
 import { AuthGuard } from '@nestjs/passport'
 import { AuthService } from './auth.service'
 
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
@@ -21,26 +22,8 @@ export class AuthController {
   async login(@Body() body: { id_token?: string }) {
     if (!body.id_token) throw new BadRequestException('id_token is required')
 
-    // Authenticate with Rumsan Office Client to get the user's cross-app role and ID
-    const rumsanResult = await this.authService.loginWithGoogle(body.id_token).catch(e => {
-      console.error("Rumsan login failed:", e.message);
-      return null;
-    });
-
-    console.log("Rumsan login result:", rumsanResult);
-    // Decode ID token to get profile info
-    const jwtContent = JSON.parse(Buffer.from(body.id_token.split('.')[1], 'base64').toString());
-console.log("Decoded JWT content:", jwtContent);
-
-    // Run the Supabase/Prisma specific login
-    return this.authService.googleLogin({
-      email: jwtContent.email,
-      firstName: jwtContent.given_name,
-      lastName: jwtContent.family_name,
-      picture: jwtContent.picture,
-      googleId: jwtContent.sub,
-      rumsanRole: (rumsanResult?.user as any)?.roles?.[0], // Fallback if Rumsan fails
-    });
+    // Run the Supabase/Prisma/Rumsan specific login process
+    return this.authService.googleLogin(body.id_token);
   }
 
   @Get('me')

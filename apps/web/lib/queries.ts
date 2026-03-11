@@ -51,14 +51,14 @@ export function useUpdateUserRole() {
   return useMutation({
     mutationFn: ({
       userId,
-      role,
+      roles,
     }: {
       userId: string;
-      role: import("./types").UserRole;
+      roles: string[];
     }) => {
       const user = users.find((u) => u.id === userId);
       if (user) {
-        user.role = role;
+        user.roles = roles;
       }
       return delay(user);
     },
