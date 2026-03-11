@@ -19,6 +19,9 @@ interface User {
   role: string;
   photoURL?: string;
   department?: string;
+  org_unit?: string;
+  job_title?: string;
+  employment_type?: string;
   status?: "active" | "inactive" | "suspended" | string;
   lastLogin?: string | Date | null;
   notificationPreferences?: NotificationPreferences;

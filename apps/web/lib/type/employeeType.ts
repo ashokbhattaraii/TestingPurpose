@@ -28,6 +28,9 @@ export interface EmployeeType {
   role: "EMPLOYEE" | "ADMIN" | "SUPER_ADMIN";
   phone: string | null;
   department: string | null;
+  org_unit: string | null;
+  job_title: string | null;
+  employment_type: string | null;
   position: string | null;
   startDate: string | null;
   bio: string | null;
