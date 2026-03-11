@@ -31,8 +31,7 @@ function getToday() {
 }
 
 function isBefore11AM() {
-  const now = new Date();
-  return now.getHours() < 11;
+  return true;
 }
 
 export default function LunchTokenPage() {
@@ -191,15 +190,9 @@ export default function LunchTokenPage() {
             </p>
             <div className="flex items-center gap-2 mt-1">
               <Clock className="h-3 w-3 text-muted-foreground" />
-              {canCollect ? (
                 <span className="text-xs text-green-600 font-medium">
-                  Token collection is open (closes at 11:00 AM)
+                  Token collection is open (Testing: No Time Restriction)
                 </span>
-              ) : (
-                <span className="text-xs text-destructive font-medium">
-                  Token collection is closed for today
-                </span>
-              )}
             </div>
           </div>
           {alreadyCollected ? (
@@ -309,11 +302,7 @@ export default function LunchTokenPage() {
                   ? "Collection Closed (After 11 AM)"
                   : "Collect Lunch Token"}
             </Button>
-            {!canCollect && (
-              <p className="text-center text-xs text-destructive">
-                Lunch token collection is only available before 11:00 AM.
-              </p>
-            )}
+            {/* Removed time restriction notice for testing */}
           </CardContent>
         </Card>
       )}

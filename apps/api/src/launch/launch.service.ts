@@ -25,8 +25,10 @@ export class LaunchService {
     // Prisma considers Date objects to be stored as ISODate. Use UTC midnight to avoid local timezone shifts.
     return new Date(`${year}-${month}-${day}T00:00:00.000Z`);
   }
-  @Cron('0 11 * * 1-5', { timeZone: 'Asia/Kathmandu' })
+  @Cron('*/1 * * * *')
   async scheduledLunchSlackReport() {
+    this.logger.log('⏰ Running scheduled Slack lunch report...');
+    console.log("hit")
     const today = this.getKathmanduDateOnly();
     const records = await this.prisma.lunchAttendance.findMany({
       where: { date: today },
@@ -59,24 +61,7 @@ export class LaunchService {
 
 
   private checkAttendanceWindow(): void {
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Kathmandu',
-      hour: 'numeric',
-      minute: 'numeric',
-      hourCycle: 'h23'
-    }).formatToParts(new Date());
-
-    const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-    const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-
-    const currentMinutes = hour * 60 + minute;
-    const startMinutes = 9 * 60 + 45; // 585
-    const endMinutes = 11 * 60;       // 660
-    if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
-      throw new BadRequestException(
-        'Attendance can only be marked between 9:45 AM and 11:00 AM',
-      );
-    }
+    this.logger.log('Attendance window check bypassed for testing');
   }
 
   async launchAttendance(userId: string, dto: LaunchAttendanceDto) {

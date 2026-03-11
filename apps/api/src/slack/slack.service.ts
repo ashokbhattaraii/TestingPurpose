@@ -16,11 +16,11 @@ export class SlackService {
 
     }) {
         const { date, total, vegCount, nonVegCount, vegNames, nonVegNames } = data;
-        // Format names as bullet lists
+        // Format names as numbered lists with better visual hierarchy
         const formatNames = (names: string[]) =>
             names.length > 0
-                ? names.map(n => `• ${n}`).join('\n')
-                : '_None_';
+                ? names.map((n, i) => `${i + 1}. ${n}`).join('\n')
+                : '_No attendees_';
 
         const message = {
             blocks: [
@@ -28,15 +28,27 @@ export class SlackService {
                     type: 'header',
                     text: {
                         type: 'plain_text',
-                        text: `🍱 Lunch Summary — ${date}`,
+                        text: `Lunch Summary — ${date}`,
+                    },
+                },
+                {
+                    type: 'section',
+                    text: {
+                        type: 'mrkdwn',
+                        text: `*Summary*\n┌─────────────────────┐\n│ Total Attending: *${total}*\n└─────────────────────┘`,
                     },
                 },
                 {
                     type: 'section',
                     fields: [
-                        { type: 'mrkdwn', text: `*Total Attending:*\n${total}` },
-                        { type: 'mrkdwn', text: `*🥦 Veg:*\n${vegCount}` },
-                        { type: 'mrkdwn', text: `*🍗 Non-Veg:*\n${nonVegCount}` },
+                        {
+                            type: 'mrkdwn',
+                            text: `*Vegetarian*\n\`\`\`${vegCount}\`\`\``,
+                        },
+                        {
+                            type: 'mrkdwn',
+                            text: `*Non-Vegetarian*\n\`\`\`${nonVegCount}\`\`\``,
+                        },
                     ],
                 },
                 { type: 'divider' },
@@ -44,17 +56,18 @@ export class SlackService {
                     type: 'section',
                     text: {
                         type: 'mrkdwn',
-                        text: `*🥦 Veg People (${vegCount}):*\n${formatNames(vegNames)}`,
+                        text: `*Vegetarian Attendees* (${vegCount})\n${formatNames(vegNames)}`,
                     },
                 },
+                { type: 'divider' },
                 {
                     type: 'section',
                     text: {
                         type: 'mrkdwn',
-                        text: `*🍗 Non-Veg People (${nonVegCount}):*\n${formatNames(nonVegNames)}`,
+                        text: `*Non-Vegetarian Attendees* (${nonVegCount})\n${formatNames(nonVegNames)}`,
                     },
                 },
-
+                { type: 'divider' },
                 {
                     type: 'context',
                     elements: [
