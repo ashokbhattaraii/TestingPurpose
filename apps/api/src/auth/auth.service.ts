@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserRole } from '@prisma/client';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { SupabaseService } from '../supabase/supabase.service';
 import type { RsOfficeClient, AuthResult } from '@rumsan/user';
@@ -15,7 +15,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private supabase: SupabaseService,
-    @Inject(RS_OFFICE_CLIENT) private readonly client: RsOfficeClient,
+    @Inject(RS_OFFICE_CLIENT) private readonly rsClient: RsOfficeClient,
     private readonly crypto: CryptoService,
   ) {
     const appId = process.env.APP_ID;
@@ -23,7 +23,34 @@ export class AuthService {
     this.appId = appId;
   }
 
-  async googleLogin(googleUser: any) {
+  async googleLogin(id_token: string) {
+    // Authenticate with Rumsan Office Client to get the user's cross-app role and ID
+    const rsAuthResult = await this.loginWithGoogle(id_token).catch(e => {
+      console.error("Rumsan login failed:", e.message, "| status:", e.status, "| details:", JSON.stringify(e.details));
+      return null;
+    });
+
+    console.log("Rumsan login result:", rsAuthResult);
+
+    // Decode ID token to get profile info
+    const jwtContent = JSON.parse(Buffer.from(id_token.split('.')[1], 'base64').toString());
+    console.log("Decoded JWT content:", jwtContent);
+
+    const googleUser = {
+      email: jwtContent.email,
+      firstName: jwtContent.given_name,
+      lastName: jwtContent.family_name,
+      picture: jwtContent.picture,
+      googleId: jwtContent.sub,
+      roles: rsAuthResult?.roles,
+      accessToken: undefined,
+      refreshToken: undefined,
+      expiresAt: undefined,
+      orgUnit: undefined,
+      jobTitle: undefined,
+      employmentType: undefined,
+    };
+
     console.log(' Processing Google login for:', googleUser.email);
 
     const supabaseClient = this.supabase.getClient();
@@ -78,19 +105,12 @@ export class AuthService {
     }
 
     // Now handle Prisma user record
+
+    // Assign role from Rumsan result
+    let finalRoles: string[] = googleUser.roles || ['employee'];
+
     if (!user) {
       console.log(' Creating user in public schema');
-
-      // Determine role based on Rumsan dynamic role
-      // We map the rumsan string to the UserRole prisma enum 
-      // Safely default to EMPLOYEE since Prisma expects SUPER_ADMIN | ADMIN | EMPLOYEE
-      let role: UserRole = 'EMPLOYEE';
-      const rRole = googleUser.rumsanRole?.toUpperCase();
-      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') {
-        role = 'SUPER_ADMIN';
-      } else if (rRole === 'ADMIN') {
-        role = 'ADMIN';
-      }
 
       user = await this.prisma.user.create({
         data: {
@@ -107,7 +127,7 @@ export class AuthService {
               expiresAt: googleUser.expiresAt,
             }
           },
-          role: role,
+          roles: finalRoles,
           org_unit: googleUser.orgUnit,
           job_title: googleUser.jobTitle,
           employment_type: googleUser.employmentType,
@@ -120,34 +140,25 @@ export class AuthService {
       // User exists but doesn't have UID - link it
       console.log('️ Linking existing user to Supabase Auth');
 
-      let role: UserRole = user.role;
-      const rRole = googleUser.rumsanRole?.toUpperCase();
-      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') role = 'SUPER_ADMIN';
-      else if (rRole === 'ADMIN') role = 'ADMIN';
-
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
           uid: supabaseUserId,
           name: `${googleUser.firstName} ${googleUser.lastName}`,
           photoURL: googleUser.picture,
-          role: role,
+          roles: finalRoles,
           lastLoginAt: new Date(),
         },
       });
     } else {
       // User exists with UID - just update
       console.log('️ Updating existing user in public schema');
-      let role: UserRole = user.role;
-      const rRole = googleUser.rumsanRole?.toUpperCase();
-      if (rRole === 'SUPER_ADMIN' || rRole === 'SUPERADMIN') role = 'SUPER_ADMIN';
-      else if (rRole === 'ADMIN') role = 'ADMIN';
 
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
           lastLoginAt: new Date(),
-          role: role,
+          roles: finalRoles,
           name: `${googleUser.firstName} ${googleUser.lastName}`,
           photoURL: googleUser.picture,
         },
@@ -161,7 +172,7 @@ export class AuthService {
       sub: user.id,
       uid: user.uid,
       email: user.email,
-      role: user.role,
+      roles: user.roles,
 
 
     };
@@ -175,7 +186,7 @@ export class AuthService {
         uid: user.uid,
         email: user.email,
         name: user.name,
-        role: user.role,
+        roles: user.roles,
         photoURL: user.photoURL,
         department: user.department,
         org_unit: user.org_unit,
@@ -194,14 +205,22 @@ export class AuthService {
    * 3. POST /auth/google (X‑App‑Id, id_token, challenge, app_signature)
    *    → user JWT
    */
-  async loginWithGoogle(idToken: string): Promise<AuthResult> {
-    const { challenge } = await this.client.auth.getChallenge({ appId: this.appId })
+  async loginWithGoogle(token: string): Promise<AuthResult> {
+    console.log('[RS Auth] Step 1: Getting challenge for appId:', this.appId);
+    const { challenge } = await this.rsClient.auth.getChallenge({ appId: this.appId })
+    console.log('[RS Auth] Step 1 OK — challenge received (length:', challenge.length, ')');
 
+    console.log('[RS Auth] Step 2: Signing challenge...');
     const appSignature = this.crypto.signChallenge(challenge)
+    console.log('[RS Auth] Step 2 OK — signature:', appSignature.slice(0, 20) + '...');
 
-    return this.client.auth.googleLogin(
-      { id_token: idToken, challenge, app_signature: appSignature },
+    console.log('[RS Auth] Step 3: Calling googleLogin with id_token, challenge, app_signature');
+    const rsAuthResult = (await this.rsClient.auth.googleLogin(
+      { id_token: token, challenge, app_signature: appSignature },
       { appId: this.appId },
-    )
+    )) as AuthResult;
+    console.log('[RS Auth] Step 3 OK — roles:', rsAuthResult?.roles);
+
+    return rsAuthResult;
   }
 }

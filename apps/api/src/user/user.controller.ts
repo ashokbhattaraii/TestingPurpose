@@ -1,32 +1,24 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { Roles } from '../common/decorators/roles-decorator/roles.decorator';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
-import { UpdateUserRoleDto } from '../dto/updateUserRole.dto';
+
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @Get('employees')
   @UseGuards(AuthGuard('jwt'))
-  @Roles(UserRole.ADMIN)
+  @Roles('ADMIN')
   getAdminUsers() {
     return this.userService.getUsers();
   }
 
   @Get('admin')
   @UseGuards(AuthGuard('jwt'))
-  @Roles(UserRole.SUPER_ADMIN)
+  @Roles('ADMIN')
   getAllUsers() {
     return this.userService.getAdminUsers();
-  }
-
-  @Patch('update-role')
-  @UseGuards(AuthGuard('jwt'))
-  @Roles(UserRole.SUPER_ADMIN)
-  updateUserRole(@Body() dto: UpdateUserRoleDto) {
-    return this.userService.updateRole(dto)
   }
 
   @Get(':id')

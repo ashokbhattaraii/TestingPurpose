@@ -3,7 +3,6 @@
 import { useAuth } from "@/lib/auth-context";
 import { EmployeeDashboard } from "@/components/dashboard-employee";
 import { AdminDashboard } from "@/components/dashboard-admin";
-import { SuperadminDashboard } from "@/components/dashboard-superadmin";
 import { useLaunchAttendanceSummary } from "@/hooks/launch/useLaunchAttendance";
 
 export default function DashboardPage() {
@@ -25,15 +24,14 @@ export default function DashboardPage() {
     return null;
   }
 
-  console.log(" Rendering dashboard for role:", user.role);
+  console.log(" Rendering dashboard for role:", user?.roles.includes('EMPLOYEE'));
 
-  if (user?.role === "EMPLOYEE") {
-    return <EmployeeDashboard />;
-  }
-  if (user?.role === "ADMIN") {
+  const isAdmin = user?.roles?.some((r) => r.includes("ADMIN"));
+  if (isAdmin) {
     return <AdminDashboard />;
   }
-  if (user?.role === "SUPER_ADMIN") {
-    return <SuperadminDashboard />;
+  if (!isAdmin) {
+    return <EmployeeDashboard />;
   }
+
 }

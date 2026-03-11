@@ -16,7 +16,7 @@ interface User {
   uid: string;
   email: string;
   name: string;
-  role: string;
+  roles: string[];
   photoURL?: string;
   department?: string;
   org_unit?: string;
@@ -49,6 +49,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadUser = async () => {
     try {
       const userData = await getCurrentUser();
+      if (userData && userData.roles) {
+        userData.roles = userData.roles.map((r: string) => r.toUpperCase());
+      }
       console.log("User loaded:", userData?.email);
       setUser(userData);
 

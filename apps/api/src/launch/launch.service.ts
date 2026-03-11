@@ -14,7 +14,7 @@ export class LaunchService {
       month: '2-digit',
       day: '2-digit'
     }).formatToParts(new Date());
-    
+
     const year = parts.find(p => p.type === 'year')?.value;
     const month = parts.find(p => p.type === 'month')?.value;
     const day = parts.find(p => p.type === 'day')?.value;
@@ -33,7 +33,7 @@ export class LaunchService {
 
     const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
     const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-    
+
     const currentMinutes = hour * 60 + minute;
     const startMinutes = 9 * 60 + 45; // 585
     const endMinutes = 11 * 60;       // 660
@@ -110,7 +110,7 @@ export class LaunchService {
             id: true,
             name: true,
             email: true,
-            role: true,
+            roles: true,
           },
         },
       },

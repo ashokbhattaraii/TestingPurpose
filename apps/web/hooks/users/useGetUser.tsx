@@ -8,7 +8,11 @@ export function useGetUser() {
     queryKey: ["users"],
     queryFn: async () => {
       const response = await axiosInstance.get("/user/employees");
-      return response.data as EmployeeType[]; // Ensure the response is typed correctly
+      const data = response.data as EmployeeType[];
+      return data.map((u) => ({
+        ...u,
+        roles: u.roles?.map((r) => r.toUpperCase()),
+      }));
     },
     staleTime: 0,
     gcTime: 5 * 60 * 1000, // 5 minutes
@@ -23,8 +27,18 @@ export function useGetAdminUser() {
     queryKey: ["adminUser"],
     queryFn: async () => {
       const response = await axiosInstance.get("/user/admin");
-
-      return response.data as EmployeeType;
+      const data = response.data;
+      if (Array.isArray(data)) {
+        return data.map((u: any) => ({
+          ...u,
+          roles: u.roles?.map((r: string) => r.toUpperCase()),
+        }));
+      }
+      const u = data as any;
+      return {
+        ...u,
+        roles: u.roles?.map((r: string) => r.toUpperCase()),
+      };
     },
     staleTime: 0,
     gcTime: 5 * 60 * 1000, // 5 minutes
@@ -39,7 +53,11 @@ export function useGetUserById(userId: string) {
     queryKey: ["user", userId],
     queryFn: async () => {
       const response = await axiosInstance.get(`/user/${userId}`);
-      return response.data as EmployeeType;
+      const data = response.data as EmployeeType;
+      return {
+        ...data,
+        roles: data.roles?.map((r) => r.toUpperCase()),
+      };
     },
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
