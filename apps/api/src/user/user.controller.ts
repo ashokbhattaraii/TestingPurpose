@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
 import { Roles } from '../common/decorators/roles-decorator/roles.decorator';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -10,21 +9,21 @@ export class UserController {
 
   @Get('employees')
   @UseGuards(AuthGuard('jwt'))
-  @Roles(UserRole.ADMIN)
+  @Roles('admin')
   getAdminUsers() {
     return this.userService.getUsers();
   }
 
   @Get('admin')
   @UseGuards(AuthGuard('jwt'))
-  @Roles(UserRole.SUPER_ADMIN)
+  @Roles('env_admin')
   getAllUsers() {
     return this.userService.getAdminUsers();
   }
 
   @Patch('update-role')
   @UseGuards(AuthGuard('jwt'))
-  @Roles(UserRole.SUPER_ADMIN)
+  @Roles('env_admin')
   updateUserRole(@Body() dto: UpdateUserRoleDto) {
     return this.userService.updateRole(dto)
   }

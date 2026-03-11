@@ -113,7 +113,7 @@ export default function UsersPage() {
   const [editingRole, setEditingRole] = useState<UserRole | null>(null);
 
   useEffect(() => {
-    if (user && !normalizeRole(user?.role)) {
+    if (user && !normalizeRole(user?.roles?.[0])) {
       router.push("/dashboard");
     }
   }, [user, router]);
@@ -121,7 +121,7 @@ export default function UsersPage() {
   const handleRoleChange = (userId: string, role: UserRole) => {
     if (!userId || !role) return;
     updateRole.mutate(
-      { userId, role },
+      { userId, roles: [role.toLowerCase()] },
       {
         onSuccess: () => {
           setIsEditDialogOpen(false);
@@ -135,7 +135,7 @@ export default function UsersPage() {
 
   const openEditRole = (u: any) => {
     setSelectedUser(u);
-    setEditingRole(normalizeRole(u.role) ?? "EMPLOYEE");
+    setEditingRole(normalizeRole(u.roles?.[0]) ?? "EMPLOYEE");
     setIsEditDialogOpen(true);
   };
 
@@ -163,7 +163,7 @@ export default function UsersPage() {
     setCurrentPage(1);
   }, [searchQuery]);
 
-  const currentUserRole = normalizeRole(user?.role);
+  const currentUserRole = normalizeRole(user?.roles?.[0]);
   const isSuperAdmin = currentUserRole === "SUPER_ADMIN";
 
   if (!isSuperAdmin) return null;
@@ -253,7 +253,7 @@ export default function UsersPage() {
               <TableBody>
                 {paginatedUsers.map((u) => {
                   const isSelf = u.id === user?.id;
-                  const userRole = normalizeRole(u.role) ?? "EMPLOYEE";
+                  const userRole = normalizeRole(u.roles?.[0]) ?? "EMPLOYEE";
                   const config = roleConfig[userRole];
                   const Icon = config.icon;
 
@@ -482,7 +482,7 @@ export default function UsersPage() {
                   }
                   disabled={
                     updateRole.isPending ||
-                    editingRole === normalizeRole(selectedUser?.role)
+                    editingRole === normalizeRole(selectedUser?.roles?.[0])
                   }
                   className="rounded-xl h-11 px-6 font-bold shadow-lg shadow-primary/20"
                 >

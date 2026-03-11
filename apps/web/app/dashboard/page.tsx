@@ -25,15 +25,13 @@ export default function DashboardPage() {
     return null;
   }
 
-  console.log(" Rendering dashboard for role:", user.role);
+  console.log(" Rendering dashboard for role:", user?.roles.includes('employee'));
 
-  if (user?.role === "EMPLOYEE") {
+  if (user?.roles.includes('employee')) {
     return <EmployeeDashboard />;
   }
-  if (user?.role === "ADMIN") {
+  if (user?.roles.includes('admin')) {
     return <AdminDashboard />;
   }
-  if (user?.role === "SUPER_ADMIN") {
-    return <SuperadminDashboard />;
-  }
+
 }

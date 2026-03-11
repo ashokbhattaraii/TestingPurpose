@@ -3,7 +3,7 @@ import axiosInstance from "@/lib/axios/axios";
 
 type upateUserRoleType = {
     userId: string,
-    role: "ADMIN" | "EMPLOYEE" | "SUPER_ADMIN"
+    roles: string[]
 }
 export function useUpdateUserRole() {
     return useMutation({
