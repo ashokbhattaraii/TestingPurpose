@@ -5,7 +5,7 @@
         "email": "gameab12an@gmail.com",
         "name": "Gamet undefined",
         "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocKDk2d9XZD1NLT5vLlaDFLxiT09alCXgEAuv_KzGvp8bdpPuw=s96-c",
-        "role": "SUPER_ADMIN",
+        "role": "ADMIN",
         "phone": null,
         "department": null,
         "position": null,

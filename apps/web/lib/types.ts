@@ -1,4 +1,4 @@
-export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
+export type UserRole = "ADMIN" | "EMPLOYEE";
 
 export type RequestStatus =
   | "PENDING"

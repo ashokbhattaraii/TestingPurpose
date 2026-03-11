@@ -105,7 +105,7 @@ export const users: User[] = [
     name: "Rajesh Hamal",
     email: "rajesh@rumsan.com",
     avatar: "",
-    roles: ["SUPER_ADMIN"],
+    roles: ["ADMIN"],
     department: "Management",
     joinedAt: "2023-01-05",
     status: "active",

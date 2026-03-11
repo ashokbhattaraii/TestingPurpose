@@ -44,7 +44,7 @@ export class RequestController {
 
   @Post(':id/status')
   @UseGuards(AuthGuard('jwt'))
-  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Roles('admin')
   updateStatus(
     @CurrentUser() user: UserPayload,
     @Param('id') id: string,
@@ -55,7 +55,7 @@ export class RequestController {
 
   @Post(':id/assign')
   @UseGuards(AuthGuard('jwt'))
-  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Roles('admin')
   assign(
     @CurrentUser() user: UserPayload,
     @Param('id') id: string,

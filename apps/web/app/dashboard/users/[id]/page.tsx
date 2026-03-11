@@ -42,11 +42,6 @@ const roleBadge: Record<string, { label: string; className: string; icon: any }>
         className: "bg-blue-100 text-blue-700 border-blue-200",
         icon: Shield,
     },
-    SUPER_ADMIN: {
-        label: "Super Admin",
-        className: "bg-indigo-100 text-indigo-700 border-indigo-200",
-        icon: Shield,
-    },
 };
 
 export default function UserDetailPage() {
@@ -91,7 +86,7 @@ export default function UserDetailPage() {
         );
     }
 
-    const roleInfo = roleBadge[user.role] || roleBadge.EMPLOYEE;
+    const roleInfo = roleBadge[user.roles?.[0] || "EMPLOYEE"] || roleBadge.EMPLOYEE;
     const RoleIcon = roleInfo.icon;
 
     return (

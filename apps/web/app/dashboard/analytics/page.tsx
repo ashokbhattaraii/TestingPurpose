@@ -241,7 +241,7 @@ export default function AnalyticsPage() {
   const isLoading = reqLoading || analyticsLoading;
 
   useEffect(() => {
-    if (user && user.role === "EMPLOYEE") {
+    if (user && !user.roles?.includes("ADMIN")) {
       router.push("/dashboard");
     }
   }, [user, router]);
@@ -416,7 +416,7 @@ export default function AnalyticsPage() {
 
   const exportFilename = `analytics-${timePeriod}-${format(new Date(), "yyyyMMdd")}`;
 
-  if (user?.role === "employee") return null;
+  if (!user?.roles?.some((r) => r.includes("ADMIN"))) return null;
 
   return (
     <div className="flex flex-col gap-6">

@@ -97,7 +97,7 @@ export default function RequestDetailPage() {
     return newDate;
   };
 
-  const isAdminOrSuper = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  const isAdminOrSuper = user?.roles?.some((r) => r.includes("ADMIN"));
   const isCreator = user?.id === requestById?.request.user.id;
   const request = requestById?.request;
 

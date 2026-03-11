@@ -57,7 +57,7 @@ export default function LunchTokenPage() {
     | MealPreference
     | undefined;
 
-  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+  const isAdmin = user?.roles?.some((r) => r.includes("ADMIN"));
 
   const stats = useMemo(() => {
     if (!allTokensToday) return { total: 0, veg: 0, nonVeg: 0 };

@@ -154,7 +154,7 @@ const normalizePriority = (
 
 export default function RequestsPage() {
   const { user } = useAuth();
-  const isEmployee = user?.role === "EMPLOYEE";
+  const isEmployee = user?.roles?.includes("EMPLOYEE");
 
   const { data: requests, isLoading } = useGetAllRequestsQuery();
 
@@ -166,7 +166,7 @@ export default function RequestsPage() {
 
   console.log(" Dashboard - Loading:", isLoading);
   console.log(" Dashboard - User:", user);
-  console.log(" Dashboard - Role:", user?.role);
+  console.log(" Dashboard - Role:", user?.roles);
   console.log(" Dashboard - All Requests:", allRequests);
 
   const [search, setSearch] = useState("");
