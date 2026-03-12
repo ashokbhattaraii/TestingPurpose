@@ -48,6 +48,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUser = async () => {
     try {
+      // Optimization: If no token cookie exists, don't bother fetching /me
+      const hasToken =
+        typeof window !== "undefined" &&
+        document.cookie.match(new RegExp("(^| )access_token=([^;]+)"));
+
+      if (!hasToken) {
+        setUser(null);
+        // If user is not logged in and on a protected route, redirect to login
+        const publicRoutes = ["/", "/login"];
+        if (!publicRoutes.includes(pathname)) {
+          router.push("/login");
+        }
+        setIsLoading(false);
+        return;
+      }
+
       const userData = await getCurrentUser();
       if (userData && userData.roles) {
         userData.roles = userData.roles.map((r: string) => r.toUpperCase());

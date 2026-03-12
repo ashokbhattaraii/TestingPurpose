@@ -4,6 +4,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAuth } from "./auth-context";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Bell } from "lucide-react";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -53,7 +55,18 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       // Directly invalidate the notifications query
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       
-      // Optionally show a toast or other reactive UI element here
+      // Show a visual toast notification
+      toast(notification.title, {
+        description: notification.message,
+        icon: <Bell className="h-4 w-4 text-primary" />,
+        action: notification.link ? {
+          label: 'View',
+          onClick: () => {
+            // Use window.location.href or a router push if we had access to router
+            window.location.href = notification.link;
+          }
+        } : undefined,
+      });
     });
 
     setSocket(socketInstance);

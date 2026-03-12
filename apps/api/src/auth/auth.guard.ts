@@ -12,6 +12,10 @@ import type { Request } from 'express'
 import { RS_OFFICE_CLIENT } from '../rsoffice/rsoffice.module'
 import { CryptoService } from './crypto.service'
 
+import { Reflector } from '@nestjs/core'
+import { IS_PUBLIC_KEY } from '../common/decorators/public.decorator'
+import { JwtService } from '@nestjs/jwt'
+
 /**
  * Guards a route by verifying the ES256K JWT that the user received from /auth.
  *
@@ -29,6 +33,8 @@ export class AuthGuard implements CanActivate, OnModuleInit {
   constructor(
     @Inject(RS_OFFICE_CLIENT) private readonly client: RsOfficeClient,
     private readonly crypto: CryptoService,
+    private readonly reflector: Reflector,
+    private readonly jwtService: JwtService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -42,6 +48,15 @@ export class AuthGuard implements CanActivate, OnModuleInit {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest<Request & { user: JwtPayload }>()
 
     const authHeader = request.headers.authorization
@@ -61,11 +76,31 @@ export class AuthGuard implements CanActivate, OnModuleInit {
       }
     }
 
-    const { valid, payload } = await this.crypto.verifyJwt(token, this.signingPublicKey)
-    if (!valid || !payload) throw new UnauthorizedException('Invalid or expired token')
+    let { valid, payload } = await this.crypto.verifyJwt(token, this.signingPublicKey)
+    
+    // Fallback: Try verifying with local JWT secret if crypto verification fails
+    // This is because AuthService signs tokens with HS256 using JwtService
+    if (!valid || !payload) {
+      try {
+        if (this.jwtService) {
+           payload = await this.jwtService.verifyAsync(token) as JwtPayload;
+           valid = true;
+        }
+      } catch (err) {
+        console.error('Auth verification failed:', err.message);
+      }
+    }
+
+    if (!valid || !payload) {
+      throw new UnauthorizedException('Invalid or expired token')
+    }
 
     // Attach the decoded payload so controllers can read user claims
-    request.user = payload
+    // Normalize: many parts of the app expect 'id' but JWT uses 'sub'
+    const user = { ...payload } as any;
+    if (user.sub && !user.id) user.id = user.sub;
+    
+    request.user = user;
     return true
   }
 }

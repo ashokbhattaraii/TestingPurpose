@@ -118,20 +118,7 @@ export default function LunchTokenPage() {
       </div>
 
       {/* ── Today's Lunch Overview ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {/* Total Tokens */}
-        <Card className="relative overflow-hidden">
-          <CardContent className="flex flex-col items-center justify-center p-4">
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-              <Ticket className="h-5 w-5 text-blue-600" />
-            </div>
-            <p className="text-3xl font-bold text-foreground">{totalTokens}</p>
-            <p className="text-xs font-medium text-muted-foreground">
-              Total Tokens
-            </p>
-          </CardContent>
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-blue-500" />
-        </Card>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
 
         {/* Total Attending */}
         <Card className="relative overflow-hidden">
@@ -190,9 +177,9 @@ export default function LunchTokenPage() {
             </p>
             <div className="flex items-center gap-2 mt-1">
               <Clock className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs text-green-600 font-medium">
-                  Token collection is open (Testing: No Time Restriction)
-                </span>
+              <span className="text-xs text-green-600 font-medium">
+                Token collection is open (Testing: No Time Restriction)
+              </span>
             </div>
           </div>
           {alreadyCollected ? (
@@ -307,88 +294,7 @@ export default function LunchTokenPage() {
         </Card>
       )}
 
-      {/* Admin: Today's Summary */}
-      {isAdmin && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base text-foreground">
-              {"Today's Collection Summary"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {allLoading ? (
-              <Skeleton className="h-16" />
-            ) : (
-              <>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-lg border border-border p-3 text-center">
-                    <p className="text-2xl font-bold text-foreground">
-                      {stats.total}
-                    </p>
-                    <p className="text-xs text-muted-foreground">Total</p>
-                  </div>
-                  <div className="rounded-lg border border-border p-3 text-center">
-                    <p className="text-2xl font-bold text-green-600">
-                      {stats.veg}
-                    </p>
-                    <p className="text-xs text-muted-foreground">Veg</p>
-                  </div>
-                  <div className="rounded-lg border border-border p-3 text-center">
-                    <p className="text-2xl font-bold text-orange-600">
-                      {stats.nonVeg}
-                    </p>
-                    <p className="text-xs text-muted-foreground">Non-Veg</p>
-                  </div>
-                </div>
 
-                {allTokensToday && allTokensToday.length > 0 && (
-                  <div className="rounded-lg border border-border">
-                    <div className="border-b border-border bg-muted/50 px-4 py-2">
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Collected Tokens
-                      </p>
-                    </div>
-                    <div className="divide-y divide-border">
-                      {allTokensToday.map((token) => (
-                        <div
-                          key={token.id}
-                          className="flex items-center justify-between px-4 py-2.5"
-                        >
-                          <div>
-                            <p className="text-sm font-medium text-foreground">
-                              {token.userName}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {format(new Date(token.collectedAt), "h:mm a")}
-                            </p>
-                          </div>
-                          <Badge
-                            variant="outline"
-                            className={
-                              token.preferredLunchOption === "VEG"
-                                ? "border-green-300 text-green-700"
-                                : "border-orange-300 text-orange-700"
-                            }
-                          >
-                            {token.preferredLunchOption === "VEG" ? (
-                              <Leaf className="mr-1 h-3 w-3" />
-                            ) : (
-                              <Drumstick className="mr-1 h-3 w-3" />
-                            )}
-                            {token.preferredLunchOption === "VEG"
-                              ? "Veg"
-                              : "Non-Veg"}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

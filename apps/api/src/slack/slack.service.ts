@@ -28,6 +28,13 @@ export class SlackService {
                     type: 'section',
                     text: {
                         type: 'mrkdwn',
+                        text: `🍱 *Daily Lunch Count (${date})*`,
+                    },
+                },
+                {
+                    type: 'section',
+                    text: {
+                        type: 'mrkdwn',
                         text: `*Total Employees: ${total}*`,
                     },
                 },
@@ -72,14 +79,22 @@ export class SlackService {
         }
     }
 
-    async sendLunchCall() {
+    async sendLunchCall(date?: string) {
+        const displayDate = date || new Date().toISOString().split('T')[0];
         const message = {
             blocks: [
                 {
                     type: 'section',
                     text: {
                         type: 'mrkdwn',
-                        text: '<!here> 🍴 *Lunch is served!* Come and get it while it\'s hot! 🍱',
+                        text: `🍱 *Daily Lunch Count (${displayDate})*`,
+                    },
+                },
+                {
+                    type: 'section',
+                    text: {
+                        type: 'mrkdwn',
+                        text: '<!here> 🍴 *Lunch is Ready!* Please be on time 🍱',
                     },
                 },
             ],
