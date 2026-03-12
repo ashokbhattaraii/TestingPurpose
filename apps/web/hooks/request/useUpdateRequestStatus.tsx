@@ -25,6 +25,7 @@ export function useUpdateRequestStatus() {
             queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
             queryClient.invalidateQueries({ queryKey: ["allRequests"] });
             queryClient.invalidateQueries({ queryKey: ["analytics"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
         },
     });
 }

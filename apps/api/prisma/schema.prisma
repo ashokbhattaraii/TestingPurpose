@@ -186,6 +186,7 @@ model Announcement {
   title    String
   content  String
   priority String @default("normal") // low, normal, high, urgent
+  pinned   Boolean @default(false)
 
   // Targeting
   targetRoles String[] // Empty array means all users

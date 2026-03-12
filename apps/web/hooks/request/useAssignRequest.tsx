@@ -23,6 +23,7 @@ export function useAssignRequest() {
             queryClient.invalidateQueries({ queryKey: ["allRequests"] });
             queryClient.invalidateQueries({ queryKey: ["request", variables.requestId] });
             queryClient.invalidateQueries({ queryKey: ["analytics"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
         },
     });
 }

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
+import { Notification } from "@/lib/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +39,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
-import { useNotifications, useMarkNotificationRead } from "@/lib/queries";
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/lib/queries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import {
@@ -171,16 +172,13 @@ function NotificationPopover({ userId }: { userId: string }) {
   const router = useRouter();
   const { data: notifications, isLoading } = useNotifications(userId);
   const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllNotificationsRead();
   const [open, setOpen] = useState(false);
-  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
+  const unreadCount = notifications?.filter((n: Notification) => !n.isRead).length || 0;
 
   // Click notification to mark as read and navigate to its detail link
-  const handleNotificationClick = (notif: {
-    id: string;
-    read: boolean;
-    link?: string;
-  }) => {
-    if (!notif.read) {
+  const handleNotificationClick = (notif: Notification) => {
+    if (!notif.isRead) {
       markRead.mutate(notif.id);
     }
     if (notif.link) {
@@ -207,10 +205,20 @@ function NotificationPopover({ userId }: { userId: string }) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex h-12 items-center border-b border-border px-4">
+        <div className="flex h-12 items-center justify-between border-b border-border px-4">
           <h2 className="text-sm font-semibold text-foreground">
             Notifications
           </h2>
+          {unreadCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-auto p-0 text-[10px] font-medium text-primary hover:bg-transparent"
+              onClick={() => markAllRead.mutate()}
+            >
+              Mark all as read
+            </Button>
+          )}
         </div>
         {isLoading ? (
           <div className="flex flex-col gap-2 p-3">
@@ -227,26 +235,26 @@ function NotificationPopover({ userId }: { userId: string }) {
         ) : (
           <ScrollArea className="max-h-96">
             <div className="flex flex-col">
-              {notifications.map((notif) => (
+              {notifications.map((notif: Notification) => (
                 <div
                   key={notif.id}
                   onClick={() => handleNotificationClick(notif)}
                   className={cn(
                     "border-b border-border p-3 text-xs last:border-b-0 transition-colors",
                     notif.link ? "cursor-pointer hover:bg-muted/50" : "",
-                    notif.read ? "bg-background" : "bg-primary/5",
+                    notif.isRead ? "bg-background" : "bg-primary/5",
                   )}
                 >
                   <div className="flex items-start gap-2">
                     <div
                       className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${
-                        notif.read ? "bg-muted" : "bg-primary"
+                        notif.isRead ? "bg-muted" : "bg-primary"
                       }`}
                     />
                     <div className="flex-1 min-w-0">
                       <p
                         className={`${
-                          notif.read
+                          notif.isRead
                             ? "text-muted-foreground"
                             : "font-medium text-foreground"
                         }`}
