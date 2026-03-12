@@ -7,18 +7,22 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Bell, BellOff } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { Notification } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { useMarkAllNotificationsRead } from "@/lib/queries";
 
 export default function NotificationsPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const { data: notifications, isLoading } = useNotifications(user?.id, true);
+  const { data: notifications, isLoading } = useNotifications(user?.id);
   const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllNotificationsRead();
 
-  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
+  const unreadCount = notifications?.filter((n: Notification) => !n.isRead).length || 0;
 
   // Mark as read on click, then navigate to detail
-  const handleNotificationClick = (notif: { id: string; read: boolean; link?: string }) => {
-    if (!notif.read) {
+  const handleNotificationClick = (notif: Notification) => {
+    if (!notif.isRead) {
       markRead.mutate(notif.id);
     }
     if (notif.link) {
@@ -39,6 +43,15 @@ export default function NotificationsPage() {
               : "You're all caught up"}
           </p>
         </div>
+        {unreadCount > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => markAllRead.mutate()}
+          >
+            Mark all as read
+          </Button>
+        )}
       </div>
 
       {isLoading ? (
@@ -59,14 +72,14 @@ export default function NotificationsPage() {
         </Card>
       ) : (
         <div className="flex flex-col gap-2">
-          {notifications.map((notif) => (
+          {notifications.map((notif: Notification) => (
             <Card
               key={notif.id}
               onClick={() => handleNotificationClick(notif)}
               className={`transition-colors ${
                 notif.link ? "cursor-pointer hover:bg-muted/50" : ""
               } ${
-                notif.read
+                notif.isRead
                   ? "border-border"
                   : "border-primary/30 bg-primary/[0.02]"
               }`}
@@ -74,12 +87,12 @@ export default function NotificationsPage() {
               <CardContent className="flex items-start gap-3 p-4">
                 <div
                   className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${
-                    notif.read ? "bg-muted" : "bg-primary/10"
+                    notif.isRead ? "bg-muted" : "bg-primary/10"
                   }`}
                 >
                   <Bell
                     className={`h-4 w-4 ${
-                      notif.read ? "text-muted-foreground" : "text-primary"
+                      notif.isRead ? "text-muted-foreground" : "text-primary"
                     }`}
                   />
                 </div>
@@ -87,14 +100,14 @@ export default function NotificationsPage() {
                   <div className="flex items-center gap-2">
                     <p
                       className={`text-sm ${
-                        notif.read
+                        notif.isRead
                           ? "text-muted-foreground"
                           : "font-medium text-foreground"
                       }`}
                     >
                       {notif.title}
                     </p>
-                    {!notif.read && (
+                    {!notif.isRead && (
                       <span className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
                     )}
                   </div>

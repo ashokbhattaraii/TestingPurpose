@@ -27,9 +27,8 @@ import { Eye, EyeOff, Lock, Bell, Shield, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
 const roleLabel: Record<string, string> = {
-  employee: "Employee",
-  admin: "Admin",
-  superadmin: "Super Admin",
+  EMPLOYEE: "Employee",
+  ADMIN: "Admin",
 };
 
 export default function SettingsPage() {
@@ -179,7 +178,7 @@ export default function SettingsPage() {
               </Label>
               <Input
                 type="text"
-                value={roleLabel[user.role]}
+                value={roleLabel[user.roles?.[0] || "EMPLOYEE"]}
                 disabled
                 className="bg-muted"
               />

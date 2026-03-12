@@ -16,9 +16,12 @@ interface User {
   uid: string;
   email: string;
   name: string;
-  role: string;
+  roles: string[];
   photoURL?: string;
   department?: string;
+  org_unit?: string;
+  job_title?: string;
+  employment_type?: string;
   status?: "active" | "inactive" | "suspended" | string;
   lastLogin?: string | Date | null;
   notificationPreferences?: NotificationPreferences;
@@ -41,29 +44,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     loadUser();
-
-    // Periodically check if the access_token cookie has expired/been removed.
-    // If it's missing, log the user out and redirect immediately without needing a page refresh.
-    const interval = setInterval(() => {
-      if (typeof window !== "undefined") {
-        const publicRoutes = ["/", "/login"];
-        const match = document.cookie.match(/(^| )access_token=([^;]+)/);
-
-        // If the cookie is gone, and we are NOT on a public route, kick the user out.
-        if (!match && !publicRoutes.includes(pathname)) {
-          console.log("Session expired. Redirecting to login...");
-          setUser(null);
-          router.push("/login"); // Instantly redirect
-        }
-      }
-    }, 5000); // Check every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [pathname, router]);
+  }, [pathname]);
 
   const loadUser = async () => {
     try {
+      // Optimization: If no token cookie exists, don't bother fetching /me
+      const hasToken =
+        typeof window !== "undefined" &&
+        document.cookie.match(new RegExp("(^| )access_token=([^;]+)"));
+
+      if (!hasToken) {
+        setUser(null);
+        // If user is not logged in and on a protected route, redirect to login
+        const publicRoutes = ["/", "/login"];
+        if (!publicRoutes.includes(pathname)) {
+          router.push("/login");
+        }
+        setIsLoading(false);
+        return;
+      }
+
       const userData = await getCurrentUser();
+      if (userData && userData.roles) {
+        userData.roles = userData.roles.map((r: string) => r.toUpperCase());
+      }
       console.log("User loaded:", userData?.email);
       setUser(userData);
 

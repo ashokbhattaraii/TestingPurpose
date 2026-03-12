@@ -1,4 +1,4 @@
-export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
+export type UserRole = "ADMIN" | "EMPLOYEE";
 
 export type RequestStatus =
   | "PENDING"
@@ -43,7 +43,7 @@ export interface User {
   name: string;
   email: string;
   avatar: string;
-  role: UserRole;
+  roles: string[];
   department: string;
   joinedAt: string;
   status: "active" | "inactive";
@@ -117,7 +117,7 @@ export interface Notification {
   userId: string;
   title: string;
   message: string;
-  read: boolean;
+  isRead: boolean;
   createdAt: string;
   link?: string;
 }

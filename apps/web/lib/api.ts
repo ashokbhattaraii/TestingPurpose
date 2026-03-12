@@ -1,5 +1,5 @@
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4001/api/v1";
 
 import axiosInstance from "./axios/axios";
 
@@ -36,7 +36,7 @@ export async function fetchWithAuth(
     console.log(" Response status:", status);
 
     if (status === 401) {
-      console.error("Unauthorized");
+      console.warn("Unauthorized (Expected if not logged in)");
       throw new Error("Unauthorized");
     }
 

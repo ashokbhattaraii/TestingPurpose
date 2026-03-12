@@ -6,7 +6,8 @@ import {
     IsString,
     MinLength,
 } from 'class-validator';
-import { IssueCategory, IssuePriority, RequestType, SuppliesCategory } from './create-request.dto';
+import { IssueCategory, IssuePriority, RequestType, SuppliesCategory } from '@prisma/client';
+
 
 export class UpdateIssueDetailsDto {
     @IsEnum(IssuePriority)

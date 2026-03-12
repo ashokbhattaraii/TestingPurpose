@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { useUsers } from "@/lib/queries";
-import { useUpdateUserRole } from "@/hooks/users/useManageUser";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,8 +25,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  Edit2,
-  MoreHorizontal,
   User as UserIcon,
   Building2,
 } from "lucide-react";
@@ -41,24 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
 
 function getInitials(name: string) {
   return name
@@ -83,18 +63,13 @@ const roleConfig: Record<
     className: "bg-blue-50 text-blue-700 border-blue-200",
     icon: Shield,
   },
-  SUPER_ADMIN: {
-    label: "Super Admin",
-    className: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    icon: Shield,
-  },
 };
 
 function normalizeRole(role: string | null | undefined): UserRole | null {
   if (!role) return null;
   const r = role.toUpperCase();
-  if (r === "EMPLOYEE" || r === "ADMIN" || r === "SUPER_ADMIN") return r;
-  if (r === "SUPERADMIN") return "SUPER_ADMIN"; // fallback for old values
+  if (r === "ADMIN" || r.includes("ADMIN")) return "ADMIN";
+  if (r === "EMPLOYEE") return "EMPLOYEE";
   return null;
 }
 
@@ -102,42 +77,16 @@ export default function UsersPage() {
   const { user, refreshUser } = useAuth();
   const router = useRouter();
   const { data: allEmployees, isLoading } = useGetUser();
-  const updateRole = useUpdateUserRole();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<UserRole | null>(null);
-
   useEffect(() => {
-    if (user && !normalizeRole(user?.role)) {
+    if (user && !normalizeRole(user?.roles?.[0])) {
       router.push("/dashboard");
     }
   }, [user, router]);
-
-  const handleRoleChange = (userId: string, role: UserRole) => {
-    if (!userId || !role) return;
-    updateRole.mutate(
-      { userId, role },
-      {
-        onSuccess: () => {
-          setIsEditDialogOpen(false);
-          setSelectedUser(null);
-          queryClient.invalidateQueries({ queryKey: ["users"] });
-          toast.success("User role updated successfully");
-        },
-      },
-    );
-  };
-
-  const openEditRole = (u: any) => {
-    setSelectedUser(u);
-    setEditingRole(normalizeRole(u.role) ?? "EMPLOYEE");
-    setIsEditDialogOpen(true);
-  };
 
   const filteredUsers = useMemo(() => {
     if (!allEmployees) return [];
@@ -163,21 +112,20 @@ export default function UsersPage() {
     setCurrentPage(1);
   }, [searchQuery]);
 
-  const currentUserRole = normalizeRole(user?.role);
-  const isSuperAdmin = currentUserRole === "SUPER_ADMIN";
+  const currentUserRole = normalizeRole(user?.roles?.[0]);
+  const isAdmin = currentUserRole === "ADMIN";
 
-  if (!isSuperAdmin) return null;
+  if (!isAdmin) return null;
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text">
-            User Management
+            Users
           </h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-md">
-            Manage granular access control, view system users, and update their
-            roles across the organization.
+            View system users and their profiles across the organization.
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full border border-border">
@@ -253,7 +201,7 @@ export default function UsersPage() {
               <TableBody>
                 {paginatedUsers.map((u) => {
                   const isSelf = u.id === user?.id;
-                  const userRole = normalizeRole(u.role) ?? "EMPLOYEE";
+                  const userRole = normalizeRole(u.roles?.[0]) ?? "EMPLOYEE";
                   const config = roleConfig[userRole];
                   const Icon = config.icon;
 
@@ -325,49 +273,6 @@ export default function UsersPage() {
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                            onClick={() => openEditRole(u)}
-                            disabled={isSelf || updateRole.isPending}
-                            title="Edit user role"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-40">
-                              <DropdownMenuLabel>
-                                More Options
-                              </DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  router.push(`/dashboard/users/${u.id}`)
-                                }
-                              >
-                                <UserIcon className="mr-2 h-4 w-4" />
-                                View Profile
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                disabled={isSelf}
-                                onClick={() => openEditRole(u)}
-                              >
-                                <Shield className="mr-2 h-4 w-4" />
-                                Change Role
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -393,104 +298,7 @@ export default function UsersPage() {
             </span>
           </div>
 
-          {/* Role Change Modal */}
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="sm:max-w-[425px] rounded-2xl">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" />
-                  Update Security Role
-                </DialogTitle>
-                <DialogDescription>
-                  Change the system access level for{" "}
-                  <strong>{selectedUser?.name}</strong>. Access permissions
-                  update immediately.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-6 space-y-4">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      {selectedUser && getInitials(selectedUser.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold">
-                      {selectedUser?.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {selectedUser?.email}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 pl-1">
-                    Select New Role
-                  </Label>
-                  <Select
-                    value={editingRole || ""}
-                    onValueChange={(v) => setEditingRole(v as UserRole)}
-                  >
-                    <SelectTrigger className="w-full h-11 rounded-xl">
-                      <SelectValue placeholder="Choose a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="EMPLOYEE" className="py-3">
-                        <div className="flex flex-col">
-                          <span className="font-semibold">Employee</span>
-                          <span className="text-[10px] text-muted-foreground">
-                            Standard access for submitting & viewing own
-                            requests.
-                          </span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="ADMIN" className="py-3">
-                        <div className="flex flex-col">
-                          <span className="font-semibold">Admin</span>
-                          <span className="text-[10px] text-muted-foreground">
-                            Manage announcements, view all requests & analytics.
-                          </span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="SUPER_ADMIN" className="py-3">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-indigo-600 font-bold">
-                            Super Admin
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            Full system access, including data management and
-                            user roles.
-                          </span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter className="gap-2 sm:gap-0">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsEditDialogOpen(false)}
-                  className="rounded-xl h-11 px-6 font-semibold"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() =>
-                    handleRoleChange(selectedUser?.id, editingRole!)
-                  }
-                  disabled={
-                    updateRole.isPending ||
-                    editingRole === normalizeRole(selectedUser?.role)
-                  }
-                  className="rounded-xl h-11 px-6 font-bold shadow-lg shadow-primary/20"
-                >
-                  {updateRole.isPending ? "Updating..." : "Save Role Change"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
 
           {/* Pagination */}
           {totalPages > 1 && (
@@ -563,13 +371,12 @@ export default function UsersPage() {
 
       <div className="flex flex-col gap-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-xs font-semibold text-blue-900">
-          Note: Role Management
+          Note: User Directory
         </p>
         <ul className="text-xs text-blue-800 space-y-1">
-          <li>• Role changes take effect immediately system-wide</li>
-          <li>• You cannot change your own role</li>
-          <li>• Super Admin has full system access</li>
-          <li>• Admin can manage announcements and view analytics</li>
+          <li>• View all registered users in the system</li>
+          <li>• Monitor user departments and roles</li>
+          <li>• Admin has system access to view all requests and analytics</li>
         </ul>
       </div>
     </div>

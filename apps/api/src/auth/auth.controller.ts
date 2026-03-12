@@ -1,88 +1,35 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { Response } from 'express';
-import { AuthService } from './auth.service';
+import { BadRequestException, Body, Controller, Post, Get, UseGuards, Request } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
+import { AuthService } from './auth.service'
+
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private readonly authService: AuthService) { }
 
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth() { }
+  /**
+   * POST /auth
+   * Body: { id_token: string }
+   *
+   * Authenticates the user via Google ID token.
+   * Internally fetches a challenge, signs it with the app private key,
+   * then calls the user API. Returns the JWT and user info.
+   *
+   * The `token` in the response should be used as:
+   *   Authorization: Bearer <token>
+   */
+  @Post()
+  async login(@Body() body: { id_token?: string }) {
+    if (!body.id_token) throw new BadRequestException('id_token is required')
 
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req, @Res() res) {
-    try {
-      console.log('Google user:', req.user.email);
-
-      const result = await this.authService.googleLogin(req.user);
-
-      console.log('Login successful');
-
-      const isProduction = process.env.NODE_ENV === 'Production';
-
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      res.redirect(`${frontendUrl}/api/auth/callback?token=${result.access_token}`);
-    } catch (error) {
-      console.error('Login error:', error.message);
-
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      res.redirect(
-        `${frontendUrl}/login?error=${encodeURIComponent(error.message)}`,
-      );
-    }
+    // Run the Supabase/Prisma/Rumsan specific login process
+    return this.authService.googleLogin(body.id_token);
   }
 
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
-  getCurrentUser(@Req() req) {
+  getMe(@Request() req: any) {
     return req.user;
   }
-
-  @Get('verify')
-  @UseGuards(AuthGuard('jwt'))
-  verifyToken(@Req() req) {
-    return {
-      valid: true,
-      user: req.user,
-    };
-  }
-
-  @Post('logout')
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt'))
-  logout(@Req() req, @Res() res) {
-    const isProduction = process.env.NODE_ENV === 'Production';
-    res.clearCookie('access_token', {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: 'none',
-      path: '/',
-    });
-
-    return res.json({
-      message: 'Logged out successfully',
-      userId: req.user['id'],
-    });
-  }
-
-  @Get('status')
-  getStatus() {
-    return {
-      status: 'connected',
-      version: 'v1',
-      timestamp: new Date().toISOString(),
-    };
-  }
 }
+
