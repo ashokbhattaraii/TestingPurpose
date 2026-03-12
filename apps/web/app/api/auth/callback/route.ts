@@ -16,7 +16,7 @@ export async function GET(request: Request) {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',
-            maxAge: 7 * 24 * 60 * 60, // 7 days
+            maxAge: 2 * 60, // 7 days
         });
         console.log("Access token added")
 
