@@ -4,7 +4,8 @@ import axios from "axios";
 @Injectable()
 export class SlackService {
     private readonly logger = new Logger(SlackService.name)
-    private readonly webhookUrl = process.env.WEB_HOOK_URL!;
+    private readonly webhookUrl = process.env.SLACK_WEBHOOK_URL!;
+
 
     async sendLunchSummary(data: {
         date: string,
