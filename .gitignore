@@ -43,4 +43,3 @@ logs/
 *.log
 
 /generated/prisma
-.npmrc
