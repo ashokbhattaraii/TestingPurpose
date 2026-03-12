@@ -1,7 +1,5 @@
 "use client";
 import { useState } from "react";
-
-import { useAuth } from "@/lib/auth-context";
 import {
   Card,
   CardContent,
@@ -14,29 +12,12 @@ import { Building2, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { users } from "@/lib/data";
 import { useLogin } from "@/hooks/use-login";
-import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 import { GoogleLogin } from "@react-oauth/google";
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-
-
-
-
 export function LoginPage() {
-  const { loginWithGoogle, isGoogleLoginPending, loginWithGoogleSuccess, loginWithGoogleAsync } = useLogin();
+  const { isGoogleLoginPending, loginWithGoogleAsync } = useLogin();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const demoUser = users[0];
-  // const { toast } = useToast();  // removed as per standardization
-  const otherUsers = users.slice(1);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background via-primary/5 to-background px-4 relative">
@@ -47,10 +28,10 @@ export function LoginPage() {
 
       <div className="w-full max-w-2xl">
         {/* Header with back button */}
-        <div className="mb-8">
+        <div className="mb-8 text-center sm:text-left">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors mb-8"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors mb-4"
           >
             <ArrowRight className="h-4 w-4 rotate-180" />
             Back to home
@@ -70,6 +51,7 @@ export function LoginPage() {
               Sign in to the Office Utility Management System
             </CardDescription>
           </CardHeader>
+
           <CardContent className="flex-1 flex flex-col items-center justify-center p-8 bg-card/30">
             <div className="w-full max-w-sm flex flex-col gap-6">
               {/* Google Sign In Button - Centered at Top */}
@@ -92,12 +74,9 @@ export function LoginPage() {
                         if (credentialResponse.credential) {
                           loginWithGoogleAsync(credentialResponse.credential)
                             .then((response: any) => {
-                              // The API returns { token: "...", user: {...} } or { access_token: "..." }
                               const token = response.token || response.access_token;
                               if (token) {
-                                // Set cookie that the axios interceptor looks for
                                 document.cookie = `access_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}`;
-                                // Redirect to dashboard
                                 window.location.href = "/dashboard";
                               } else {
                                 setIsLoggingIn(false);
@@ -121,22 +100,22 @@ export function LoginPage() {
                   </div>
                 )}
               </div>
+
+              {/* Footer */}
+              <div className="mt-6 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Don't have an account?{" "}
+                  <Link
+                    href="/"
+                    className="text-primary hover:text-primary/80 font-medium transition-colors"
+                  >
+                    Go to HomePage
+                  </Link>
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-muted-foreground">
-            Don't have an account?{" "}
-            <Link
-              href="/"
-              className="text-primary hover:text-primary/80 font-medium transition-colors"
-            >
-              Go to HomePage
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );

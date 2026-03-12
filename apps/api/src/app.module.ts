@@ -33,4 +33,4 @@ import { SlackModule } from './slack/slack.module';
   providers: [AppService, SupabaseService],
   exports: [AuthModule, SupabaseModule],
 })
-export class AppModule { }
+export class AppModule {}

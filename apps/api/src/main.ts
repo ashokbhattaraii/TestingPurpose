@@ -11,7 +11,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000', // Local development on your Mac
-      'https://testing-purpose-web.vercel.app' // Production frontend
+      'https://testing-purpose-web.vercel.app', // Production frontend
     ],
     credentials: true, // Essential for cookie-based auth
   });

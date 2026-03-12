@@ -10,7 +10,7 @@ export class NotificationService {
   constructor(
     private prisma: PrismaService,
     private notificationGateway: NotificationGateway,
-  ) { }
+  ) {}
 
   async createNotification(
     userId: string,
@@ -35,10 +35,15 @@ export class NotificationService {
       // Emit the notification via WebSocket
       this.notificationGateway.sendNotificationToUser(userId, notification);
 
-      this.logger.log(`Notification created and emitted for user ${userId}: ${title}`);
+      this.logger.log(
+        `Notification created and emitted for user ${userId}: ${title}`,
+      );
       return notification;
     } catch (error) {
-      this.logger.error(`Failed to create notification for user ${userId}`, error);
+      this.logger.error(
+        `Failed to create notification for user ${userId}`,
+        error,
+      );
       throw error;
     }
   }
@@ -62,7 +67,14 @@ export class NotificationService {
 
       const notifications = await Promise.all(
         admins.map((admin) =>
-          this.createNotification(admin.id, type, title, message, link, metadata),
+          this.createNotification(
+            admin.id,
+            type,
+            title,
+            message,
+            link,
+            metadata,
+          ),
         ),
       );
 
@@ -88,7 +100,14 @@ export class NotificationService {
 
       const notifications = await Promise.all(
         users.map((user) =>
-          this.createNotification(user.id, type, title, message, link, metadata),
+          this.createNotification(
+            user.id,
+            type,
+            title,
+            message,
+            link,
+            metadata,
+          ),
         ),
       );
 

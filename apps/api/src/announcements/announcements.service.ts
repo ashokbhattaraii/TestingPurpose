@@ -8,7 +8,7 @@ export class AnnouncementsService {
   constructor(
     private prisma: PrismaService,
     private notificationService: NotificationService,
-  ) { }
+  ) {}
 
   async createAnnouncement(data: any, userId: string) {
     const announcement = await this.prisma.announcement.create({
@@ -27,7 +27,8 @@ export class AnnouncementsService {
     await this.notificationService.notifyAllUsers(
       NotificationType.ANNOUNCEMENT,
       `📣 New Announcement: ${announcement.title}`,
-      announcement.content.substring(0, 100) + (announcement.content.length > 100 ? '...' : ''),
+      announcement.content.substring(0, 100) +
+        (announcement.content.length > 100 ? '...' : ''),
       `/dashboard/announcements`,
     );
 
@@ -36,15 +37,12 @@ export class AnnouncementsService {
 
   async findAll() {
     return this.prisma.announcement.findMany({
-      orderBy: [
-        { pinned: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ pinned: 'desc' }, { createdAt: 'desc' }],
       include: {
         createdBy: {
-          select: { name: true }
-        }
-      }
+          select: { name: true },
+        },
+      },
     });
   }
 

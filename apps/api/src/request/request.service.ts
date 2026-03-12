@@ -1,7 +1,13 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRequestDto } from './dto/create-request.dto';
-import { RequestStatus, RequestType, IssuePriority, IssueCategory, SuppliesCategory } from '@prisma/client';
+import {
+  RequestStatus,
+  RequestType,
+  IssuePriority,
+  IssueCategory,
+  SuppliesCategory,
+} from '@prisma/client';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AssignRequestDto } from './dto/assign-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
@@ -53,32 +59,32 @@ export class RequestService {
     const request = await this.prisma.request.create({
       data: {
         userId,
-        type: dto.type as RequestType,
+        type: dto.type,
         title: dto.title,
         description: dto.description ?? '',
         status: 'PENDING' as RequestStatus,
         issueDetails:
           dto.type === RequestType.ISSUE
             ? {
-              create: {
-                priority: dto.issueDetails!.priority as IssuePriority,
-                category: dto.issueDetails!
-                  .category as unknown as IssueCategory,
-                location: dto.issueDetails!.location,
-                otherCategoryDetails: dto.issueDetails!.otherCategoryDetails,
-              },
-            }
+                create: {
+                  priority: dto.issueDetails!.priority,
+                  category: dto.issueDetails!
+                    .category as unknown as IssueCategory,
+                  location: dto.issueDetails!.location,
+                  otherCategoryDetails: dto.issueDetails!.otherCategoryDetails,
+                },
+              }
             : undefined,
         suppliesDetails:
           dto.type === RequestType.SUPPLIES
             ? {
-              create: {
-                category: dto.suppliesDetails!
-                  .category as SuppliesCategory,
-                itemName: dto.suppliesDetails!.itemName,
-                otherCategoryDetails: dto.suppliesDetails!.otherCategoryDetails,
-              },
-            }
+                create: {
+                  category: dto.suppliesDetails!.category,
+                  itemName: dto.suppliesDetails!.itemName,
+                  otherCategoryDetails:
+                    dto.suppliesDetails!.otherCategoryDetails,
+                },
+              }
             : undefined,
       },
       select: {
@@ -212,50 +218,59 @@ export class RequestService {
       where: { id },
       data: {
         title: dto.title ?? existing.title,
-        description: dto.description !== undefined ? dto.description : existing.description,
+        description:
+          dto.description !== undefined
+            ? dto.description
+            : existing.description,
         type: newType,
         issueDetails:
           newType === RequestType.ISSUE
             ? {
-              upsert: {
-                create: {
-                  priority:
-                    (dto.issueDetails?.priority as IssuePriority) || IssuePriority.MEDIUM,
-                  category:
-                    (dto.issueDetails?.category as unknown as IssueCategory) ||
-                    'TECHNICAL',
-                  location: dto.issueDetails?.location || null,
-                  otherCategoryDetails: dto.issueDetails?.otherCategoryDetails || null,
+                upsert: {
+                  create: {
+                    priority:
+                      (dto.issueDetails?.priority as IssuePriority) ||
+                      IssuePriority.MEDIUM,
+                    category:
+                      (dto.issueDetails
+                        ?.category as unknown as IssueCategory) || 'TECHNICAL',
+                    location: dto.issueDetails?.location || null,
+                    otherCategoryDetails:
+                      dto.issueDetails?.otherCategoryDetails || null,
+                  },
+                  update: {
+                    priority: dto.issueDetails?.priority as IssuePriority,
+                    category: dto.issueDetails
+                      ?.category as unknown as IssueCategory,
+                    location: dto.issueDetails?.location,
+                    otherCategoryDetails:
+                      dto.issueDetails?.otherCategoryDetails,
+                  },
                 },
-                update: {
-                  priority: dto.issueDetails?.priority as IssuePriority,
-                  category: dto.issueDetails?.category as unknown as IssueCategory,
-                  location: dto.issueDetails?.location,
-                  otherCategoryDetails: dto.issueDetails?.otherCategoryDetails,
-                },
-              },
-            }
+              }
             : existing.issueDetails
               ? { delete: true }
               : undefined,
         suppliesDetails:
           newType === RequestType.SUPPLIES
             ? {
-              upsert: {
-                create: {
-                  category:
-                    (dto.suppliesDetails?.category as SuppliesCategory) ||
-                    'OFFICE_SUPPLIES',
-                  itemName: dto.suppliesDetails?.itemName || '',
-                  otherCategoryDetails: dto.suppliesDetails?.otherCategoryDetails || null,
+                upsert: {
+                  create: {
+                    category:
+                      (dto.suppliesDetails?.category as SuppliesCategory) ||
+                      'OFFICE_SUPPLIES',
+                    itemName: dto.suppliesDetails?.itemName || '',
+                    otherCategoryDetails:
+                      dto.suppliesDetails?.otherCategoryDetails || null,
+                  },
+                  update: {
+                    category: dto.suppliesDetails?.category as SuppliesCategory,
+                    itemName: dto.suppliesDetails?.itemName,
+                    otherCategoryDetails:
+                      dto.suppliesDetails?.otherCategoryDetails,
+                  },
                 },
-                update: {
-                  category: dto.suppliesDetails?.category as SuppliesCategory,
-                  itemName: dto.suppliesDetails?.itemName,
-                  otherCategoryDetails: dto.suppliesDetails?.otherCategoryDetails,
-                },
-              },
-            }
+              }
             : existing.suppliesDetails
               ? { delete: true }
               : undefined,
@@ -282,13 +297,19 @@ export class RequestService {
     });
   }
 
-  async updateRequestStatus(id: string, adminId: string, dto: UpdateRequestStatusDto) {
+  async updateRequestStatus(
+    id: string,
+    adminId: string,
+    dto: UpdateRequestStatusDto,
+  ) {
     const existing = await this.prisma.request.findUnique({ where: { id } });
     if (!existing) {
       throw new BadRequestException('Request not found');
     }
     if (existing.userId === adminId) {
-      throw new BadRequestException('You cannot update the status of your own request');
+      throw new BadRequestException(
+        'You cannot update the status of your own request',
+      );
     }
 
     const request = await this.prisma.request.update({
@@ -297,7 +318,10 @@ export class RequestService {
         status: dto.status,
         rejectionReason: dto.rejectionReason,
         adminNotes: dto.adminNotes,
-        approvedAt: (dto.status === 'RESOLVED' || dto.status === 'FULFILLED') ? new Date() : undefined,
+        approvedAt:
+          dto.status === 'RESOLVED' || dto.status === 'FULFILLED'
+            ? new Date()
+            : undefined,
       },
       include: {
         user: {
@@ -307,7 +331,6 @@ export class RequestService {
             email: true,
             roles: true,
             department: true,
-
           },
         },
         issueDetails: true,
@@ -339,7 +362,9 @@ export class RequestService {
       throw new BadRequestException('You cannot assign your own request');
     }
     if (existing.userId === dto.assignedToId) {
-      throw new BadRequestException('You cannot assign a request to its creator');
+      throw new BadRequestException(
+        'You cannot assign a request to its creator',
+      );
     }
 
     const request = await this.prisma.request.update({
@@ -365,7 +390,7 @@ export class RequestService {
       `/dashboard/requests/${request.id}`,
     );
 
-    // Note: Removed general admin notification and requester notification here 
+    // Note: Removed general admin notification and requester notification here
     // to strictly follow the 'only notify respective admin' instruction.
 
     return {
@@ -412,23 +437,30 @@ export class RequestService {
   }
 
   async cancelRequest(id: string) {
-    const existingRequest = await this.prisma.request.findUnique({ where: { id: id } })
+    const existingRequest = await this.prisma.request.findUnique({
+      where: { id: id },
+    });
     if (!existingRequest) {
-      throw new BadRequestException("Request not found")
+      throw new BadRequestException('Request not found');
     }
     const request = await this.prisma.request.update({
       where: { id: id },
       data: {
-        status: RequestStatus.CANCELLED
-
+        status: RequestStatus.CANCELLED,
       },
       include: {
         user: {
-          select: { id: true, name: true, email: true, roles: true, department: true }
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            roles: true,
+            department: true,
+          },
         },
         issueDetails: true,
         suppliesDetails: true,
-      }
+      },
     });
 
     // Notify the requester about cancellation (if done by someone else, but good to have anyway)
@@ -445,5 +477,4 @@ export class RequestService {
       request,
     };
   }
-
 }

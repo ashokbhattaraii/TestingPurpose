@@ -11,20 +11,24 @@ export class SlackController {
   constructor(
     private readonly slackService: SlackService,
     private readonly notificationService: NotificationService,
-  ) { }
+  ) {}
 
   @Public()
   @Post('interaction')
   async handleInteraction(@Body() body: any, @Req() req: any, @Res() res: any) {
-
-    res.status(200).send()
+    res.status(200).send();
     // Slack sends payload as a stringified JSON in a form-encoded field
     const payload = body.payload ? JSON.parse(body.payload) : body;
     this.logger.log('Received Slack interaction', payload);
 
-    if (payload.actions && payload.actions[0].action_id === 'call_for_lunch_action') {
+    if (
+      payload.actions &&
+      payload.actions[0].action_id === 'call_for_lunch_action'
+    ) {
       const originalBlocks = payload.message.blocks;
-      const blocksWithoutButton = originalBlocks.filter((block: any) => block.type !== 'actions');
+      const blocksWithoutButton = originalBlocks.filter(
+        (block: any) => block.type !== 'actions',
+      );
       await axios.post(payload.response_url, {
         replace_original: true,
         blocks: blocksWithoutButton,
@@ -42,8 +46,6 @@ export class SlackController {
         'Lunch is ready, please be on time!',
         '/dashboard/lunch', // Assuming there's a lunch page
       );
-
     }
-
   }
 }

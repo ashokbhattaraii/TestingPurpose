@@ -8,8 +8,12 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { RequestType, IssuePriority, IssueCategory, SuppliesCategory } from '@prisma/client';
-
+import {
+  RequestType,
+  IssuePriority,
+  IssueCategory,
+  SuppliesCategory,
+} from '@prisma/client';
 
 // Nested DTO for ISSUE type requests
 export class IssueDetailsDto {
