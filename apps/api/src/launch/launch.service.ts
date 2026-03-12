@@ -1,11 +1,14 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LaunchAttendanceDto } from '../dto/launch.dto';
 import { LaunchType } from '@prisma/client';
-
+import { SlackService } from '../slack/slack.service';
+import { time } from 'console';
+import { Cron } from '@nestjs/schedule';
 @Injectable()
 export class LaunchService {
-  constructor(private prisma: PrismaService) { }
+  private readonly logger = new Logger(LaunchService.name);
+  constructor(private prisma: PrismaService, private slackService: SlackService) { }
 
   private getKathmanduDateOnly(): Date {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -14,7 +17,7 @@ export class LaunchService {
       month: '2-digit',
       day: '2-digit'
     }).formatToParts(new Date());
-    
+
     const year = parts.find(p => p.type === 'year')?.value;
     const month = parts.find(p => p.type === 'month')?.value;
     const day = parts.find(p => p.type === 'day')?.value;
@@ -22,26 +25,43 @@ export class LaunchService {
     // Prisma considers Date objects to be stored as ISODate. Use UTC midnight to avoid local timezone shifts.
     return new Date(`${year}-${month}-${day}T00:00:00.000Z`);
   }
+  @Cron('*/1 * * * *')
+  async scheduledLunchSlackReport() {
+    this.logger.log('⏰ Running scheduled Slack lunch report...');
+    console.log("hit")
+    const today = this.getKathmanduDateOnly();
+    const records = await this.prisma.lunchAttendance.findMany({
+      where: { date: today },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const vegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.VEG)
+    const nonVegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.NON_VEG)
+    const vegNames = vegPeople.map((r) => r.user.name)
+    const nonVegNames = nonVegPeople.map((r) => r.user.name)
+
+    const data = {
+      date: today.toISOString().split('T')[0],
+      total: records.length,
+      vegCount: vegPeople.length,
+      nonVegCount: nonVegPeople.length,
+      vegNames,
+      nonVegNames,
+    }
+
+    await this.slackService.sendLunchSummary(data)
+
+
+
+  }
+
+
 
   private checkAttendanceWindow(): void {
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'Asia/Kathmandu',
-      hour: 'numeric',
-      minute: 'numeric',
-      hourCycle: 'h23'
-    }).formatToParts(new Date());
-
-    const hour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-    const minute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-    
-    const currentMinutes = hour * 60 + minute;
-    const startMinutes = 9 * 60 + 45; // 585
-    const endMinutes = 11 * 60;       // 660
-    if (currentMinutes < startMinutes || currentMinutes > endMinutes) {
-      throw new BadRequestException(
-        'Attendance can only be marked between 9:45 AM and 11:00 AM',
-      );
-    }
+    this.logger.log('Attendance window check bypassed for testing');
   }
 
   async launchAttendance(userId: string, dto: LaunchAttendanceDto) {

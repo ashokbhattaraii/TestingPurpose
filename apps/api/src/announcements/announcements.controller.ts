@@ -12,8 +12,8 @@ export class AnnouncementsController {
   async create(@Body() createDto: CreateAnnouncementDto, @Req() req) {
     // RolesGuard ko thau ma yahi logic haldim, error free hunchha
     const user = req.user;
-    if (user.role !== 'admin' && user.role !== 'env_admin') {
-      throw new Error('Unauthorized: Only Admin or env_admin can create announcements');
+    if (!user.roles?.includes('ADMIN')) {
+      throw new Error('Unauthorized: Only an Admin can create announcements');
     }
 
     return this.announcementsService.createAnnouncement(createDto, user.id);

@@ -51,7 +51,7 @@ export default function AnnouncementsPage() {
   const [pinnedFilter, setPinnedFilter] = useState<string>("all")
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
-  const canCreate = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" || user?.role === "admin" || user?.role === "superadmin"
+  const canCreate = user?.roles?.some((r) => r.includes("ADMIN"));
 
   const filtered = announcements?.filter((ann) => {
     const matchSearch =

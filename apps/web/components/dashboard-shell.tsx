@@ -68,21 +68,21 @@ const navItems: NavItem[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: <LayoutDashboard className="h-4 w-4" />,
-    roles: ["EMPLOYEE", "SUPER_ADMIN", "ADMIN"],
+    roles: ["EMPLOYEE", "ADMIN"],
     section: "General",
   },
   {
     label: "Service Requests",
     href: "/dashboard/requests",
     icon: <ClipboardList className="h-4 w-4" />,
-    roles: ["EMPLOYEE", "SUPER_ADMIN", "ADMIN"],
+    roles: ["EMPLOYEE", "ADMIN"],
     section: "General",
   },
   {
     label: "Lunch Token",
     href: "/dashboard/lunch",
     icon: <UtensilsCrossed className="h-4 w-4" />,
-    roles: ["EMPLOYEE", "SUPER_ADMIN", "ADMIN"],
+    roles: ["EMPLOYEE", "ADMIN"],
     badgeKey: "lunchToken",
     section: "General",
   },
@@ -90,21 +90,21 @@ const navItems: NavItem[] = [
     label: "Announcements",
     href: "/dashboard/announcements",
     icon: <Megaphone className="h-4 w-4" />,
-    roles: ["EMPLOYEE", "SUPER_ADMIN", "ADMIN"],
+    roles: ["EMPLOYEE", "ADMIN"],
     section: "General",
   },
   {
     label: "Analytics",
     href: "/dashboard/analytics",
     icon: <BarChart3 className="h-4 w-4" />,
-    roles: ["ADMIN", "SUPER_ADMIN"],
+    roles: ["ADMIN"],
     section: "Administration",
   },
   {
-    label: "User Management",
+    label: "Users",
     href: "/dashboard/users",
     icon: <Users className="h-4 w-4" />,
-    roles: ["SUPER_ADMIN"],
+    roles: ["ADMIN"],
     section: "Administration",
   },
 ];
@@ -119,14 +119,9 @@ function getInitials(name: string) {
 }
 
 function getRoleLabel(role: string) {
-  switch (role) {
-    case "SUPER_ADMIN":
-      return "Super Admin";
-    case "ADMIN":
-      return "Admin";
-    default:
-      return "Employee";
-  }
+  const r = role.toUpperCase();
+  if (r === "ADMIN" || r.includes("ADMIN")) return "Admin";
+  return "Employee";
 }
 
 function ThemeToggle() {
@@ -298,7 +293,7 @@ function SidebarNav({
   const { user } = useAuth();
   const pathname = usePathname();
   const filteredItems = navItems.filter((item) =>
-    item.roles.includes(user?.role || ""),
+    item.roles.some((role) => user?.roles?.includes(role)),
   );
 
   // Group items by section
@@ -518,7 +513,7 @@ function MobileSidebarContent({
               {user?.name}
             </span>
             <span className="text-[10px] text-sidebar-foreground/40 truncate">
-              {getRoleLabel(user?.role || "")}
+              {getRoleLabel(user?.roles?.[0] || "")}
             </span>
           </div>
         </div>
@@ -633,7 +628,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     <TooltipContent side="right" className="text-xs">
                       <p className="font-semibold">{user?.name}</p>
                       <p className="text-muted-foreground">
-                        {getRoleLabel(user?.role || "")}
+                        {getRoleLabel(user?.roles?.[0] || "")}
                       </p>
                     </TooltipContent>
                   )}
@@ -645,7 +640,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     {user?.name}
                   </span>
                   <span className="text-[10px] text-sidebar-foreground/40 truncate">
-                    {getRoleLabel(user?.role || "")}
+                    {getRoleLabel(user?.roles?.[0] || "")}
                   </span>
                 </div>
               )}
