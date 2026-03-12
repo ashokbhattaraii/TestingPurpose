@@ -25,11 +25,6 @@ export const users: User[] = [
         email: "aarav.sharma@gmail.com",
         connectedAt: "2024-07-10T10:00:00Z",
       },
-      {
-        provider: "github",
-        email: "aarav-sharma",
-        connectedAt: "2024-09-15T14:30:00Z",
-      },
     ],
     notificationPreferences: {
       emailNotifications: true,
@@ -47,13 +42,7 @@ export const users: User[] = [
     joinedAt: "2024-08-01",
     status: "active",
     lastLogin: "2026-02-08T15:45:00Z",
-    socialAccounts: [
-      {
-        provider: "linkedin",
-        email: "priya-thapa",
-        connectedAt: "2024-08-20T09:00:00Z",
-      },
-    ],
+    socialAccounts: [],
     notificationPreferences: {
       emailNotifications: true,
       announcements: false,
@@ -115,16 +104,6 @@ export const users: User[] = [
         provider: "google",
         email: "rajesh.hamal@gmail.com",
         connectedAt: "2023-02-10T08:30:00Z",
-      },
-      {
-        provider: "github",
-        email: "rajesh-hamal",
-        connectedAt: "2023-03-20T16:45:00Z",
-      },
-      {
-        provider: "linkedin",
-        email: "rajesh-hamal",
-        connectedAt: "2023-04-05T13:15:00Z",
       },
     ],
     notificationPreferences: {
@@ -395,7 +374,7 @@ export const notifications: Notification[] = [
     title: "Request Resolved",
     message:
       "Your request SR-003: Deep cleaning for 3rd floor has been resolved by Sita Poudel.",
-    read: false,
+    isRead: false,
     createdAt: "2026-02-09T08:30:00Z",
     link: "/dashboard/requests/SR-003",
   },
@@ -405,7 +384,7 @@ export const notifications: Notification[] = [
     title: "Request On Hold",
     message:
       "Your request SR-007: Pest control for kitchen area has been put on hold pending vendor availability.",
-    read: false,
+    isRead: false,
     createdAt: "2026-02-07T14:00:00Z",
     link: "/dashboard/requests/SR-007",
   },
@@ -415,7 +394,7 @@ export const notifications: Notification[] = [
     title: "Request In Progress",
     message:
       "Your request SR-006: Restock printer paper is now being handled by Sita Poudel.",
-    read: false,
+    isRead: false,
     createdAt: "2026-02-06T09:15:00Z",
     link: "/dashboard/requests/SR-006",
   },
@@ -425,7 +404,7 @@ export const notifications: Notification[] = [
     title: "Request Rejected",
     message:
       "Your request SR-008: Request for standing desk has been rejected. Reason: Budget constraints.",
-    read: true,
+    isRead: true,
     createdAt: "2026-01-12T11:00:00Z",
     link: "/dashboard/requests/SR-008",
   },
@@ -435,7 +414,7 @@ export const notifications: Notification[] = [
     title: "New Assignment",
     message:
       "You have been assigned to request SR-002: AC not working in meeting room B.",
-    read: false,
+    isRead: false,
     createdAt: "2026-02-08T10:00:00Z",
     link: "/dashboard/requests/SR-002",
   },
@@ -445,7 +424,7 @@ export const notifications: Notification[] = [
     title: "New Assignment",
     message:
       "You have been assigned to request SR-009: Microwave repair in pantry.",
-    read: true,
+    isRead: true,
     createdAt: "2026-02-05T10:30:00Z",
     link: "/dashboard/requests/SR-009",
   },
@@ -454,7 +433,7 @@ export const notifications: Notification[] = [
     userId: "u4",
     title: "New Assignment",
     message: "You have been assigned to request SR-006: Restock printer paper.",
-    read: false,
+    isRead: false,
     createdAt: "2026-02-06T09:00:00Z",
     link: "/dashboard/requests/SR-006",
   },
@@ -464,7 +443,7 @@ export const notifications: Notification[] = [
     title: "New Announcement Posted",
     message:
       "Bikash Karki posted a new announcement: Office Deep Cleaning Scheduled for Saturday, Feb 8.",
-    read: false,
+    isRead: false,
     createdAt: "2026-02-05T08:10:00Z",
     link: "/dashboard/announcements",
   },

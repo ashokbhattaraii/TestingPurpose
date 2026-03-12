@@ -11,7 +11,7 @@ import {
   CreateRequestPayload,
   RequestResponse,
 } from "@/lib/type/requestType";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export default function useCreateRequestMutation() {
   const queryClient = useQueryClient();
@@ -22,10 +22,7 @@ export default function useCreateRequestMutation() {
       return response.data;
     },
     onSuccess: (res) => {
-      toast({
-        title: "Request Created",
-        description: "Your service request has been created successfully.",
-      });
+      toast.success("Request Created: Your service request has been created successfully.");
       // Invalidate both keys to ensure all components are updated
       queryClient.invalidateQueries({ queryKey: ["allRequests"] });
       queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
@@ -33,13 +30,7 @@ export default function useCreateRequestMutation() {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (error: any) => {
-      toast({
-        title: "Error",
-        description:
-          error?.response?.data?.message ||
-          "An error occurred while creating the request.",
-        variant: "destructive",
-      });
+      toast.error(`Error: ${error?.response?.data?.message || "An error occurred while creating the request."}`);
     },
   });
 }

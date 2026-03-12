@@ -20,6 +20,10 @@ export class UpdateIssueDetailsDto {
 
     @IsOptional()
     @IsString()
+    otherCategoryDetails?: string | null;
+
+    @IsOptional()
+    @IsString()
     location?: string | null;
 }
 
@@ -27,6 +31,10 @@ export class UpdateSuppliesDetailsDto {
     @IsEnum(SuppliesCategory)
     @IsOptional()
     category?: SuppliesCategory;
+
+    @IsOptional()
+    @IsString()
+    otherCategoryDetails?: string | null;
 
     @IsString()
     @IsOptional()

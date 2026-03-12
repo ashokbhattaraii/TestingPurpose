@@ -65,6 +65,7 @@ export class RequestService {
                 category: dto.issueDetails!
                   .category as unknown as IssueCategory,
                 location: dto.issueDetails!.location,
+                otherCategoryDetails: dto.issueDetails!.otherCategoryDetails,
               },
             }
             : undefined,
@@ -75,6 +76,7 @@ export class RequestService {
                 category: dto.suppliesDetails!
                   .category as SuppliesCategory,
                 itemName: dto.suppliesDetails!.itemName,
+                otherCategoryDetails: dto.suppliesDetails!.otherCategoryDetails,
               },
             }
             : undefined,
@@ -223,11 +225,13 @@ export class RequestService {
                     (dto.issueDetails?.category as unknown as IssueCategory) ||
                     'TECHNICAL',
                   location: dto.issueDetails?.location || null,
+                  otherCategoryDetails: dto.issueDetails?.otherCategoryDetails || null,
                 },
                 update: {
                   priority: dto.issueDetails?.priority as IssuePriority,
                   category: dto.issueDetails?.category as unknown as IssueCategory,
                   location: dto.issueDetails?.location,
+                  otherCategoryDetails: dto.issueDetails?.otherCategoryDetails,
                 },
               },
             }
@@ -243,10 +247,12 @@ export class RequestService {
                     (dto.suppliesDetails?.category as SuppliesCategory) ||
                     'OFFICE_SUPPLIES',
                   itemName: dto.suppliesDetails?.itemName || '',
+                  otherCategoryDetails: dto.suppliesDetails?.otherCategoryDetails || null,
                 },
                 update: {
                   category: dto.suppliesDetails?.category as SuppliesCategory,
                   itemName: dto.suppliesDetails?.itemName,
+                  otherCategoryDetails: dto.suppliesDetails?.otherCategoryDetails,
                 },
               },
             }
@@ -374,7 +380,6 @@ export class RequestService {
       data: {
         status: 'PENDING' as RequestStatus,
         rejectionReason: null,
-        approverId: null,
         approvedAt: null,
       },
       include: {

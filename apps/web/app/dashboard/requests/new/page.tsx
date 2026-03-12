@@ -61,6 +61,8 @@ export default function NewRequestPage() {
   });
 
   const requestType = form.watch("type");
+  const issueCategory = form.watch("issueCategory");
+  const suppliesCategory = form.watch("suppliesCategory");
 
   const handleTypeChange = (newType: "ISSUE" | "SUPPLIES") => {
     if (newType === "ISSUE") {
@@ -95,12 +97,14 @@ export default function NewRequestPage() {
           issueDetails: {
             priority: data.issuePriority!,
             category: data.issueCategory!,
+            otherCategoryDetails: data.issueCategory === "OTHER" ? data.otherCategoryDetails : undefined,
             location: data.location?.trim() || undefined,
           },
         }
         : {
           suppliesDetails: {
             category: data.suppliesCategory!,
+            otherCategoryDetails: data.suppliesCategory === "OTHER" ? data.otherCategoryDetails : undefined,
             itemName: data.itemName!,
           },
         }),
@@ -108,14 +112,7 @@ export default function NewRequestPage() {
 
     mutate(payload, {
       onSuccess: () => {
-        toast.success("Request created successfully!");
         router.push("/dashboard/requests");
-      },
-      onError: (error: any) => {
-        toast.error(
-          error?.response?.data?.message ||
-          "An error occurred while creating the request.",
-        );
       },
     });
   };
@@ -254,6 +251,25 @@ export default function NewRequestPage() {
                       )}
                     />
 
+                    {issueCategory === "OTHER" && (
+                      <FormField
+                        control={form.control}
+                        name="otherCategoryDetails"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Specify Category *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Please specify (max 15 words)"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
                     <FormField
                       control={form.control}
                       name="issuePriority"
@@ -332,6 +348,25 @@ export default function NewRequestPage() {
                       </FormItem>
                     )}
                   />
+
+                  {suppliesCategory === "OTHER" && (
+                    <FormField
+                      control={form.control}
+                      name="otherCategoryDetails"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Specify Category *</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Please specify (max 15 words)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
                   <FormField
                     control={form.control}

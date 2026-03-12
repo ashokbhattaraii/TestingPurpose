@@ -21,6 +21,10 @@ export class IssueDetailsDto {
 
   @IsOptional()
   @IsString()
+  otherCategoryDetails?: string | null;
+
+  @IsOptional()
+  @IsString()
   location?: string | null;
 }
 
@@ -28,6 +32,10 @@ export class IssueDetailsDto {
 export class SuppliesDetailsDto {
   @IsEnum(SuppliesCategory)
   category: SuppliesCategory;
+
+  @IsOptional()
+  @IsString()
+  otherCategoryDetails?: string | null;
 
   @IsString()
   @IsNotEmpty()

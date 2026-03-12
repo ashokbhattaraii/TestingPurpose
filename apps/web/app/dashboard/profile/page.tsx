@@ -55,7 +55,15 @@ export default function ProfilePage() {
   const lastLogin = (user as any).lastLogin
     ? new Date((user as any).lastLogin)
     : null;
-  const socialAccounts = (user as any).socialAccounts ?? [];
+  const socialAccounts = [...((user as any).socialAccounts ?? [])];
+  const hasGoogle = socialAccounts.some((acc: any) => acc.provider === "google");
+  if (!hasGoogle && user.email) {
+    socialAccounts.push({
+      provider: "google",
+      email: user.email,
+      connectedAt: (user as any).joinedAt || new Date().toISOString(),
+    });
+  }
 
   const requestsArray = (Array.isArray(requestsData)
     ? requestsData

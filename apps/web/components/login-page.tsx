@@ -15,7 +15,7 @@ import Link from "next/link";
 import { users } from "@/lib/data";
 import { useLogin } from "@/hooks/use-login";
 import { FcGoogle } from "react-icons/fc";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { GoogleLogin } from "@react-oauth/google";
 
 function getInitials(name: string) {
@@ -35,7 +35,7 @@ export function LoginPage() {
   const { loginWithGoogle, isGoogleLoginPending, loginWithGoogleSuccess, loginWithGoogleAsync } = useLogin();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const demoUser = users[0];
-  const { toast } = useToast();
+  // const { toast } = useToast();  // removed as per standardization
   const otherUsers = users.slice(1);
 
   return (
@@ -101,20 +101,12 @@ export function LoginPage() {
                                 window.location.href = "/dashboard";
                               } else {
                                 setIsLoggingIn(false);
-                                toast({
-                                  title: "Login Failed",
-                                  description: "Error in logging with google",
-                                  variant: "destructive",
-                                });
+                                toast.error("Login Failed: Error in logging with google");
                               }
                             })
                             .catch((error: any) => {
                               setIsLoggingIn(false);
-                              toast({
-                                title: "Login Failed",
-                                description: error.message || "Failed to login",
-                                variant: "destructive",
-                              });
+                              toast.error(`Login Failed: ${error.message || "Failed to login"}`);
                             });
                         } else {
                           setIsLoggingIn(false);
@@ -122,11 +114,7 @@ export function LoginPage() {
                       }}
                       onError={() => {
                         setIsLoggingIn(false);
-                        toast({
-                          title: "Login Failed",
-                          description: "Failed to login with Google",
-                          variant: "destructive",
-                        });
+                        toast.error("Login Failed: Failed to login with Google");
                       }}
                       useOneTap
                     />

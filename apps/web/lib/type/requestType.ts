@@ -11,10 +11,12 @@ type ApiRequestPayload = {
   issueDetails?: {
     priority: IssuePriority;
     category: IssueCategory;
+    otherCategoryDetails?: string;
     location?: string;
   };
   suppliesDetails?: {
     category: SuppliesCategory;
+    otherCategoryDetails?: string;
     itemName: string;
   };
 };
@@ -29,13 +31,23 @@ export type RequestResponse = {
   issueDetails?: {
     priority: IssuePriority;
     category: IssueCategory;
+    otherCategoryDetails?: string;
     location?: string;
   };
   suppliesDetails?: {
     category: SuppliesCategory;
+    otherCategoryDetails?: string;
     itemName: string;
   };
   status: RequestStatus;
+  approverId?: string;
+  approver?: {
+    id: string;
+    name: string;
+    email: string;
+    roles: string[];
+    department: string;
+  };
   createdAt: string;
   updatedAt: string;
   user: {
