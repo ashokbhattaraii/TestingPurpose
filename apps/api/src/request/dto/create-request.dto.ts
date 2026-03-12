@@ -8,29 +8,8 @@ import {
   MinLength,
 } from 'class-validator';
 
-// Enums
-export enum RequestType {
-  ISSUE = 'ISSUE',
-  SUPPLIES = 'SUPPLIES',
-}
+import { RequestType, IssuePriority, IssueCategory, SuppliesCategory } from '@prisma/client';
 
-export enum IssuePriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-}
-
-export enum IssueCategory {
-  HARDWARE = 'HARDWARE',
-  SOFTWARE = 'SOFTWARE',
-  NETWORK = 'NETWORK',
-}
-
-export enum SuppliesCategory {
-  OFFICE = 'OFFICE',
-  MAINTENANCE = 'MAINTENANCE',
-  OTHER = 'OTHER',
-}
 
 // Nested DTO for ISSUE type requests
 export class IssueDetailsDto {

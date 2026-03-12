@@ -10,6 +10,9 @@ import { RequestModule } from './request/request.module';
 import { UserModule } from './user/user.module';
 import { LaunchModule } from './launch/launch.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationModule } from './notification/notification.module';
+import { AnnouncementsModule } from './announcements/announcements.module';
+import { SlackModule } from './slack/slack.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { ScheduleModule } from '@nestjs/schedule';
     RequestModule,
     UserModule,
     LaunchModule,
+    NotificationModule,
+    AnnouncementsModule,
+    SlackModule,
   ],
   controllers: [AppController],
   providers: [AppService, SupabaseService],

@@ -5,10 +5,15 @@ import { RequestStatus, RequestType, IssuePriority, IssueCategory, SuppliesCateg
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AssignRequestDto } from './dto/assign-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType } from '@prisma/client';
 
 @Injectable()
 export class RequestService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService,
+  ) {}
   private removeNullish<T>(value: T): T {
     if (Array.isArray(value)) {
       return value.map((v) => this.removeNullish(v)) as T;
@@ -104,6 +109,15 @@ export class RequestService {
         suppliesDetails: true,
       },
     });
+
+    // Notify Admins about the new request
+    await this.notificationService.notifyAllAdmins(
+      NotificationType.REQUEST_UPDATE,
+      'New Request Created',
+      `New request created by ${request.user.name}`,
+      `/dashboard/requests/${request.id}`,
+    );
+
     const returnMsg = {
       message: 'Request created successfully',
       request,
@@ -294,6 +308,16 @@ export class RequestService {
         suppliesDetails: true,
       },
     });
+
+    // Notify the user who created the request about the status change
+    await this.notificationService.createNotification(
+      request.userId,
+      NotificationType.REQUEST_UPDATE,
+      'Request Status Updated',
+      `Your request "${request.title}" status has been changed to ${request.status}.`,
+      `/dashboard/requests/${request.id}`,
+    );
+
     return {
       message: 'Status updated successfully',
       request,
@@ -325,6 +349,19 @@ export class RequestService {
         suppliesDetails: true,
       },
     });
+
+    // Notify the assignee (only the specific admin they were assigned to)
+    await this.notificationService.createNotification(
+      request.approverId!,
+      NotificationType.REQUEST_UPDATE,
+      'New Request Assigned',
+      `You have been assigned to the request: "${request.title}"`,
+      `/dashboard/requests/${request.id}`,
+    );
+
+    // Note: Removed general admin notification and requester notification here 
+    // to strictly follow the 'only notify respective admin' instruction.
+
     return {
       message: 'Request assigned successfully',
       request,
@@ -354,6 +391,15 @@ export class RequestService {
         suppliesDetails: true,
       },
     });
+    // Notify the requester that their request has been reopened
+    await this.notificationService.createNotification(
+      request.userId,
+      NotificationType.REQUEST_UPDATE,
+      'Request Reopened',
+      `Your request "${request.title}" has been reopened and is back in PENDING status.`,
+      `/dashboard/requests/${request.id}`,
+    );
+
     return {
       message: 'Request reopened successfully',
       request,
@@ -378,10 +424,21 @@ export class RequestService {
         issueDetails: true,
         suppliesDetails: true,
       }
-    }
+    });
 
-    )
+    // Notify the requester about cancellation (if done by someone else, but good to have anyway)
+    await this.notificationService.createNotification(
+      request.userId,
+      NotificationType.REQUEST_UPDATE,
+      'Request Cancelled',
+      `The request "${request.title}" has been cancelled.`,
+      `/requests/${request.id}`,
+    );
 
+    return {
+      message: 'Request cancelled successfully',
+      request,
+    };
   }
 
 }

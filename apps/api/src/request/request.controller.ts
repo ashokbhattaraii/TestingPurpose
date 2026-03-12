@@ -4,36 +4,37 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator/current-user.decorator';
 
 import type { UserPayload } from '../common/decorators/current-user.decorator/current-user.decorator';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from '../auth/auth.guard';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AssignRequestDto } from './dto/assign-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { Roles } from '../common/decorators/roles-decorator/roles.decorator';
+
 @Controller('request')
 export class RequestController {
   constructor(private readonly requestService: RequestService) { }
 
   @Post('create')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard)
   create(@Body() dto: CreateRequestDto, @CurrentUser() user: UserPayload) {
     return this.requestService.createRequest(user.id, dto);
   }
 
   @Get('requests')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard)
   getAllRequests(@CurrentUser() user: UserPayload) {
     return this.requestService.getRequests();
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard)
   getRequestById(@CurrentUser() user: UserPayload, @Param('id') id: string) {
     console.log('Fetching request with ID:', id);
     return this.requestService.getRequestById(id);
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard)
   updateRequest(
     @CurrentUser() user: UserPayload,
     @Param('id') id: string,
@@ -43,7 +44,7 @@ export class RequestController {
   }
 
   @Post(':id/status')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard)
   @Roles('admin')
   updateStatus(
     @CurrentUser() user: UserPayload,
@@ -54,7 +55,7 @@ export class RequestController {
   }
 
   @Post(':id/assign')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard)
   @Roles('admin')
   assign(
     @CurrentUser() user: UserPayload,
@@ -65,19 +66,18 @@ export class RequestController {
   }
 
   @Post(':id/reopen')
-  @UseGuards(AuthGuard('jwt'))
-
+  @UseGuards(AuthGuard)
   reopen(
     @Param('id') id: string,
   ) {
     return this.requestService.reopenRequest(id);
   }
+
   @Patch(':id/cancel')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard)
   cancel(
     @Param('id') id: string,
   ) {
-
     return this.requestService.cancelRequest(id);
   }
 

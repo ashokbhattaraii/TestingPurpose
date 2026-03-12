@@ -13,67 +13,58 @@ export class SlackService {
         nonVegCount: number,
         vegNames: string[];
         nonVegNames: string[];
-
     }) {
         const { date, total, vegCount, nonVegCount, vegNames, nonVegNames } = data;
-        // Format names as numbered lists with better visual hierarchy
-        const formatNames = (names: string[]) =>
-            names.length > 0
-                ? names.map((n, i) => `${i + 1}. ${n}`).join('\n')
-                : '_No attendees_';
+
+        // Combine with tags and sort
+        const allAttendees = [
+            ...vegNames.map(name => `• ${name} (Veg)`),
+            ...nonVegNames.map(name => `• ${name} (Non-Veg)`)
+        ].sort();
 
         const message = {
             blocks: [
                 {
-                    type: 'header',
+                    type: 'section',
                     text: {
-                        type: 'plain_text',
-                        text: `Lunch Summary — ${date}`,
+                        type: 'mrkdwn',
+                        text: `🍱 *Daily Lunch Count (${date})*`,
                     },
                 },
                 {
                     type: 'section',
                     text: {
                         type: 'mrkdwn',
-                        text: `*Summary*\n┌─────────────────────┐\n│ Total Attending: *${total}*\n└─────────────────────┘`,
+                        text: `*Total Employees: ${total}*`,
                     },
                 },
-                {
-                    type: 'section',
-                    fields: [
-                        {
-                            type: 'mrkdwn',
-                            text: `*Vegetarian*\n\`\`\`${vegCount}\`\`\``,
-                        },
-                        {
-                            type: 'mrkdwn',
-                            text: `*Non-Vegetarian*\n\`\`\`${nonVegCount}\`\`\``,
-                        },
-                    ],
-                },
-                { type: 'divider' },
                 {
                     type: 'section',
                     text: {
                         type: 'mrkdwn',
-                        text: `*Vegetarian Attendees* (${vegCount})\n${formatNames(vegNames)}`,
+                        text: `*Veg: ${vegCount}*  |  *Non-Veg: ${nonVegCount}*`,
                     },
                 },
-                { type: 'divider' },
                 {
                     type: 'section',
                     text: {
                         type: 'mrkdwn',
-                        text: `*Non-Vegetarian Attendees* (${nonVegCount})\n${formatNames(nonVegNames)}`,
+                        text: `*Employees:*\n${allAttendees.length > 0 ? allAttendees.join('\n') : '_No entries today_'}`,
                     },
                 },
-                { type: 'divider' },
                 {
-                    type: 'context',
+                    type: 'actions',
                     elements: [
                         {
-                            type: 'mrkdwn',
-                            text: `Sent automatically at 11:00 AM NPT by OMUS`,
+                            type: 'button',
+                            text: {
+                                type: 'plain_text',
+                                text: '🍴 Call For Lunch',
+                                emoji: true,
+                            },
+                            value: 'call_for_lunch',
+                            action_id: 'call_for_lunch_action',
+                            style: 'primary',
                         },
                     ],
                 },
@@ -81,10 +72,39 @@ export class SlackService {
         };
 
         try {
-            await axios.post(this.webhookUrl, message)
-            this.logger.log("Lunch Summary Sent to Slack")
+            await axios.post(this.webhookUrl, message);
+            this.logger.log("Lunch Summary Sent to Slack");
         } catch (error) {
-            this.logger.error("Failed to send Lunch Summary to Slack", error)
+            this.logger.error("Failed to send Lunch Summary to Slack", error);
+        }
+    }
+
+    async sendLunchCall(date?: string) {
+        const displayDate = date || new Date().toISOString().split('T')[0];
+        const message = {
+            blocks: [
+                {
+                    type: 'section',
+                    text: {
+                        type: 'mrkdwn',
+                        text: `🍱 *Daily Lunch Count (${displayDate})*`,
+                    },
+                },
+                {
+                    type: 'section',
+                    text: {
+                        type: 'mrkdwn',
+                        text: '<!here> 🍴 *Lunch is Ready!* Please be on time 🍱',
+                    },
+                },
+            ],
+        };
+
+        try {
+            await axios.post(this.webhookUrl, message);
+            this.logger.log('Lunch Call sent to Slack');
+        } catch (error) {
+            this.logger.error('Failed to send Lunch Call to Slack', error);
         }
     }
 }

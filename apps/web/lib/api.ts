@@ -36,7 +36,7 @@ export async function fetchWithAuth(
     console.log(" Response status:", status);
 
     if (status === 401) {
-      console.error("Unauthorized");
+      console.warn("Unauthorized (Expected if not logged in)");
       throw new Error("Unauthorized");
     }
 

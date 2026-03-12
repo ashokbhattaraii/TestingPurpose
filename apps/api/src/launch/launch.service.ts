@@ -31,17 +31,21 @@ export class LaunchService {
     console.log("hit")
     const today = this.getKathmanduDateOnly();
     const records = await this.prisma.lunchAttendance.findMany({
-      where: { date: today },
+      where: {
+        date: today,
+        isAttending: true // Only count those who are attending
+      },
       include: {
         user: { select: { id: true, name: true, email: true } },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { user: { name: 'asc' } }, // Sort names alphabetically
     });
 
-    const vegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.VEG)
-    const nonVegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.NON_VEG)
-    const vegNames = vegPeople.map((r) => r.user.name)
-    const nonVegNames = nonVegPeople.map((r) => r.user.name)
+    const vegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.VEG);
+    const nonVegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.NON_VEG);
+
+    const vegNames = vegPeople.map((r) => r.user.name);
+    const nonVegNames = nonVegPeople.map((r) => r.user.name);
 
     const data = {
       date: today.toISOString().split('T')[0],
@@ -50,7 +54,7 @@ export class LaunchService {
       nonVegCount: nonVegPeople.length,
       vegNames,
       nonVegNames,
-    }
+    };
 
     await this.slackService.sendLunchSummary(data)
 

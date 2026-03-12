@@ -1,26 +1,36 @@
-import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param, Logger } from '@nestjs/common';
 import { AnnouncementsService } from './announcements.service';
 import { CreateAnnouncementDto } from './create-announcement.dto';
-import { AuthGuard } from '@nestjs/passport'; // Passport ko default use garne
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('announcements')
 export class AnnouncementsController {
-  constructor(private readonly announcementsService: AnnouncementsService) {}
+  private readonly logger = new Logger(AnnouncementsController.name);
+
+  constructor(private readonly announcementsService: AnnouncementsService) { }
 
   @Post()
-  @UseGuards(AuthGuard('jwt')) // Direct use garda import error hudaina
+  @UseGuards(AuthGuard)
   async create(@Body() createDto: CreateAnnouncementDto, @Req() req) {
-    // RolesGuard ko thau ma yahi logic haldim, error free hunchha
     const user = req.user;
-    if (!user.roles?.includes('ADMIN')) {
+    if (!user.roles?.some(r => r.toUpperCase().includes('ADMIN'))) {
       throw new Error('Unauthorized: Only an Admin can create announcements');
     }
-
     return this.announcementsService.createAnnouncement(createDto, user.id);
   }
 
   @Get()
   async findAll() {
     return this.announcementsService.findAll();
+  }
+
+  @Patch(':id/pin')
+  @UseGuards(AuthGuard)
+  async togglePin(@Param('id') id: string, @Body('pinned') pinned: boolean, @Req() req) {
+    const user = req.user;
+    if (!user.roles?.some(r => r.toUpperCase().includes('ADMIN'))) {
+      throw new Error('Unauthorized: Only an Admin can pin announcements');
+    }
+    return this.announcementsService.togglePin(id, pinned);
   }
 }

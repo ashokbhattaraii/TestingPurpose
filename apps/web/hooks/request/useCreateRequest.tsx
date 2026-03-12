@@ -30,6 +30,7 @@ export default function useCreateRequestMutation() {
       queryClient.invalidateQueries({ queryKey: ["allRequests"] });
       queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (error: any) => {
       toast({

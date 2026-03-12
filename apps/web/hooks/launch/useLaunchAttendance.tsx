@@ -158,6 +158,7 @@ export function useMarkLaunchAttendance() {
       queryClient.invalidateQueries({
         queryKey: ["lunch-attendance", "my"],
       });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 }

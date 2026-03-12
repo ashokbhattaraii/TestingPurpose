@@ -117,7 +117,7 @@ export interface Notification {
   userId: string;
   title: string;
   message: string;
-  read: boolean;
+  isRead: boolean;
   createdAt: string;
   link?: string;
 }

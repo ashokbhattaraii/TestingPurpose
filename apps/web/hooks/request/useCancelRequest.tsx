@@ -18,6 +18,7 @@ export const useCancelRequest = () => {
             queryClient.invalidateQueries({ queryKey: ["allRequests"] });
             queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
             queryClient.invalidateQueries({ queryKey: ["analytics"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
         },
         onError: () => {
             toast({

@@ -8,6 +8,8 @@ import { ThemeProvider } from "next-themes"
 import { LunchProvider } from "@/lib/lunch/lunchContext"
 import { GoogleOAuthProvider } from "@react-oauth/google"
 
+import { SocketProvider } from "@/lib/socket-context"
+
 export function Providers({ children }: { children: ReactNode }) {
   const googleClientId =
     process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
@@ -17,10 +19,12 @@ export function Providers({ children }: { children: ReactNode }) {
       <GoogleOAuthProvider clientId={googleClientId}>
         <QueryProvider>
           <AuthProvider>
-            <LunchProvider>
-              {children}
-              <Toaster />
-            </LunchProvider>
+            <SocketProvider>
+              <LunchProvider>
+                {children}
+                <Toaster />
+              </LunchProvider>
+            </SocketProvider>
           </AuthProvider>
         </QueryProvider>
       </GoogleOAuthProvider>
