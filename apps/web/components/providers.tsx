@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "next-themes"
 import { LunchProvider } from "@/lib/lunch/lunchContext"
 import { GoogleOAuthProvider } from "@react-oauth/google"
-
+// use websocket
 import { SocketProvider } from "@/lib/socket-context"
 
 export function Providers({ children }: { children: ReactNode }) {
