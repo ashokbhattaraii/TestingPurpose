@@ -21,6 +21,7 @@ import { SlackModule } from './slack/slack.module';
     ScheduleModule.forRoot(),
     AuthModule,
     SupabaseModule,
+    SlackModule,
     RequestModule,
     UserModule,
     LaunchModule,
@@ -32,4 +33,4 @@ import { SlackModule } from './slack/slack.module';
   providers: [AppService, SupabaseService],
   exports: [AuthModule, SupabaseModule],
 })
-export class AppModule { }
+export class AppModule {}

@@ -8,8 +8,12 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { RequestType, IssuePriority, IssueCategory, SuppliesCategory } from '@prisma/client';
-
+import {
+  RequestType,
+  IssuePriority,
+  IssueCategory,
+  SuppliesCategory,
+} from '@prisma/client';
 
 // Nested DTO for ISSUE type requests
 export class IssueDetailsDto {
@@ -21,6 +25,10 @@ export class IssueDetailsDto {
 
   @IsOptional()
   @IsString()
+  otherCategoryDetails?: string | null;
+
+  @IsOptional()
+  @IsString()
   location?: string | null;
 }
 
@@ -28,6 +36,10 @@ export class IssueDetailsDto {
 export class SuppliesDetailsDto {
   @IsEnum(SuppliesCategory)
   category: SuppliesCategory;
+
+  @IsOptional()
+  @IsString()
+  otherCategoryDetails?: string | null;
 
   @IsString()
   @IsNotEmpty()

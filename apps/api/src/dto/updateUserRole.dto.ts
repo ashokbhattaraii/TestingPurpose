@@ -1,10 +1,9 @@
-import { IsEnum, IsString } from "class-validator";
-
+import { IsEnum, IsString } from 'class-validator';
 
 export class UpdateUserRoleDto {
-    @IsString({ each: true })
-    roles: string[]
+  @IsString({ each: true })
+  roles: string[];
 
-    @IsString()
-    userId: string
+  @IsString()
+  userId: string;
 }

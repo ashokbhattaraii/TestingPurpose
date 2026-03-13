@@ -5,7 +5,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator/current
 import { LaunchService } from './launch.service';
 @Controller('launch')
 export class LaunchController {
-  constructor(private launchService: LaunchService) { }
+  constructor(private launchService: LaunchService) {}
   @Post('attendance')
   @UseGuards(AuthGuard)
   async markAttendance(@CurrentUser() user, @Body() dto: LaunchAttendanceDto) {

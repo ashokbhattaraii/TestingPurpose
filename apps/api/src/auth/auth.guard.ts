@@ -27,23 +27,27 @@ import { JwtService } from '@nestjs/jwt'
  */
 @Injectable()
 export class AuthGuard implements CanActivate, OnModuleInit {
-  private readonly logger = new Logger(AuthGuard.name)
-  private signingPublicKey: string | null = null
+  private readonly logger = new Logger(AuthGuard.name);
+  private signingPublicKey: string | null = null;
 
   constructor(
     @Inject(RS_OFFICE_CLIENT) private readonly client: RsOfficeClient,
     private readonly crypto: CryptoService,
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
-  ) {}
+    private readonly reflector: Reflector,
+    private readonly jwtService: JwtService,
+  ) { }
 
   async onModuleInit(): Promise<void> {
     try {
-      const { publicKey } = await this.client.auth.getPublicKey()
-      this.signingPublicKey = publicKey
-      this.logger.log('JWT signing public key loaded from API')
+      const { publicKey } = await this.client.auth.getPublicKey();
+      this.signingPublicKey = publicKey;
+      this.logger.log('JWT signing public key loaded from API');
     } catch (err) {
-      this.logger.warn(`Could not load JWT signing public key on startup: ${err}`)
+      this.logger.warn(
+        `Could not load JWT signing public key on startup: ${err}`,
+      );
     }
   }
 
@@ -59,32 +63,36 @@ export class AuthGuard implements CanActivate, OnModuleInit {
 
     const request = context.switchToHttp().getRequest<Request & { user: JwtPayload }>()
 
-    const authHeader = request.headers.authorization
+    const authHeader = request.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid Authorization header')
+      throw new UnauthorizedException(
+        'Missing or invalid Authorization header',
+      );
     }
 
-    const token = authHeader.slice(7)
+    const token = authHeader.slice(7);
 
     // Lazily fetch the public key if startup fetch failed
     if (!this.signingPublicKey) {
       try {
-        const { publicKey } = await this.client.auth.getPublicKey()
-        this.signingPublicKey = publicKey
+        const { publicKey } = await this.client.auth.getPublicKey();
+        this.signingPublicKey = publicKey;
       } catch {
-        throw new UnauthorizedException('Could not retrieve JWT signing public key')
+        throw new UnauthorizedException(
+          'Could not retrieve JWT signing public key',
+        );
       }
     }
 
     let { valid, payload } = await this.crypto.verifyJwt(token, this.signingPublicKey)
-    
+
     // Fallback: Try verifying with local JWT secret if crypto verification fails
     // This is because AuthService signs tokens with HS256 using JwtService
     if (!valid || !payload) {
       try {
         if (this.jwtService) {
-           payload = await this.jwtService.verifyAsync(token) as JwtPayload;
-           valid = true;
+          payload = await this.jwtService.verifyAsync(token) as JwtPayload;
+          valid = true;
         }
       } catch (err) {
         console.error('Auth verification failed:', err.message);
@@ -99,7 +107,7 @@ export class AuthGuard implements CanActivate, OnModuleInit {
     // Normalize: many parts of the app expect 'id' but JWT uses 'sub'
     const user = { ...payload } as any;
     if (user.sub && !user.id) user.id = user.sub;
-    
+
     request.user = user;
     return true
   }

@@ -234,14 +234,22 @@ export default function RequestsPage() {
 
   const getCategoryLabel = (req: any) => {
     if (req.type === "ISSUE" && req.issueDetails?.category) {
-      return ISSUE_CATEGORY_LABELS[
+      const label = ISSUE_CATEGORY_LABELS[
         req.issueDetails.category as keyof typeof ISSUE_CATEGORY_LABELS
       ];
+      if (req.issueDetails.category === "OTHER" && req.issueDetails.otherCategoryDetails) {
+        return `${label}-(${req.issueDetails.otherCategoryDetails})`;
+      }
+      return label;
     }
     if (req.type === "SUPPLIES" && req.suppliesDetails?.category) {
-      return SUPPLIES_CATEGORY_LABELS[
+      const label = SUPPLIES_CATEGORY_LABELS[
         req.suppliesDetails.category as keyof typeof SUPPLIES_CATEGORY_LABELS
       ];
+      if (req.suppliesDetails.category === "OTHER" && req.suppliesDetails.otherCategoryDetails) {
+        return `${label}-(${req.suppliesDetails.otherCategoryDetails})`;
+      }
+      return label;
     }
     return "";
   };

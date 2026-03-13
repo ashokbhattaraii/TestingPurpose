@@ -25,16 +25,25 @@ export class AuthService {
 
   async googleLogin(id_token: string) {
     // Authenticate with Rumsan Office Client to get the user's cross-app role and ID
-    const rsAuthResult = await this.loginWithGoogle(id_token).catch(e => {
-      console.error("Rumsan login failed:", e.message, "| status:", e.status, "| details:", JSON.stringify(e.details));
+    const rsAuthResult = await this.loginWithGoogle(id_token).catch((e) => {
+      console.error(
+        'Rumsan login failed:',
+        e.message,
+        '| status:',
+        e.status,
+        '| details:',
+        JSON.stringify(e.details),
+      );
       return null;
     });
 
-    console.log("Rumsan login result:", rsAuthResult);
+    console.log('Rumsan login result:', rsAuthResult);
 
     // Decode ID token to get profile info
-    const jwtContent = JSON.parse(Buffer.from(id_token.split('.')[1], 'base64').toString());
-    console.log("Decoded JWT content:", jwtContent);
+    const jwtContent = JSON.parse(
+      Buffer.from(id_token.split('.')[1], 'base64').toString(),
+    );
+    console.log('Decoded JWT content:', jwtContent);
 
     const googleUser = {
       email: jwtContent.email,
@@ -107,7 +116,7 @@ export class AuthService {
     // Now handle Prisma user record
 
     // Assign role from Rumsan result
-    let finalRoles: string[] = googleUser.roles || ['employee'];
+    const finalRoles: string[] = googleUser.roles || ['employee'];
 
     if (!user) {
       console.log(' Creating user in public schema');
@@ -120,12 +129,12 @@ export class AuthService {
           photoURL: googleUser.picture,
           connectedAccounts: {
             create: {
-              provider: "google",
+              provider: 'google',
               providerAccountId: googleUser.googleId,
               accessToken: googleUser.accessToken,
               refreshToken: googleUser.refreshToken,
               expiresAt: googleUser.expiresAt,
-            }
+            },
           },
           roles: finalRoles,
           org_unit: googleUser.orgUnit,
@@ -173,8 +182,6 @@ export class AuthService {
       uid: user.uid,
       email: user.email,
       roles: user.roles,
-
-
     };
 
     const access_token = this.jwtService.sign(payload);
@@ -207,18 +214,29 @@ export class AuthService {
    */
   async loginWithGoogle(token: string): Promise<AuthResult> {
     console.log('[RS Auth] Step 1: Getting challenge for appId:', this.appId);
-    const { challenge } = await this.rsClient.auth.getChallenge({ appId: this.appId })
-    console.log('[RS Auth] Step 1 OK — challenge received (length:', challenge.length, ')');
+    const { challenge } = await this.rsClient.auth.getChallenge({
+      appId: this.appId,
+    });
+    console.log(
+      '[RS Auth] Step 1 OK — challenge received (length:',
+      challenge.length,
+      ')',
+    );
 
     console.log('[RS Auth] Step 2: Signing challenge...');
-    const appSignature = this.crypto.signChallenge(challenge)
-    console.log('[RS Auth] Step 2 OK — signature:', appSignature.slice(0, 20) + '...');
+    const appSignature = this.crypto.signChallenge(challenge);
+    console.log(
+      '[RS Auth] Step 2 OK — signature:',
+      appSignature.slice(0, 20) + '...',
+    );
 
-    console.log('[RS Auth] Step 3: Calling googleLogin with id_token, challenge, app_signature');
-    const rsAuthResult = (await this.rsClient.auth.googleLogin(
+    console.log(
+      '[RS Auth] Step 3: Calling googleLogin with id_token, challenge, app_signature',
+    );
+    const rsAuthResult = await this.rsClient.auth.googleLogin(
       { id_token: token, challenge, app_signature: appSignature },
       { appId: this.appId },
-    )) as AuthResult;
+    );
     console.log('[RS Auth] Step 3 OK — roles:', rsAuthResult?.roles);
 
     return rsAuthResult;

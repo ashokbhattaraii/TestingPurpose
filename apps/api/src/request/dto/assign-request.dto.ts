@@ -1,3 +1,3 @@
 export class AssignRequestDto {
-    assignedToId: string;
+  assignedToId: string;
 }
