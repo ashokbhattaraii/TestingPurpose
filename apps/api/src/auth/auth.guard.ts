@@ -94,7 +94,7 @@ export class AuthGuard implements CanActivate, OnModuleInit {
     if (!valid || !payload) {
       try {
         if (this.jwtService) {
-          payload = await this.jwtService.verifyAsync(token);
+          payload = await this.jwtService.verifyAsync<JwtPayload>(token);
           valid = true;
         }
       } catch (err) {
