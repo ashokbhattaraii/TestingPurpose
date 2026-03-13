@@ -35,8 +35,6 @@ export class AuthGuard implements CanActivate, OnModuleInit {
     private readonly crypto: CryptoService,
     private readonly reflector: Reflector,
     private readonly jwtService: JwtService,
-    private readonly reflector: Reflector,
-    private readonly jwtService: JwtService,
   ) { }
 
   async onModuleInit(): Promise<void> {

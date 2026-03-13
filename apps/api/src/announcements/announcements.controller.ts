@@ -2,7 +2,6 @@ import { Controller, Post, Body, Get, UseGuards, Req, Patch, Param, Logger } fro
 import { AnnouncementsService } from './announcements.service';
 import { CreateAnnouncementDto } from './create-announcement.dto';
 import { AuthGuard } from '../auth/auth.guard';
-import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('announcements')
 export class AnnouncementsController {
@@ -11,7 +10,6 @@ export class AnnouncementsController {
   constructor(private readonly announcementsService: AnnouncementsService) { }
 
   @Post()
-  @UseGuards(AuthGuard)
   @UseGuards(AuthGuard)
   async create(@Body() createDto: CreateAnnouncementDto, @Req() req) {
     const user = req.user;
