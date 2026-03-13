@@ -10,10 +10,11 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000', // Local development on your Mac
-      'https://testing-purpose-web.vercel.app', // Production frontend
-    ],
-    credentials: true, // Essential for cookie-based auth
+      'http://localhost:3000',
+      process.env.FRONTEND_URL,
+      'https://testing-purpose-web.vercel.app',
+    ].filter(Boolean),
+    credentials: true,
   });
 
   app.setGlobalPrefix('api');

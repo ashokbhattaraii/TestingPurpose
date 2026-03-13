@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -32,15 +32,12 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/platform-socket.io": "^11.1.16",
     "@nestjs/websockets": "^11.1.16",
-    "@nestjs/platform-socket.io": "^11.1.16",
-    "@nestjs/websockets": "^11.1.16",
     "@prisma/adapter-pg": "6.19.2",
     "@prisma/client": "6.19.2",
     "@rumsan/user": "0.4.100",
     "@supabase/supabase-js": "^2.96.0",
     "cookie-parser": "^1.4.7",
     "iterare": "^1.2.0",
-    "iterate": "^0.1.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
@@ -98,6 +95,9 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    }
   }
 }
