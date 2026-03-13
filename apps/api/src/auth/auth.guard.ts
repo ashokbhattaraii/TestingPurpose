@@ -6,11 +6,15 @@ import {
   Logger,
   OnModuleInit,
   UnauthorizedException,
-} from '@nestjs/common'
-import type { RsOfficeClient, JwtPayload } from '@rumsan/user'
-import type { Request } from 'express'
-import { RS_OFFICE_CLIENT } from '../rsoffice/rsoffice.module'
-import { CryptoService } from './crypto.service'
+} from '@nestjs/common';
+import type { RsOfficeClient, JwtPayload } from '@rumsan/user';
+import type { Request } from 'express';
+import { RS_OFFICE_CLIENT } from '../rsoffice/rsoffice.module';
+import { CryptoService } from './crypto.service';
+
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from '../common/decorators/public.decorator';
+import { JwtService } from '@nestjs/jwt';
 
 /**
  * Guards a route by verifying the ES256K JWT that the user received from /auth.
@@ -23,49 +27,91 @@ import { CryptoService } from './crypto.service'
  */
 @Injectable()
 export class AuthGuard implements CanActivate, OnModuleInit {
-  private readonly logger = new Logger(AuthGuard.name)
-  private signingPublicKey: string | null = null
+  private readonly logger = new Logger(AuthGuard.name);
+  private signingPublicKey: string | null = null;
 
   constructor(
     @Inject(RS_OFFICE_CLIENT) private readonly client: RsOfficeClient,
     private readonly crypto: CryptoService,
+    private readonly reflector: Reflector,
+    private readonly jwtService: JwtService,
   ) {}
 
   async onModuleInit(): Promise<void> {
     try {
-      const { publicKey } = await this.client.auth.getPublicKey()
-      this.signingPublicKey = publicKey
-      this.logger.log('JWT signing public key loaded from API')
+      const { publicKey } = await this.client.auth.getPublicKey();
+      this.signingPublicKey = publicKey;
+      this.logger.log('JWT signing public key loaded from API');
     } catch (err) {
-      this.logger.warn(`Could not load JWT signing public key on startup: ${err}`)
+      this.logger.warn(
+        `Could not load JWT signing public key on startup: ${err}`,
+      );
     }
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<Request & { user: JwtPayload }>()
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
-    const authHeader = request.headers.authorization
-    if (!authHeader?.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid Authorization header')
+    if (isPublic) {
+      return true;
     }
 
-    const token = authHeader.slice(7)
+    const request = context
+      .switchToHttp()
+      .getRequest<Request & { user: JwtPayload }>();
+
+    const authHeader = request.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+      throw new UnauthorizedException(
+        'Missing or invalid Authorization header',
+      );
+    }
+
+    const token = authHeader.slice(7);
 
     // Lazily fetch the public key if startup fetch failed
     if (!this.signingPublicKey) {
       try {
-        const { publicKey } = await this.client.auth.getPublicKey()
-        this.signingPublicKey = publicKey
+        const { publicKey } = await this.client.auth.getPublicKey();
+        this.signingPublicKey = publicKey;
       } catch {
-        throw new UnauthorizedException('Could not retrieve JWT signing public key')
+        throw new UnauthorizedException(
+          'Could not retrieve JWT signing public key',
+        );
       }
     }
 
-    const { valid, payload } = await this.crypto.verifyJwt(token, this.signingPublicKey)
-    if (!valid || !payload) throw new UnauthorizedException('Invalid or expired token')
+    let { valid, payload } = await this.crypto.verifyJwt(
+      token,
+      this.signingPublicKey,
+    );
+
+    // Fallback: Try verifying with local JWT secret if crypto verification fails
+    // This is because AuthService signs tokens with HS256 using JwtService
+    if (!valid || !payload) {
+      try {
+        if (this.jwtService) {
+          payload = await this.jwtService.verifyAsync<JwtPayload>(token);
+          valid = true;
+        }
+      } catch (err) {
+        console.error('Auth verification failed:', err.message);
+      }
+    }
+
+    if (!valid || !payload) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
 
     // Attach the decoded payload so controllers can read user claims
-    request.user = payload
-    return true
+    // Normalize: many parts of the app expect 'id' but JWT uses 'sub'
+    const user = { ...payload } as any;
+    if (user.sub && !user.id) user.id = user.sub;
+
+    request.user = user;
+    return true;
   }
 }

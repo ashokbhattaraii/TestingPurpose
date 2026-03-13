@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios/axios";
-import { useToast } from "../use-toast";
+import { toast } from "sonner";
 
 export const useCancelRequest = () => {
-    const { toast } = useToast()
+    // const { toast } = useToast()  // removed as per standardization
     const queryClient = useQueryClient()
     return useMutation({
         mutationKey: ["cancel-request"],
@@ -18,12 +18,10 @@ export const useCancelRequest = () => {
             queryClient.invalidateQueries({ queryKey: ["allRequests"] });
             queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
             queryClient.invalidateQueries({ queryKey: ["analytics"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
         },
         onError: () => {
-            toast({
-                title: "Failed to cancel request",
-                variant: "destructive"
-            })
+            toast.error("Failed to cancel request");
         }
     })
 

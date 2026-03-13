@@ -5,7 +5,7 @@ import {
   myAttendanceResponse,
 } from "@/lib/type/launchAttendaceType";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export function useMyLunchAttendance() {
   return useQuery({
@@ -24,7 +24,7 @@ export function useMyLunchAttendance() {
 
 export function useMarkLaunchAttendance() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  // const { toast } = useToast();  // removed as per standardization
 
   return useMutation({
     mutationKey: ["launch-attendance", "my"],
@@ -135,19 +135,11 @@ export function useMarkLaunchAttendance() {
         context?.previousMyAttendance,
       );
 
-      toast({
-        title: "Error",
-        description:
-          error?.response?.data?.message || "Failed to update attendance",
-        variant: "destructive",
-      });
+      toast.error(`Error: ${error?.response?.data?.message || "Failed to update attendance"}`);
     },
 
     onSuccess: (data) => {
-      toast({
-        title: "Attendance Updated",
-        description: data.message,
-      });
+      toast.success(data.message);
     },
 
     onSettled: () => {
@@ -158,6 +150,7 @@ export function useMarkLaunchAttendance() {
       queryClient.invalidateQueries({
         queryKey: ["lunch-attendance", "my"],
       });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 }

@@ -31,7 +31,7 @@ export type SuppliesCategory =
   | "TECHNOLOGY"
   | "OTHER";
 
-export type SocialProvider = "google" | "slack" | "github" | "linkedin";
+export type SocialProvider = "google" | "slack";
 export interface SocialAccount {
   provider: SocialProvider;
   email: string;
@@ -66,6 +66,7 @@ export interface ServiceRequest {
   // Issue-specific fields
   issuePriority?: IssuePriority;
   issueCategory?: IssueCategory;
+  otherCategoryDetails?: string;
   location?: string;
 
   // Supplies-specific fields
@@ -117,7 +118,7 @@ export interface Notification {
   userId: string;
   title: string;
   message: string;
-  read: boolean;
+  isRead: boolean;
   createdAt: string;
   link?: string;
 }

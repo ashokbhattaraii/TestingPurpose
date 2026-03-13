@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PrismaModule } from '../prisma/prisma.module';
@@ -12,21 +12,23 @@ import { RS_OFFICE_CLIENT } from 'src/rsoffice/rsoffice.module';
 import { RsOfficeClient } from '@rumsan/user';
 import { RsOfficeModule } from 'src/rsoffice/rsoffice.module';
 import { CryptoService } from './crypto.service';
+import { AuthGuard } from './auth.guard';
 
+@Global()
 @Module({
   imports: [
     PrismaModule,
     SupabaseModule,
- 
+
     UserModule,
-   RsOfficeModule,
+    RsOfficeModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secretkey',
       signOptions: { expiresIn: '7d' },
     }),
   ],
-  providers: [AuthService, JwtStrategy, CryptoService],
+  providers: [AuthService, JwtStrategy, CryptoService, AuthGuard],
   controllers: [AuthController],
-  exports: [AuthService, JwtModule,RsOfficeModule],
+  exports: [AuthService, JwtModule, RsOfficeModule, AuthGuard, CryptoService],
 })
-export class AuthModule { }
+export class AuthModule {}

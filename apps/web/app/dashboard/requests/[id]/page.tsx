@@ -50,9 +50,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { RequestStatus } from "@/lib/types";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   ISSUE_CATEGORY_LABELS,
   ISSUE_PRIORITY_LABELS,
@@ -71,7 +71,7 @@ const priorityConfig = {
 export default function RequestDetailPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
+  // const { toast } = useToast();  // removed as per standardization
   const params = useParams();
   const { data: adminUser, isLoading: isGetAdminLoading } = useGetAdminUser();
 
@@ -87,6 +87,8 @@ export default function RequestDetailPage() {
   const [assignTo, setAssignTo] = useState<string>("");
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
+
+
   const formatDate = (value: any, pattern: string) => {
     if (!value) return "N/A";
     const newDate = new Date(value).toLocaleDateString("en-US", {
@@ -101,10 +103,16 @@ export default function RequestDetailPage() {
   const isCreator = user?.id === requestById?.request.user.id;
   const request = requestById?.request;
 
+  useEffect(() => {
+    if (request?.approverId) {
+      setAssignTo(request.approverId);
+    }
+  }, [request?.approverId]);
+
   const handleStatusUpdate = () => {
     if (!newStatus || !request) return;
     if (newStatus === "REJECTED" && !rejectionReason.trim()) {
-      toast({ variant: "destructive", title: "Please provide a reason for rejection." });
+      toast.error("Please provide a reason for rejection.");
       return;
     }
     updateStatus.mutate(
@@ -117,7 +125,6 @@ export default function RequestDetailPage() {
       },
       {
         onSuccess: () => {
-          toast({ title: `Request status updated to ${newStatus}.` });
           setNewStatus("");
           setRejectionReason("");
         },
@@ -131,10 +138,6 @@ export default function RequestDetailPage() {
       { id: request.id, userId: user.id, userName: user.name },
       {
         onSuccess: () => {
-          toast({
-            title: "Request has been reopened. Admins have been notified.",
-
-          });
         },
       },
     );
@@ -157,9 +160,6 @@ export default function RequestDetailPage() {
       },
       {
         onSuccess: () => {
-          toast({
-            title: `Request assigned to ${targetUser.name}. They have been notified.`,
-          });
           setAssignTo("");
         },
       },
@@ -169,17 +169,16 @@ export default function RequestDetailPage() {
   const handleCancelCommand = () => {
     //hanlde cancellation of the request by the user who created
     if (!request || !user) {
-      toast({ variant: "destructive", title: "Request not found." })
+      toast.error("Request not found.");
       return
     }
     if (request?.user.id !== user?.id) {
-      toast({ variant: "destructive", title: "You are not authorized to cancel this request." })
+      toast.error("You are not authorized to cancel this request.");
       return
     }
 
     cancelRequest(request?.id || "", {
       onSuccess: () => {
-        toast({ title: "Request cancelled successfully", variant: "default" })
       }
 
     })
@@ -275,10 +274,15 @@ export default function RequestDetailPage() {
                 <div>
                   <p className="text-xs text-muted-foreground">Category</p>
                   <p className="text-sm text-foreground">
-                    {ISSUE_CATEGORY_LABELS[
-                      request.issueDetails
-                        .category as keyof typeof ISSUE_CATEGORY_LABELS
-                    ] || request.issueDetails.category}
+                    {(() => {
+                      const label = ISSUE_CATEGORY_LABELS[
+                        request.issueDetails.category as keyof typeof ISSUE_CATEGORY_LABELS
+                      ] || request.issueDetails.category;
+                      if (request.issueDetails.category === "OTHER" && request.issueDetails.otherCategoryDetails) {
+                        return `${label}-(${request.issueDetails.otherCategoryDetails})`;
+                      }
+                      return label;
+                    })()}
                   </p>
                 </div>
               </div>
@@ -321,10 +325,15 @@ export default function RequestDetailPage() {
                       Supplies Category
                     </p>
                     <p className="text-sm text-foreground">
-                      {SUPPLIES_CATEGORY_LABELS[
-                        request.suppliesDetails
-                          .category as keyof typeof SUPPLIES_CATEGORY_LABELS
-                      ] || request.suppliesDetails.category}
+                      {(() => {
+                        const label = SUPPLIES_CATEGORY_LABELS[
+                          request.suppliesDetails.category as keyof typeof SUPPLIES_CATEGORY_LABELS
+                        ] || request.suppliesDetails.category;
+                        if (request.suppliesDetails.category === "OTHER" && request.suppliesDetails.otherCategoryDetails) {
+                          return `${label}-(${request.suppliesDetails.otherCategoryDetails})`;
+                        }
+                        return label;
+                      })()}
                     </p>
                   </div>
                 </div>
@@ -450,7 +459,7 @@ export default function RequestDetailPage() {
                   </Select>
                   <Button
                     onClick={handleAssign}
-                    disabled={!assignTo || assignRequest.isPending}
+                    disabled={!assignTo || assignRequest.isPending || !!request?.approverId}
                     size="sm"
                     variant="outline"
                   >
@@ -503,10 +512,7 @@ export default function RequestDetailPage() {
                       {request.status !== "CLOSED" && (
                         <SelectItem value="CLOSED">Closed</SelectItem>
                       )}
-                      {/* Allow moving back to pending if needed, but only if not already pending */}
-                      {request.status !== "PENDING" && (
-                        <SelectItem value="PENDING">Pending</SelectItem>
-                      )}
+
                     </SelectContent>
                   </Select>
                   <Button

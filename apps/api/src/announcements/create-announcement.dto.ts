@@ -1,15 +1,15 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateAnnouncementDto {
-  @IsString() 
+  @IsString()
   @IsNotEmpty()
   title: string;
 
-  @IsString() 
+  @IsString()
   @IsNotEmpty()
   description: string;
 
-  @IsOptional() 
+  @IsOptional()
   @IsString()
   expiryDate?: string;
 }
