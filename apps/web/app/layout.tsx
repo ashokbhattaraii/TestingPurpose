@@ -7,7 +7,6 @@ const inter = Inter({ subsets: ["latin"] });
 import "./globals.css";
 
 import { Providers } from "@/components/providers";
-import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "WorkOps - Office Utility Management",
@@ -26,7 +25,6 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
-        <Toaster />
       </body>
     </html>
   );

@@ -1,8 +1,8 @@
-import { Global, Module } from '@nestjs/common'
-import { RsOfficeClient } from '@rumsan/user'
+import { Global, Module } from '@nestjs/common';
+import { RsOfficeClient } from '@rumsan/user';
 
 /** Injection token for the RsOfficeClient instance. */
-export const RS_OFFICE_CLIENT = Symbol('RS_OFFICE_CLIENT')
+export const RS_OFFICE_CLIENT = Symbol('RS_OFFICE_CLIENT');
 
 /**
  * Global NestJS module that provides a shared RsOfficeClient.
@@ -17,9 +17,9 @@ export const RS_OFFICE_CLIENT = Symbol('RS_OFFICE_CLIENT')
     {
       provide: RS_OFFICE_CLIENT,
       useFactory: (): RsOfficeClient => {
-        const baseUrl = process.env.RS_USER_URL
-        if (!baseUrl) throw new Error('RS_USER_URL env var is required')
-        return new RsOfficeClient({ baseUrl })
+        const baseUrl = process.env.RS_USER_URL;
+        if (!baseUrl) throw new Error('RS_USER_URL env var is required');
+        return new RsOfficeClient({ baseUrl });
       },
     },
   ],

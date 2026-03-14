@@ -8,19 +8,22 @@ import { Cron } from '@nestjs/schedule';
 @Injectable()
 export class LaunchService {
   private readonly logger = new Logger(LaunchService.name);
-  constructor(private prisma: PrismaService, private slackService: SlackService) { }
+  constructor(
+    private prisma: PrismaService,
+    private slackService: SlackService,
+  ) { }
 
   private getKathmanduDateOnly(): Date {
     const parts = new Intl.DateTimeFormat('en-US', {
       timeZone: 'Asia/Kathmandu',
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit'
+      day: '2-digit',
     }).formatToParts(new Date());
 
-    const year = parts.find(p => p.type === 'year')?.value;
-    const month = parts.find(p => p.type === 'month')?.value;
-    const day = parts.find(p => p.type === 'day')?.value;
+    const year = parts.find((p) => p.type === 'year')?.value;
+    const month = parts.find((p) => p.type === 'month')?.value;
+    const day = parts.find((p) => p.type === 'day')?.value;
 
     // Prisma considers Date objects to be stored as ISODate. Use UTC midnight to avoid local timezone shifts.
     return new Date(`${year}-${month}-${day}T00:00:00.000Z`);
@@ -28,12 +31,12 @@ export class LaunchService {
   @Cron('*/1 * * * *')
   async scheduledLunchSlackReport() {
     this.logger.log('⏰ Running scheduled Slack lunch report...');
-    console.log("hit")
+    console.log('hit');
     const today = this.getKathmanduDateOnly();
     const records = await this.prisma.lunchAttendance.findMany({
       where: {
         date: today,
-        isAttending: true // Only count those who are attending
+        isAttending: true, // Only count those who are attending
       },
       include: {
         user: { select: { id: true, name: true, email: true } },
@@ -41,8 +44,12 @@ export class LaunchService {
       orderBy: { user: { name: 'asc' } }, // Sort names alphabetically
     });
 
-    const vegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.VEG);
-    const nonVegPeople = records.filter((r) => r.preferredLunchOption === LaunchType.NON_VEG);
+    const vegPeople = records.filter(
+      (r) => r.preferredLunchOption === LaunchType.VEG,
+    );
+    const nonVegPeople = records.filter(
+      (r) => r.preferredLunchOption === LaunchType.NON_VEG,
+    );
 
     const vegNames = vegPeople.map((r) => r.user.name);
     const nonVegNames = nonVegPeople.map((r) => r.user.name);
@@ -56,13 +63,8 @@ export class LaunchService {
       nonVegNames,
     };
 
-    await this.slackService.sendLunchSummary(data)
-
-
-
+    await this.slackService.sendLunchSummary(data);
   }
-
-
 
   private checkAttendanceWindow(): void {
     this.logger.log('Attendance window check bypassed for testing');

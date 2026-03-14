@@ -19,9 +19,9 @@ import { AuthGuard } from './auth.guard';
   imports: [
     PrismaModule,
     SupabaseModule,
- 
+
     UserModule,
-   RsOfficeModule,
+    RsOfficeModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secretkey',
       signOptions: { expiresIn: '7d' },
@@ -31,4 +31,4 @@ import { AuthGuard } from './auth.guard';
   controllers: [AuthController],
   exports: [AuthService, JwtModule, RsOfficeModule, AuthGuard, CryptoService],
 })
-export class AuthModule { }
+export class AuthModule {}

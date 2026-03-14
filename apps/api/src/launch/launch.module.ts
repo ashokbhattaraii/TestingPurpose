@@ -7,6 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
 @Module({
   imports: [SlackModule, PrismaModule],
   controllers: [LaunchController],
-  providers: [LaunchService]
+  providers: [LaunchService],
 })
 export class LaunchModule {}

@@ -1,6 +1,7 @@
 import axiosInstance from "@/lib/axios/axios";
 import { RequestStatus } from "@/lib/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function useUpdateRequestStatus() {
     const queryClient = useQueryClient();
@@ -21,11 +22,15 @@ export function useUpdateRequestStatus() {
             return response.data;
         },
         onSuccess: (_, variables) => {
+            toast.success(`Request status updated to ${variables.status}.`);
             queryClient.invalidateQueries({ queryKey: ["request", variables.id] });
             queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
             queryClient.invalidateQueries({ queryKey: ["allRequests"] });
             queryClient.invalidateQueries({ queryKey: ["analytics"] });
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
         },
+        onError: (error: any) => {
+            toast.error(error?.response?.data?.message || "Failed to update request status.");
+        }
     });
 }

@@ -160,10 +160,11 @@ model Request {
 }
 
 model RequestIssueDetails {
-  requestId String        @id
-  priority  IssuePriority
-  category  IssueCategory
-  location  String?
+  requestId            String        @id
+  priority             IssuePriority
+  category             IssueCategory
+  otherCategoryDetails String?
+  location             String?
 
   request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
@@ -172,9 +173,10 @@ model RequestIssueDetails {
 }
 
 model RequestSuppliesDetails {
-  requestId String           @id
-  category  SuppliesCategory
-  itemName  String
+  requestId            String           @id
+  category             SuppliesCategory
+  otherCategoryDetails String?
+  itemName             String
 
   request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
 

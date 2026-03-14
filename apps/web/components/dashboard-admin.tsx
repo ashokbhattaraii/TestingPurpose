@@ -4,9 +4,8 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import {
   useAnnouncements,
-
 } from "@/lib/queries";
-import { useServiceRequests } from "@/hooks/request/useServiceRequests";
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";      
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,6 +21,7 @@ import {
   ArrowUp,
   ArrowRight,
   ArrowDown,
+  UserCheck, // ✅ Added UserCheck icon
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -87,13 +87,18 @@ export function AdminDashboard() {
 
   const [search, setSearch] = useState("");
 
-  //  Show ONLY user's requests for the new "Your Recent Requests" section
+  // Show ONLY user's requests for the new "Your Recent Requests" section
   const userRequests =
     allRequests?.filter((r) => r.user?.id === user?.id) ?? [];
 
   const recentUserRequests = userRequests.slice(0, 5);
 
-  //  Active requests for system-wide view (PENDING)
+  // ✅ Logic: Filter requests assigned to the current admin
+  // Line 97 tira yeso garnuhos:
+const assignedToMe = allRequests?.filter((r: any) => r.assignedToId === user?.id) ?? [];
+  const recentAssigned = assignedToMe.slice(0, 5);
+
+  // Active requests for system-wide view (PENDING)
   const filteredRequests =
     allRequests?.filter(
       (r) =>
@@ -314,8 +319,59 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
+        {/* ✅ ADDED: Assigned to You Section */}
+        <Card className="lg:col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardTitle className="text-sm font-medium text-foreground flex items-center gap-2">
+              <UserCheck className="h-4 w-4 text-primary" />
+              Assigned to You
+            </CardTitle>
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                href="/dashboard/requests/assigned"
+                className="text-xs text-muted-foreground"
+              >
+                View all
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {requestsLoading ? (
+              <div className="flex flex-col gap-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14" />
+                ))}
+              </div>
+            ) : recentAssigned.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                No requests assigned to you.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {recentAssigned.map((req: any) => (
+                  <Link
+                    key={req.id}
+                    href={`/dashboard/requests/${req.id}`}
+                    className="group flex flex-col gap-2 rounded-xl border border-transparent bg-primary/5 p-4 transition-all duration-200 hover:bg-white hover:border-primary/20 hover:shadow-md"
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                        {req.title}
+                      </span>
+                      <StatusBadge status={req.status} />
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="font-mono text-[10px] uppercase">RE-{req.id.slice(0, 6)}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Active Requests (System-wide) */}
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-sm font-medium text-foreground">
               Active Requests
@@ -353,22 +409,17 @@ export function AdminDashboard() {
                         <ClipboardList className="h-5 w-5" />
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                           {req.title}
                         </span>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="font-medium text-slate-700 truncate max-w-[100px]">{req.user?.name}</span>
+                          <span className="font-medium text-slate-700 truncate max-w-[80px]">{req.user?.name}</span>
                           <span>•</span>
                           <span>{format(new Date(req.createdAt), "MMM d")}</span>
-                          <span>•</span>
-                          <span className="font-mono text-[10px] uppercase tracking-tighter opacity-70">RE-{req.id.slice(0, 6)}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {req.type === "ISSUE" && req.issueDetails?.priority && (
-                        <PriorityBadge priority={req.issueDetails.priority} />
-                      )}
+                    <div className="flex items-center gap-2">
                       <StatusBadge status={req.status} />
                     </div>
                   </Link>
@@ -381,5 +432,3 @@ export function AdminDashboard() {
     </div>
   );
 }
-
-
