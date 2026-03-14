@@ -102,6 +102,11 @@ export default function RequestDetailPage() {
   const isAdminOrSuper = user?.roles?.some((r) => r.includes("ADMIN"));
   const isCreator = user?.id === requestById?.request.user.id;
   const request = requestById?.request;
+  // Check if current admin is the assigned admin
+  const isAssignedToMe = request?.approverId === user?.id;
+  // Can this admin manage (assign/update status) this request?
+  // If not yet assigned, any admin can. If assigned, only the assigned admin.
+  const canManageRequest = isAdminOrSuper && !isCreator && (!request?.approverId || isAssignedToMe);
 
   useEffect(() => {
     if (request?.approverId) {
@@ -421,9 +426,29 @@ export default function RequestDetailPage() {
             </p>
           </div>
 
-          {/* Admin: Assign Request */}
+          {/* Notice for non-assigned admins */}
           {isAdminOrSuper &&
             !isCreator &&
+            request.approverId &&
+            !isAssignedToMe &&
+            !["RESOLVED", "FULFILLED", "CLOSED", "CANCELLED"].includes(request.status) && (
+              <div className="rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-700/30 p-4">
+                <div className="flex items-start gap-2">
+                  <UserPlus className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                      Assigned to {request.approver?.name || "another admin"}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-amber-700 dark:text-amber-400">
+                      This request has been assigned to another admin. Only the assigned admin can update or manage this request.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          {/* Admin: Assign Request */}
+          {canManageRequest &&
             ["PENDING", "ON_HOLD", "IN_PROGRESS"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <div className="flex items-center gap-2">
@@ -473,8 +498,7 @@ export default function RequestDetailPage() {
             )}
 
           {/* Admin: Update Status */}
-          {isAdminOrSuper &&
-            !isCreator &&
+          {canManageRequest &&
             !["RESOLVED", "FULFILLED", "REJECTED", "CLOSED"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <p className="text-sm font-medium text-foreground">

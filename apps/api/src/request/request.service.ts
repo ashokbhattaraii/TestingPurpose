@@ -311,6 +311,12 @@ export class RequestService {
         'You cannot update the status of your own request',
       );
     }
+    // If the request is assigned to a specific admin, only that admin can update it
+    if (existing.approverId && existing.approverId !== adminId) {
+      throw new BadRequestException(
+        'This request is assigned to another admin. Only the assigned admin can update it.',
+      );
+    }
 
     const request = await this.prisma.request.update({
       where: { id },
@@ -364,6 +370,12 @@ export class RequestService {
     if (existing.userId === dto.assignedToId) {
       throw new BadRequestException(
         'You cannot assign a request to its creator',
+      );
+    }
+    // If already assigned to another admin, prevent reassignment by non-assigned admins
+    if (existing.approverId && existing.approverId !== adminId) {
+      throw new BadRequestException(
+        'This request is already assigned to another admin. Only the assigned admin can reassign it.',
       );
     }
 
