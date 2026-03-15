@@ -52,22 +52,6 @@ export class SlackService {
             text: `*Employees:*\n${allAttendees.length > 0 ? allAttendees.join('\n') : '_No entries today_'}`,
           },
         },
-        {
-          type: 'actions',
-          elements: [
-            {
-              type: 'button',
-              text: {
-                type: 'plain_text',
-                text: '🍴 Call For Lunch',
-                emoji: true,
-              },
-              value: 'call_for_lunch',
-              action_id: 'call_for_lunch_action',
-              style: 'primary',
-            },
-          ],
-        },
       ],
     };
 
@@ -79,32 +63,5 @@ export class SlackService {
     }
   }
 
-  async sendLunchCall(date?: string) {
-    const displayDate = date || new Date().toISOString().split('T')[0];
-    const message = {
-      blocks: [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `🍱 *Daily Lunch Count (${displayDate})*`,
-          },
-        },
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: '<!here> 🍴 *Lunch is Ready!* Please be on time 🍱',
-          },
-        },
-      ],
-    };
 
-    try {
-      await axios.post(this.webhookUrl, message);
-      this.logger.log('Lunch Call sent to Slack');
-    } catch (error) {
-      this.logger.error('Failed to send Lunch Call to Slack', error);
-    }
-  }
 }
