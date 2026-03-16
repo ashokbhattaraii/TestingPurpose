@@ -90,9 +90,6 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.96.0
         version: 2.99.1
-      '@types/cron':
-        specifier: ^2.4.3
-        version: 2.4.3
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -154,6 +151,9 @@ importers:
       '@types/cookie-parser':
         specifier: ^1.4.10
         version: 1.4.10(@types/express@5.0.6)
+      '@types/cron':
+        specifier: ^2.4.3
+        version: 2.4.3
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
