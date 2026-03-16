@@ -4,10 +4,7 @@ export type RequestStatus =
   | "PENDING"
   | "IN_PROGRESS"
   | "RESOLVED"
-  | "FULFILLED"
   | "REJECTED"
-  | "CLOSED"
-  | "CANCELLED"
   | "ON_HOLD";
 
 export type RequestType = "ISSUE" | "SUPPLIES";
@@ -78,11 +75,6 @@ export interface ServiceRequest {
   approvedAt?: string;
   rejectionReason?: string;
   adminNotes?: string;
-
-  // Fulfillment (for Supplies)
-  isFulfilled?: boolean;
-  fulfilledAt?: string;
-  fulfilledBy?: string;
 
   // Timestamps & Relations
   userId: string;

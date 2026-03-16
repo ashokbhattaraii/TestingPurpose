@@ -146,20 +146,20 @@ function filterByTimePeriod(
 function computeAnalytics(requests: ServiceRequest[]) {
   const totalRequests = requests.length;
   const pendingRequests = requests.filter(
-    (r) => r.status === ("pending" as RequestStatus),
+    (r) => r.status === ("PENDING" as RequestStatus),
   ).length;
   const inProgressRequests = requests.filter(
-    (r) => r.status === ("in-progress" as RequestStatus),
+    (r) => r.status === ("IN_PROGRESS" as RequestStatus),
   ).length;
   const onHoldRequests = requests.filter(
-    (r) => r.status === ("on-hold" as RequestStatus),
+    (r) => r.status === ("ON_HOLD" as RequestStatus),
   ).length;
   const resolvedRequests = requests.filter(
-    (r) => r.status === ("resolved" as RequestStatus),
+    (r) => r.status === ("RESOLVED" as RequestStatus),
   ).length;
 
   const resolved = requests.filter(
-    (r) => r.status === ("resolved" as RequestStatus),
+    (r) => r.status === ("RESOLVED" as RequestStatus),
   );
   let avgResolutionTimeHours = 0;
   if (resolved.length > 0) {
@@ -196,7 +196,7 @@ function computeAnalytics(requests: ServiceRequest[]) {
   const statusMap = new Map<string, number>();
   requests.forEach((r) => {
     const label =
-      r.status.charAt(0).toUpperCase() + r.status.slice(1).replace("-", " ");
+      r.status.charAt(0).toUpperCase() + r.status.slice(1).toLowerCase().replace("_", " ");
     statusMap.set(label, (statusMap.get(label) ?? 0) + 1);
   });
   const requestsByStatus = Array.from(statusMap, ([status, count]) => ({

@@ -431,7 +431,7 @@ export default function RequestDetailPage() {
             !isCreator &&
             request.approverId &&
             !isAssignedToMe &&
-            !["RESOLVED", "FULFILLED", "CLOSED", "CANCELLED"].includes(request.status) && (
+            !["RESOLVED", "REJECTED"].includes(request.status) && (
               <div className="rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-700/30 p-4">
                 <div className="flex items-start gap-2">
                   <UserPlus className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
@@ -499,7 +499,7 @@ export default function RequestDetailPage() {
 
           {/* Admin: Update Status */}
           {canManageRequest &&
-            !["RESOLVED", "FULFILLED", "REJECTED", "CLOSED"].includes(request.status) && (
+            !["RESOLVED", "REJECTED"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <p className="text-sm font-medium text-foreground">
                   Update Status
@@ -523,18 +523,11 @@ export default function RequestDetailPage() {
                       {request.status !== "ON_HOLD" && (
                         <SelectItem value="ON_HOLD">On Hold</SelectItem>
                       )}
-                      {request.type === "ISSUE"
-                        ? request.status !== "RESOLVED" && (
-                          <SelectItem value="RESOLVED">Resolved</SelectItem>
-                        )
-                        : request.status !== "FULFILLED" && (
-                          <SelectItem value="FULFILLED">Fulfilled</SelectItem>
-                        )}
+                      {request.status !== "RESOLVED" && (
+                        <SelectItem value="RESOLVED">Resolved</SelectItem>
+                      )}
                       {request.status !== "REJECTED" && (
                         <SelectItem value="REJECTED">Rejected</SelectItem>
-                      )}
-                      {request.status !== "CLOSED" && (
-                        <SelectItem value="CLOSED">Closed</SelectItem>
                       )}
 
                     </SelectContent>
