@@ -90,9 +90,15 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.96.0
         version: 2.99.1
+      '@types/cron':
+        specifier: ^2.4.3
+        version: 2.4.3
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
+      cron:
+        specifier: ^4.4.0
+        version: 4.4.0
       iterare:
         specifier: ^1.2.0
         version: 1.2.1
@@ -2396,6 +2402,10 @@ packages:
 
   '@types/cors@2.8.19':
     resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
+
+  '@types/cron@2.4.3':
+    resolution: {integrity: sha512-ViRBkoZD9Rk0hGeMdd2GHGaOaZuH9mDmwsE5/Zo53Ftwcvh7h9VJc8lIt2wdgEwS4EW5lbtTX6vlE0idCLPOyA==}
+    deprecated: This is a stub types definition. cron provides its own type definitions, so you do not need this installed.
 
   '@types/d3-array@3.2.2':
     resolution: {integrity: sha512-hOLWVbm7uRza0BYXpIIW5pxfrKe0W+D5lrFiAEYR+pb6w3N2SwSMaJbXdUfSEv+dT4MfHBLtn5js0LAWaO6otw==}
@@ -7848,6 +7858,10 @@ snapshots:
   '@types/cors@2.8.19':
     dependencies:
       '@types/node': 22.19.15
+
+  '@types/cron@2.4.3':
+    dependencies:
+      cron: 4.4.0
 
   '@types/d3-array@3.2.2': {}
 

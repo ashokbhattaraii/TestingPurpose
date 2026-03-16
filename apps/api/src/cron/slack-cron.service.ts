@@ -1,17 +1,35 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { SlackService } from '../slack/slack.service.js';
 import { LaunchType } from '@prisma/client';
 
 @Injectable()
-export class SlackCronService {
+export class SlackCronService implements OnModuleInit {
   private readonly logger = new Logger(SlackCronService.name);
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly slackService: SlackService,
-  ) { }
+    private readonly schedulerRegistry: SchedulerRegistry,
+  ) {
+    this.logger.log('SlackCronService constructor called');
+  }
+
+  onModuleInit() {
+    this.logger.log('SlackCronService onModuleInit called! Registering manual cron job.');
+    
+    // Create a manual cron job that runs every minute
+    const job = new CronJob('* * * * *', () => {
+      this.handleDailySlackJob();
+    });
+
+    this.schedulerRegistry.addCronJob('dailyLunchSlackJob', job);
+    job.start();
+    
+    this.logger.log('Manual CronJob registered and started for dailyLunchSlackJob');
+  }
 
   private getKathmanduDateOnly(): Date {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -28,11 +46,8 @@ export class SlackCronService {
     return new Date(`${year}-${month}-${day}T00:00:00.000Z`);
   }
 
-  // "0 1 11 * * *" means at 11:01:00 AM every day
-  // Format: second, minute, hour, day of month, month, day of week
-  @Cron('* * * * *')
   async handleDailySlackJob() {
-    this.logger.log('⏰ Executing Daily Slack cron job (every minute for testing)...');
+    this.logger.log('⏰ Executing Daily Slack cron job (every minute for testing via manual register)...');
 
     try {
       const today = this.getKathmanduDateOnly();
@@ -67,9 +82,9 @@ export class SlackCronService {
       };
 
       await this.slackService.sendLunchSummary(data);
-      this.logger.log('✅ Daily lunch summary sent to Slack successfully.');
+      this.logger.log('Daily lunch summary sent to Slack successfully.');
     } catch (error) {
-      this.logger.error('❌ Error sending daily lunch summary to Slack', error);
+      this.logger.error(' Error sending daily lunch summary to Slack', error);
     }
   }
 }
