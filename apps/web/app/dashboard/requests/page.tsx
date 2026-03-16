@@ -174,7 +174,7 @@ export default function RequestsPage() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
-
+  //display all service request
   const baseRequests = allRequests;
 
   const filtered =
