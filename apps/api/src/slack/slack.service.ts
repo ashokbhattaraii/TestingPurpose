@@ -1,10 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 
 @Injectable()
 export class SlackService {
   private readonly logger = new Logger(SlackService.name);
-  private readonly webhookUrl = process.env.SLACK_HOOK_URL!;
+
+  constructor(private readonly configService: ConfigService) {}
 
   async sendLunchSummary(data: {
     date: string;
@@ -14,6 +16,12 @@ export class SlackService {
     vegNames: string[];
     nonVegNames: string[];
   }) {
+    const webhookUrl = this.configService.get<string>('SLACK_HOOK_URL');
+    if (!webhookUrl) {
+      this.logger.error('SLACK_HOOK_URL is missing in environment variables');
+      return;
+    }
+
     const { date, total, vegCount, nonVegCount, vegNames, nonVegNames } = data;
 
     // Combine with tags and sort
@@ -56,10 +64,13 @@ export class SlackService {
     };
 
     try {
-      await axios.post(this.webhookUrl, message);
+      await axios.post(webhookUrl, message);
       this.logger.log('Lunch Summary Sent to Slack');
-    } catch (error) {
-      this.logger.error('Failed to send Lunch Summary to Slack', error);
+    } catch (error: any) {
+      this.logger.error(
+        'Failed to send Lunch Summary to Slack',
+        error?.response?.data || error.message,
+      );
     }
   }
 

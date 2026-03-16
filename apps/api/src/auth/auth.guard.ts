@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import type { RsOfficeClient, JwtPayload } from '@rumsan/user'
+
 import type { Request } from 'express'
 import { RS_OFFICE_CLIENT } from '../rsoffice/rsoffice.module'
 import { CryptoService } from './crypto.service'

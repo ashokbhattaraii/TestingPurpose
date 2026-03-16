@@ -28,44 +28,6 @@ export class LaunchService {
     // Prisma considers Date objects to be stored as ISODate. Use UTC midnight to avoid local timezone shifts.
     return new Date(`${year}-${month}-${day}T00:00:00.000Z`);
   }
-  @Cron('*/1 * * * *')
-  async scheduledLunchSlackReport() {
-    this.logger.log('⏰ Running scheduled Slack lunch report...');
-    console.log('hit');
-    const today = this.getKathmanduDateOnly();
-    const records = await this.prisma.lunchAttendance.findMany({
-      where: {
-        date: today,
-        isAttending: true, // Only count those who are attending
-      },
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-      },
-      orderBy: { user: { name: 'asc' } }, // Sort names alphabetically
-    });
-
-    const vegPeople = records.filter(
-      (r) => r.preferredLunchOption === LaunchType.VEG,
-    );
-    const nonVegPeople = records.filter(
-      (r) => r.preferredLunchOption === LaunchType.NON_VEG,
-    );
-
-    const vegNames = vegPeople.map((r) => r.user.name);
-    const nonVegNames = nonVegPeople.map((r) => r.user.name);
-
-    const data = {
-      date: today.toISOString().split('T')[0],
-      total: records.length,
-      vegCount: vegPeople.length,
-      nonVegCount: nonVegPeople.length,
-      vegNames,
-      nonVegNames,
-    };
-
-    await this.slackService.sendLunchSummary(data);
-  }
-
   private checkAttendanceWindow(): void {
     this.logger.log('Attendance window check bypassed for testing');
   }

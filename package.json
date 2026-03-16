@@ -47,14 +47,5 @@
   "engines": {
     "node": ">=24.x"
   },
-  "pnpm": {
-    "overrides": {
-      "jose": "^4.15.9",
-      "@noble/curves": "1.1.0"
-    },
-    "patchedDependencies": {
-      "@noble/curves@1.1.0": "patches/@noble__curves@1.1.0.patch"
-    }
-  },
   "packageManager": "pnpm@10.4.0"
 }
