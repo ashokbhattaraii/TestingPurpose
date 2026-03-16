@@ -267,14 +267,14 @@ export default function RequestsPage() {
               : "All service requests across the organization."}
           </p>
         </div>
-        {isEmployee && (
-          <Button asChild size="sm">
-            <Link href="/dashboard/requests/new">
-              <Plus className="mr-1 h-4 w-4" />
-              New Request
-            </Link>
-          </Button>
-        )}
+
+        <Button asChild size="sm">
+          <Link href="/dashboard/requests/new">
+            <Plus className="mr-1 h-4 w-4" />
+            New Request
+          </Link>
+        </Button>
+
       </div>
 
       {/* Filters */}
