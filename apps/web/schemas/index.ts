@@ -15,7 +15,7 @@ export const ISSUE_CATEGORIES = [
 ] as const;
 
 export const SUPPLIES_CATEGORIES = [
-  "OFFICE_Supplies",
+  "OFFICE_SUPPLIES",
   "EQUIPMENT",
   "STATIONERY",
   "PANTRY",
@@ -41,7 +41,7 @@ export const SUPPLIES_CATEGORY_LABELS: Record<
   (typeof SUPPLIES_CATEGORIES)[number],
   string
 > = {
-  OFFICE_Supplies: "Office Supplies",
+  OFFICE_SUPPLIES: "Office Supplies",
   EQUIPMENT: "Equipment",
   STATIONERY: "Stationery",
   PANTRY: "Pantry",

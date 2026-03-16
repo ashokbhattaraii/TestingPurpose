@@ -20,7 +20,7 @@ export type IssueCategory =
   | "OTHER";
 
 export type SuppliesCategory =
-  | "OFFICE_Supplies"
+  | "OFFICE_SUPPLIES"
   | "EQUIPMENT"
   | "STATIONERY"
   | "PANTRY"

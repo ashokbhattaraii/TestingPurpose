@@ -175,9 +175,7 @@ export default function RequestsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const baseRequests = isEmployee
-    ? allRequests.filter((r) => r.user?.id === user?.id)
-    : allRequests;
+  const baseRequests = allRequests;
 
   const filtered =
     baseRequests.filter((req) => {
