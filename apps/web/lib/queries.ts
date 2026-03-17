@@ -145,7 +145,7 @@ export function useNotifications(userId?: string) {
     retry: true,
   });
 }
-
+//notification
 export function useMarkNotificationRead() {
   const queryClient = useQueryClient();
   return useMutation({
