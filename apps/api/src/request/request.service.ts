@@ -19,7 +19,7 @@ export class RequestService {
   constructor(
     private prisma: PrismaService,
     private notificationService: NotificationService,
-  ) {}
+  ) { }
   private removeNullish<T>(value: T): T {
     if (Array.isArray(value)) {
       return value.map((v) => this.removeNullish(v)) as T;
@@ -66,25 +66,25 @@ export class RequestService {
         issueDetails:
           dto.type === RequestType.ISSUE
             ? {
-                create: {
-                  priority: dto.issueDetails!.priority,
-                  category: dto.issueDetails!
-                    .category as unknown as IssueCategory,
-                  location: dto.issueDetails!.location,
-                  otherCategoryDetails: dto.issueDetails!.otherCategoryDetails,
-                },
-              }
+              create: {
+                priority: dto.issueDetails!.priority,
+                category: dto.issueDetails!
+                  .category as unknown as IssueCategory,
+                location: dto.issueDetails!.location,
+                otherCategoryDetails: dto.issueDetails!.otherCategoryDetails,
+              },
+            }
             : undefined,
         suppliesDetails:
           dto.type === RequestType.SUPPLIES
             ? {
-                create: {
-                  category: dto.suppliesDetails!.category,
-                  itemName: dto.suppliesDetails!.itemName,
-                  otherCategoryDetails:
-                    dto.suppliesDetails!.otherCategoryDetails,
-                },
-              }
+              create: {
+                category: dto.suppliesDetails!.category,
+                itemName: dto.suppliesDetails!.itemName,
+                otherCategoryDetails:
+                  dto.suppliesDetails!.otherCategoryDetails,
+              },
+            }
             : undefined,
       },
       select: {
@@ -98,10 +98,8 @@ export class RequestService {
         approvedAt: true,
         rejectionReason: true,
         adminNotes: true,
-        isFulfilled: true,
-        fulfilledAt: true,
-        fulfilledBy: true,
         createdAt: true, // keep
+        updatedAt: true, // keep
         // updatedAt: false (simply omitted)
         user: {
           select: {
@@ -226,51 +224,51 @@ export class RequestService {
         issueDetails:
           newType === RequestType.ISSUE
             ? {
-                upsert: {
-                  create: {
-                    priority:
-                      (dto.issueDetails?.priority as IssuePriority) ||
-                      IssuePriority.MEDIUM,
-                    category:
-                      (dto.issueDetails
-                        ?.category as unknown as IssueCategory) || 'TECHNICAL',
-                    location: dto.issueDetails?.location || null,
-                    otherCategoryDetails:
-                      dto.issueDetails?.otherCategoryDetails || null,
-                  },
-                  update: {
-                    priority: dto.issueDetails?.priority as IssuePriority,
-                    category: dto.issueDetails
-                      ?.category as unknown as IssueCategory,
-                    location: dto.issueDetails?.location,
-                    otherCategoryDetails:
-                      dto.issueDetails?.otherCategoryDetails,
-                  },
+              upsert: {
+                create: {
+                  priority:
+                    (dto.issueDetails?.priority as IssuePriority) ||
+                    IssuePriority.MEDIUM,
+                  category:
+                    (dto.issueDetails
+                      ?.category as unknown as IssueCategory) || 'TECHNICAL',
+                  location: dto.issueDetails?.location || null,
+                  otherCategoryDetails:
+                    dto.issueDetails?.otherCategoryDetails || null,
                 },
-              }
+                update: {
+                  priority: dto.issueDetails?.priority as IssuePriority,
+                  category: dto.issueDetails
+                    ?.category as unknown as IssueCategory,
+                  location: dto.issueDetails?.location,
+                  otherCategoryDetails:
+                    dto.issueDetails?.otherCategoryDetails,
+                },
+              },
+            }
             : existing.issueDetails
               ? { delete: true }
               : undefined,
         suppliesDetails:
           newType === RequestType.SUPPLIES
             ? {
-                upsert: {
-                  create: {
-                    category:
-                      (dto.suppliesDetails?.category as SuppliesCategory) ||
-                      'OFFICE_SUPPLIES',
-                    itemName: dto.suppliesDetails?.itemName || '',
-                    otherCategoryDetails:
-                      dto.suppliesDetails?.otherCategoryDetails || null,
-                  },
-                  update: {
-                    category: dto.suppliesDetails?.category as SuppliesCategory,
-                    itemName: dto.suppliesDetails?.itemName,
-                    otherCategoryDetails:
-                      dto.suppliesDetails?.otherCategoryDetails,
-                  },
+              upsert: {
+                create: {
+                  category:
+                    (dto.suppliesDetails?.category as SuppliesCategory) ||
+                    'OFFICE_SUPPLIES',
+                  itemName: dto.suppliesDetails?.itemName || '',
+                  otherCategoryDetails:
+                    dto.suppliesDetails?.otherCategoryDetails || null,
                 },
-              }
+                update: {
+                  category: dto.suppliesDetails?.category as SuppliesCategory,
+                  itemName: dto.suppliesDetails?.itemName,
+                  otherCategoryDetails:
+                    dto.suppliesDetails?.otherCategoryDetails,
+                },
+              },
+            }
             : existing.suppliesDetails
               ? { delete: true }
               : undefined,
@@ -311,6 +309,12 @@ export class RequestService {
         'You cannot update the status of your own request',
       );
     }
+    // If the request is assigned to a specific admin, only that admin can update it
+    if (existing.approverId && existing.approverId !== adminId) {
+      throw new BadRequestException(
+        'This request is assigned to another admin. Only the assigned admin can update it.',
+      );
+    }
 
     const request = await this.prisma.request.update({
       where: { id },
@@ -319,7 +323,7 @@ export class RequestService {
         rejectionReason: dto.rejectionReason,
         adminNotes: dto.adminNotes,
         approvedAt:
-          dto.status === 'RESOLVED' || dto.status === 'FULFILLED'
+          dto.status === 'RESOLVED'
             ? new Date()
             : undefined,
       },
@@ -364,6 +368,12 @@ export class RequestService {
     if (existing.userId === dto.assignedToId) {
       throw new BadRequestException(
         'You cannot assign a request to its creator',
+      );
+    }
+    // If already assigned to another admin, prevent reassignment by non-assigned admins
+    if (existing.approverId && existing.approverId !== adminId) {
+      throw new BadRequestException(
+        'This request is already assigned to another admin. Only the assigned admin can reassign it.',
       );
     }
 
@@ -446,7 +456,8 @@ export class RequestService {
     const request = await this.prisma.request.update({
       where: { id: id },
       data: {
-        status: RequestStatus.CANCELLED,
+        status: RequestStatus.REJECTED,
+        rejectionReason: 'Cancelled by user',
       },
       include: {
         user: {

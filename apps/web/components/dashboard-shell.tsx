@@ -19,6 +19,7 @@ import {
   Building2,
   LayoutDashboard,
   ClipboardList,
+  UserCheck,
   Megaphone,
   BarChart3,
   Users,
@@ -77,6 +78,13 @@ const navItems: NavItem[] = [
     href: "/dashboard/requests",
     icon: <ClipboardList className="h-4 w-4" />,
     roles: ["EMPLOYEE", "ADMIN"],
+    section: "General",
+  },
+  {
+    label: "Assigned to Me",
+    href: "/dashboard/assigned-requests",
+    icon: <UserCheck className="h-4 w-4" />,
+    roles: ["ADMIN"],
     section: "General",
   },
   {

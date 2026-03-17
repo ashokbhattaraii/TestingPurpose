@@ -95,7 +95,7 @@ export function AdminDashboard() {
 
   // ✅ Logic: Filter requests assigned to the current admin
   // Line 97 tira yeso garnuhos:
-const assignedToMe = allRequests?.filter((r: any) => r.assignedToId === user?.id) ?? [];
+const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) ?? [];
   const recentAssigned = assignedToMe.slice(0, 5);
 
   // Active requests for system-wide view (PENDING)
@@ -328,7 +328,7 @@ const assignedToMe = allRequests?.filter((r: any) => r.assignedToId === user?.id
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link
-                href="/dashboard/requests/assigned"
+                href="/dashboard/assigned-requests"
                 className="text-xs text-muted-foreground"
               >
                 View all

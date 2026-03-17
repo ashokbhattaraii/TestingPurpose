@@ -174,10 +174,8 @@ export default function RequestsPage() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
-
-  const baseRequests = isEmployee
-    ? allRequests.filter((r) => r.user?.id === user?.id)
-    : allRequests;
+  //display all service request
+  const baseRequests = allRequests;
 
   const filtered =
     baseRequests.filter((req) => {
@@ -267,14 +265,14 @@ export default function RequestsPage() {
               : "All service requests across the organization."}
           </p>
         </div>
-        {isEmployee && (
-          <Button asChild size="sm">
-            <Link href="/dashboard/requests/new">
-              <Plus className="mr-1 h-4 w-4" />
-              New Request
-            </Link>
-          </Button>
-        )}
+
+        <Button asChild size="sm">
+          <Link href="/dashboard/requests/new">
+            <Plus className="mr-1 h-4 w-4" />
+            New Request
+          </Link>
+        </Button>
+
       </div>
 
       {/* Filters */}
@@ -336,10 +334,7 @@ export default function RequestsPage() {
                   <SelectItem value="PENDING">Pending</SelectItem>
                   <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
                   <SelectItem value="RESOLVED">Resolved</SelectItem>
-                  <SelectItem value="FULFILLED">Fulfilled</SelectItem>
                   <SelectItem value="REJECTED">Rejected</SelectItem>
-                  <SelectItem value="CLOSED">Closed</SelectItem>
-                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
                   <SelectItem value="ON_HOLD">On-Hold</SelectItem>
                 </SelectContent>
               </Select>

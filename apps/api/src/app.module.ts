@@ -13,6 +13,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationModule } from './notification/notification.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { SlackModule } from './slack/slack.module';
+import { CronModule } from './cron/cron.module';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { SlackModule } from './slack/slack.module';
     LaunchModule,
     NotificationModule,
     AnnouncementsModule,
-    SlackModule,
+    CronModule,
   ],
   controllers: [AppController],
   providers: [AppService, SupabaseService],

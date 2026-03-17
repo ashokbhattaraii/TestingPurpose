@@ -4,18 +4,15 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+ 
 }
 
 enum RequestStatus {
-  PENDING // just submitted, waiting for admin
-  IN_PROGRESS // assigned to someone, being worked on
-  RESOLVED // issue fixed (Issue type)
-  FULFILLED // items delivered (Supplies type)
-  REJECTED // denied by admin
-  CLOSED // final state, no further action
-  CANCELLED // cancelled by the employee themselves
-  ON_HOLD //
+  PENDING
+  IN_PROGRESS
+  REJECTED
+  RESOLVED
+  ON_HOLD
 }
 
 enum RequestType {
@@ -137,11 +134,6 @@ model Request {
   approvedAt      DateTime?
   rejectionReason String?
   adminNotes      String?
-
-  // Fulfillment
-  isFulfilled Boolean   @default(false)
-  fulfilledAt DateTime?
-  fulfilledBy String?
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -280,41 +272,3 @@ model Analytics {
   @@index([period])
 }
 
-model Settings {
-  id          String  @id @default(cuid())
-  key         String  @unique
-  value       Json
-  description String?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([key])
-}
-
-model AuditLog {
-  id String @id @default(cuid())
-
-  // Actor
-  userId    String?
-  userEmail String?
-
-  // Action
-  action     String // e.g., "user.created", "request.approved"
-  resource   String // e.g., "User", "Request"
-  resourceId String?
-
-  // Details
-  changes   Json? // Before/after values
-  ipAddress String?
-  userAgent String?
-
-  // Timestamp
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([action])
-  @@index([resource])
-  @@index([createdAt])
-}

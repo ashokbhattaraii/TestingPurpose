@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import type { RsOfficeClient, JwtPayload } from '@rumsan/user'
+
 import type { Request } from 'express'
 import { RS_OFFICE_CLIENT } from '../rsoffice/rsoffice.module'
 import { CryptoService } from './crypto.service'
@@ -48,6 +49,7 @@ export class AuthGuard implements CanActivate, OnModuleInit {
       );
     }
   }
+  //test
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [

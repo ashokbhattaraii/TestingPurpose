@@ -1,0 +1,16 @@
+diff --git a/package.json b/package.json
+index 8d59a95e9192adf2fc92436c0304c4948bb7ff1a..67b3fe6cb144cd137e0e35fca3c9b1f1a10ba2ae 100644
+--- a/package.json
++++ b/package.json
+@@ -148,6 +148,11 @@
+       "types": "./secp256k1.d.ts",
+       "import": "./esm/secp256k1.js",
+       "default": "./secp256k1.js"
++    },
++    "./secp256k1.js": {
++      "types": "./secp256k1.d.ts",
++      "import": "./esm/secp256k1.js",
++      "default": "./secp256k1.js"
+     }
+   },
+   "keywords": [

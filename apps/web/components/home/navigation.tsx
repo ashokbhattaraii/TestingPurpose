@@ -22,7 +22,7 @@ export function Navigation({
     { label: "Features", href: "#features", section: "features" },
     { label: "Benefits", href: "#benefits", section: "benefits" },
     // ✅ थपिएको: Assigned to Me menu option
-    { label: "Assigned to Me", href: "/dashboard/requests/assigned", section: "assigned" },
+    { label: "Assigned to Me", href: "/dashboard/assigned-requests", section: "assigned" },
   ],
   onNavClick = () => {},
   activeSection = "",

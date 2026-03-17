@@ -79,7 +79,7 @@ export default function NewRequestPage() {
         type: "SUPPLIES",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
-        suppliesCategory: "OFFICE_Supplies",
+        suppliesCategory: "OFFICE_SUPPLIES",
         itemName: "",
       });
     }
