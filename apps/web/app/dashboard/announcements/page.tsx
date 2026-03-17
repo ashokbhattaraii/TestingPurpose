@@ -1,7 +1,9 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
-import { useAnnouncements, useCreateAnnouncement, usePinAnnouncement } from "@/lib/queries"
+import { useAnnouncements } from "@/hooks/announcement/useAnnouncements"
+import { useCreateAnnouncement } from "@/hooks/announcement/useCreateAnnouncement"
+import { usePinAnnouncement } from "@/hooks/announcement/usePinAnnouncement"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"

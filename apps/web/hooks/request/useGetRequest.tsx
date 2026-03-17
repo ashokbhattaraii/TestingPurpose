@@ -10,8 +10,11 @@ export function useGetRequestByIdQuery(requestId: string) {
       const response = await axiosInstance.get(`/request/${requestId}`);
       return response.data as GetRequestByIdResponse;
     },
-    enabled: !!requestId, // Only run if requestId is provided
+    enabled: !!requestId,
     staleTime: 0,
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 10 * 1000,
+    retry: true,
   });
 }
