@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import {
-  useAnnouncements,
-} from "@/lib/queries";
+import { useAnnouncements } from "@/hooks/announcement/useAnnouncements";
 import { useServiceRequests } from "@/hooks/request/useServiceRequests";      
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -360,6 +358,53 @@ const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) 
                       </span>
                       <StatusBadge status={req.status} />
                     </div>
+
+                      {/* Announcements Section */}
+<Card className="lg:col-span-3">
+  <CardHeader className="flex flex-row items-center justify-between pb-3">
+    <CardTitle className="text-sm font-medium text-foreground">
+      Recent Announcements
+    </CardTitle>
+    <Button variant="ghost" size="sm" asChild>
+      <Link href="/dashboard/announcements" className="text-xs text-muted-foreground">
+        View all
+      </Link>
+    </Button>
+  </CardHeader>
+  <CardContent>
+    {annLoading ? (
+      <div className="flex flex-col gap-3">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <Skeleton key={i} className="h-14 w-full" />
+        ))}
+      </div>
+    ) : announcements && announcements.length > 0 ? (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {announcements.slice(0, 3).map((ann: any) => (
+          <div
+            key={ann.id}
+            className="rounded-xl border border-border bg-muted/20 p-4 transition-all hover:bg-white hover:shadow-sm"
+          >
+            <h4 className="text-sm font-semibold text-foreground line-clamp-1">
+              {ann.title}
+            </h4>
+            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+              {ann.content || ann.description}
+            </p>
+            <div className="mt-3 text-[10px] font-medium text-muted-foreground">
+              {format(new Date(ann.createdAt), "MMM d, yyyy")}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p className="py-6 text-center text-sm text-muted-foreground">
+        No announcements found.
+      </p>
+    )}
+  </CardContent>
+</Card>
+
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span className="font-mono text-[10px] uppercase">RE-{req.id.slice(0, 6)}</span>
                     </div>

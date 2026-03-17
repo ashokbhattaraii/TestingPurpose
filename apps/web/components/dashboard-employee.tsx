@@ -3,9 +3,9 @@ import { useState } from "react";
 
 import { useAuth } from "@/lib/auth-context";
 import {
-  useAnnouncements,
   useLunchTokens,
 } from "@/lib/queries";
+import { useAnnouncements } from "@/hooks/announcement/useAnnouncements";
 import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -111,7 +111,7 @@ export function EmployeeDashboard() {
       .slice(0, 5) ?? [];
 
   const pinnedAnnouncements =
-    announcements?.filter((a) => a.pinned).slice(0, 2) ?? [];
+    announcements?.filter((a) => a.pinned).slice(0, 5) ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -369,7 +369,7 @@ export function EmployeeDashboard() {
           <CardContent>
             {annLoading ? (
               <div className="flex flex-col gap-3">
-                {Array.from({ length: 2 }).map((_, i) => (
+                {Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="h-16" />
                 ))}
               </div>
