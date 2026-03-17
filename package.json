@@ -30,10 +30,11 @@
   "dependencies": {
     "@nestjs/schedule": "^6.1.1",
     "@nestjs/swagger": "^11.2.6",
-    "@prisma/client": "^6.19.2",
+    "@prisma/client": "7",
     "axios": "^1.13.6",
     "jose": "^4.15.9",
     "pg": "^8.18.0",
+    "prisma": "7",
     "react-feather": "^2.0.10",
     "react-icons": "^5.5.0",
     "swagger-ui-express": "^5.0.1"
@@ -41,7 +42,6 @@
   "devDependencies": {
     "@types/phoenix": "^1.6.7",
     "patch-package": "^8.0.1",
-    "prisma": "^6.19.2",
     "turbo": "^2.8.12"
   },
   "engines": {
