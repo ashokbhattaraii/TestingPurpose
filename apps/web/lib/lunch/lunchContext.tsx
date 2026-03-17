@@ -20,13 +20,13 @@ export const LunchProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const pathname = usePathname();
 
-  // Do not fetch lunch tokens data if we are on the public home page or login page
-  const publicRoutes = ["/", "/login"];
-  const isPublicRoute = publicRoutes.includes(pathname);
+  // Only fetch attendance-summary on pages that actually use it
+  const lunchRoutes = ["/dashboard", "/dashboard/lunch"];
+  const needsLunchData = lunchRoutes.includes(pathname);
 
-  // Only run the query if a user is logged in AND we are NOT on a public route
+  // Only run the query if a user is logged in AND we are on a lunch-relevant route
   const { data: attendanceSummary } = useLaunchAttendanceSummary(
-    !!user && !isPublicRoute
+    !!user && needsLunchData
   );
 
 

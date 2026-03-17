@@ -164,6 +164,9 @@ export function useLaunchAttendanceSummary(enabled: boolean = true) {
     },
     enabled: enabled,
     staleTime: 0,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
+    refetchInterval: 10 * 1000,
+    retry: true,
   });
 }

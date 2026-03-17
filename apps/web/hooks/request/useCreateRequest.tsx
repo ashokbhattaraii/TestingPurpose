@@ -1,5 +1,4 @@
 import {
-  QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
@@ -50,10 +49,10 @@ export function useGetAllRequestsQuery() {
       return response.data?.requests || [];
     },
     enabled: isClient,
-    staleTime: 60 * 1000,
+    staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
-    refetchInterval: 60 * 1000,
+    refetchInterval: 5 * 1000,
     retry: true,
   });
 }
