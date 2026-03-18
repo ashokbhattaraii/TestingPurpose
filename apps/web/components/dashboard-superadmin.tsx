@@ -26,7 +26,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
 import { RequestResponse } from "@/lib/type/requestType";
 import { format } from "date-fns";
@@ -34,7 +34,7 @@ import { StatusBadge } from "@/components/status-badge";
 //aa
 export function SuperadminDashboard() {
   const { user } = useAuth();
-  const { data: allRequests, isLoading: requestsLoading } = useGetAllRequestsQuery();
+  const { data: allRequests, isLoading: requestsLoading } = useServiceRequests();
   const { data: adminData, isLoading: userLoading } = useGetUser();
   const { data: usersData } = useUsers();
   const { data: analytics, isLoading: analyticsLoading } = useAnalytics();

@@ -1,5 +1,4 @@
 import {
-  QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
@@ -23,8 +22,7 @@ export default function useCreateRequestMutation() {
     },
     onSuccess: (res) => {
       toast.success("Request Created: Your service request has been created successfully.");
-      // Invalidate both keys to ensure all components are updated
-      queryClient.invalidateQueries({ queryKey: ["allRequests"] });
+      // Invalidate the key to ensure all components are updated
       queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -32,28 +30,5 @@ export default function useCreateRequestMutation() {
     onError: (error: any) => {
       toast.error(`Error: ${error?.response?.data?.message || "An error occurred while creating the request."}`);
     },
-  });
-}
-
-export function useGetAllRequestsQuery() {
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  return useQuery<RequestResponse[]>({
-    queryKey: ["allRequests"],
-    queryFn: async () => {
-      const response = await axiosInstance.get<{
-        message: string;
-        requests: RequestResponse[];
-      }>("/request/requests");
-      return response.data?.requests || [];
-    },
-    enabled: isClient,
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchInterval: 60 * 1000,
-    retry: true,
   });
 }

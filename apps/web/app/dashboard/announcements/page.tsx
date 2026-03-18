@@ -1,7 +1,9 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
-import { useAnnouncements, useCreateAnnouncement, usePinAnnouncement } from "@/lib/queries"
+import { useAnnouncements } from "@/hooks/announcement/useAnnouncements"
+import { useCreateAnnouncement } from "@/hooks/announcement/useCreateAnnouncement"
+import { usePinAnnouncement } from "@/hooks/announcement/usePinAnnouncement"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -56,8 +58,8 @@ export default function AnnouncementsPage() {
   const filtered = announcements?.filter((ann) => {
     const matchSearch =
       ann.title.toLowerCase().includes(search.toLowerCase()) ||
-      ann.content.toLowerCase().includes(search.toLowerCase()) ||
-      ann.authorName.toLowerCase().includes(search.toLowerCase())
+      ann.content.toLowerCase().includes(search.toLowerCase())
+
     const matchPinned =
       pinnedFilter === "all" ||
       (pinnedFilter === "pinned" && ann.pinned) ||

@@ -5,16 +5,13 @@ import type {
   LunchToken,
   MealPreference,
   Notification,
-  Announcement,
 } from "./types";
 import {
   serviceRequests,
-  announcements,
   users,
   analyticsData,
   lunchTokens,
   notifications,
-  getSortedAnnouncements,
 } from "./data";
 import axiosInstance from "./axios/axios";
 
@@ -37,6 +34,11 @@ export function useAnalytics() {
   return useQuery({
     queryKey: ["analytics"],
     queryFn: () => delay({ ...analyticsData }),
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30 * 1000,
+    retry: true,
   });
 }
 
@@ -136,9 +138,14 @@ export function useNotifications(userId?: string) {
       const response = await axiosInstance.get<Notification[]>("/notifications");
       return response.data;
     },
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 15 * 1000,
+    retry: true,
   });
 }
-
+//notification
 export function useMarkNotificationRead() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -165,62 +172,4 @@ export function useMarkAllNotificationsRead() {
   });
 }
 
-// --- Announcement Hooks ---
-
-export function useAnnouncements() {
-  return useQuery<Announcement[]>({
-    queryKey: ["announcements"],
-    queryFn: async () => {
-      const response = await axiosInstance.get<Announcement[]>("/announcements");
-      return response.data;
-    },
-  });
-}
-
-export function useCreateAnnouncement() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      title,
-      content,
-    }: {
-      title: string;
-      content: string;
-      authorId: string;
-      authorName: string;
-    }) => {
-      const response = await axiosInstance.post("/announcements", {
-        title,
-        content,
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["announcements"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    },
-  });
-}
-
-export function usePinAnnouncement() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      announcementId,
-      pinned,
-    }: {
-      announcementId: string;
-      pinned: boolean;
-    }) => {
-      const response = await axiosInstance.patch(`/announcements/${announcementId}/pin`, {
-        pinned,
-      });
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["announcements"] });
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    },
-  });
-}
 
