@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { useAuth } from "@/lib/auth-context";
 import { StatusBadge } from "@/components/status-badge";
 import { format } from "date-fns";
@@ -88,7 +88,7 @@ const getCategoryLabel = (req: any) => {
 
 export default function AssignedRequestsPage() {
   const { user } = useAuth();
-  const { data: allRequests, isLoading } = useGetAllRequestsQuery();
+  const { data: allRequests, isLoading } = useServiceRequests();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");

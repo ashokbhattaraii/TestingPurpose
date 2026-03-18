@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
-import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
 import {
   Select,
   SelectContent,
@@ -156,13 +155,9 @@ export default function RequestsPage() {
   const { user } = useAuth();
   const isEmployee = user?.roles?.includes("EMPLOYEE");
 
-  const { data: requests, isLoading } = useGetAllRequestsQuery();
+  const { data: requests, isLoading } = useServiceRequests();
 
-  const allRequests = ((
-    requests as { message?: string; requests?: any[] } | undefined
-  )?.requests ??
-    requests ??
-    []) as any[];
+  const allRequests = requests ?? [];
 
   console.log(" Dashboard - Loading:", isLoading);
   console.log(" Dashboard - User:", user);
@@ -178,7 +173,7 @@ export default function RequestsPage() {
   const baseRequests = allRequests;
 
   const filtered =
-    baseRequests.filter((req) => {
+    baseRequests.filter((req: any) => {
       const matchSearch =
         req.title?.toLowerCase().includes(search.toLowerCase()) ||
         req.id?.toLowerCase().includes(search.toLowerCase());
@@ -389,7 +384,8 @@ export default function RequestsPage() {
       ) : (
         <>
           <div className="grid gap-3">
-            {paginatedRequests.map((req) => {
+            {paginatedRequests.map((requestItem) => {
+              const req = requestItem as any;
               const issuePriority = normalizePriority(
                 req.issueDetails?.priority ?? req.issuePriority,
               );

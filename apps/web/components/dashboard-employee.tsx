@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
@@ -70,7 +69,7 @@ export function EmployeeDashboard() {
     useLunchContext();
 
   const { data: allRequests, isLoading: requestsLoading } =
-    useGetAllRequestsQuery();
+    useServiceRequests();
 
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
 
@@ -78,23 +77,23 @@ export function EmployeeDashboard() {
 
   //  Show ONLY user's requests in "Your Recent Requests"
   const userRequests =
-    allRequests?.filter((r) => r.user?.id === user?.id) ?? [];
+    allRequests?.filter((r: any) => r.user?.id === user?.id) ?? [];
 
   const pending =
-    userRequests.filter((r) => r.status === "PENDING").length ?? 0;
+    userRequests.filter((r: any) => r.status === "PENDING").length ?? 0;
   const inProgress =
-    userRequests.filter((r) => r.status === "IN_PROGRESS").length ?? 0;
+    userRequests.filter((r: any) => r.status === "IN_PROGRESS").length ?? 0;
   // Counts for requests in different states
   const onhold =
-    userRequests.filter((r) => r.status === "ON_HOLD").length ?? 0;
+    userRequests.filter((r: any) => r.status === "ON_HOLD").length ?? 0;
   const rejected =
-    userRequests.filter((r) => r.status === "REJECTED").length ?? 0;
+    userRequests.filter((r: any) => r.status === "REJECTED").length ?? 0;
   const total = userRequests.length ?? 0;
 
   const recentRequests =
     userRequests
       ?.filter(
-        (r) =>
+        (r: any) =>
           r.title.toLowerCase().includes(search.toLowerCase()) ||
           r.id.toString().toLowerCase().includes(search.toLowerCase()),
       )
@@ -103,9 +102,9 @@ export function EmployeeDashboard() {
   // Active requests for system-wide view (PENDING)
   const activeRequests =
     allRequests
-      ?.filter((r) => r.status === "PENDING")
+      ?.filter((r: any) => r.status === "PENDING")
       .sort(
-        (a, b) =>
+        (a: any, b: any) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )
       .slice(0, 5) ?? [];
@@ -267,7 +266,7 @@ export function EmployeeDashboard() {
               </p>
             ) : (
               <div className="space-y-3">
-                {recentRequests.map((req) => (
+                {recentRequests.map((req: any) => (
                   <Link
                     key={req?.id}
                     href={`/dashboard/requests/${req?.id}`}

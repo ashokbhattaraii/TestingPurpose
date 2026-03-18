@@ -25,7 +25,6 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { useLaunchAttendanceSummary } from "@/hooks/launch/useLaunchAttendance";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
-import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
@@ -66,7 +65,7 @@ function PriorityBadge({
 export function AdminDashboard() {
   const { user } = useAuth();
   const { data: allRequests, isLoading: requestsLoading } =
-    useGetAllRequestsQuery();
+    useServiceRequests();
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
   const today = new Date().toISOString().split("T")[0];
 
@@ -74,20 +73,20 @@ export function AdminDashboard() {
   const tokenLoading = !attendanceSummary;
 
   const pending =
-    allRequests?.filter((r) => r.status === "PENDING").length ?? 0;
+    allRequests?.filter((r: any) => r.status === "PENDING").length ?? 0;
   const inProgress =
-    allRequests?.filter((r) => r.status === "IN_PROGRESS").length ?? 0;
+    allRequests?.filter((r: any) => r.status === "IN_PROGRESS").length ?? 0;
   const onhold =
-    allRequests?.filter((r) => r.status === "ON_HOLD").length ?? 0;
+    allRequests?.filter((r: any) => r.status === "ON_HOLD").length ?? 0;
   const rejected =
-    allRequests?.filter((r) => r.status === "REJECTED").length ?? 0;
+    allRequests?.filter((r: any) => r.status === "REJECTED").length ?? 0;
   const total = allRequests?.length ?? 0;
 
   const [search, setSearch] = useState("");
 
   // Show ONLY user's requests for the new "Your Recent Requests" section
   const userRequests =
-    allRequests?.filter((r) => r.user?.id === user?.id) ?? [];
+    allRequests?.filter((r: any) => r.user?.id === user?.id) ?? [];
 
   const recentUserRequests = userRequests.slice(0, 5);
 
@@ -99,16 +98,16 @@ const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) 
   // Active requests for system-wide view (PENDING)
   const filteredRequests =
     allRequests?.filter(
-      (r) =>
+      (r: any) =>
         r.title.toLowerCase().includes(search.toLowerCase()) ||
         r.id.toString().toLowerCase().includes(search.toLowerCase()),
     ) ?? [];
 
   const activeRequests =
     filteredRequests
-      ?.filter((r) => r.status === "PENDING")
+      ?.filter((r: any) => r.status === "PENDING")
       .sort(
-        (a, b) =>
+        (a: any, b: any) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )
       .slice(0, 6) ?? [];
