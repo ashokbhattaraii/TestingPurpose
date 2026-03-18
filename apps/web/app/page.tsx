@@ -1,8 +1,6 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Building2,
   BarChart3,
@@ -53,7 +51,7 @@ export default function HomePage() {
       icon: Shield,
       title: "Role-Based Access",
       description:
-        "Secure permissions for employees, admins, and super admins",
+        "Secure permissions for employees and admins",
     },
     {
       icon: Building2,

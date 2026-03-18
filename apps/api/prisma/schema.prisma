@@ -1,33 +1,26 @@
 generator client {
   provider = "prisma-client-js"
- 
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+ 
 }
 
-enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-  EMPLOYEE
-}
 enum RequestStatus {
-  PENDING      // just submitted, waiting for admin
-  IN_PROGRESS  // assigned to someone, being worked on
-  RESOLVED     // issue fixed (Issue type)
-  FULFILLED    // items delivered (Supplies type)
-  REJECTED     // denied by admin
-  CLOSED       // final state, no further action
-  CANCELLED    // cancelled by the employee themselves
-  ON_HOLD      //
+  PENDING
+  IN_PROGRESS
+  REJECTED
+  RESOLVED
+  ON_HOLD
 }
 
 enum RequestType {
   ISSUE // Report problems, complaints, or concerns
   SUPPLIES // Request office Supplies, equipment, or materials
 }
+
+
 
 enum LaunchType {
   VEG
@@ -40,6 +33,7 @@ enum IssuePriority {
   HIGH
   URGENT
 }
+
 enum IssueCategory {
   TECHNICAL
   FACILITY
@@ -58,6 +52,7 @@ enum SuppliesCategory {
   TECHNOLOGY
   OTHER
 }
+
 enum NotificationType {
   REQUEST_UPDATE
   ANNOUNCEMENT
@@ -71,11 +66,14 @@ model User {
   email    String   @unique
   name     String
   photoURL String?
-  role     UserRole @default(EMPLOYEE)
+  roles    String[] @default(["employee"])
 
   // Profile Information
   phone            String?
   department       String?
+  org_unit         String?
+  job_title        String?
+  employment_type  String?
   position         String?
   startDate        DateTime?
   bio              String?
@@ -101,7 +99,7 @@ model User {
 
   @@index([uid])
   @@index([email])
-  @@index([role])
+
 }
 
 model ConnectedAccount {
@@ -123,14 +121,13 @@ model ConnectedAccount {
 }
 
 model Request {
-  id     String        @id @default(cuid())
-  userId String
-  type   RequestType
-  status RequestStatus @default(PENDING)
+  id          String        @id @default(cuid())
+  userId      String
+  type        RequestType
+  status      RequestStatus @default(PENDING)
   // Common fields
   title       String
   description String?
-  attachments String[]
 
   // Approval
   approverId      String?
@@ -138,18 +135,13 @@ model Request {
   rejectionReason String?
   adminNotes      String?
 
-  // Fulfillment
-  isFulfilled Boolean   @default(false)
-  fulfilledAt DateTime?
-  fulfilledBy String?
-
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  approver        User?                  @relation("RequestApprover", fields: [approverId], references: [id])
+  user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approver        User?                   @relation("RequestApprover", fields: [approverId], references: [id])
   issueDetails    RequestIssueDetails?
   suppliesDetails RequestSuppliesDetails?
 
@@ -160,10 +152,11 @@ model Request {
 }
 
 model RequestIssueDetails {
-  requestId String        @id
-  priority  IssuePriority
-  category  IssueCategory
-  location  String?
+  requestId            String        @id
+  priority             IssuePriority
+  category             IssueCategory
+  otherCategoryDetails String?
+  location             String?
 
   request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
@@ -172,9 +165,10 @@ model RequestIssueDetails {
 }
 
 model RequestSuppliesDetails {
-  requestId String           @id
-  category  SuppliesCategory
-  itemName  String
+  requestId            String           @id
+  category             SuppliesCategory
+  otherCategoryDetails String?
+  itemName             String
 
   request Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
 
@@ -186,10 +180,11 @@ model Announcement {
   title    String
   content  String
   priority String @default("normal") // low, normal, high, urgent
+  pinned   Boolean @default(false)
 
   // Targeting
-  targetRoles UserRole[] // Empty array means all users
-  isPublished Boolean    @default(false)
+  targetRoles String[] // Empty array means all users
+  isPublished Boolean  @default(false)
 
   // Creator
   createdById String
@@ -234,10 +229,10 @@ model Notification {
 }
 
 model LunchAttendance {
-  id          String   @id @default(cuid())
-  userId      String
-  date        DateTime @db.Date // Only date, no time
-  isAttending Boolean  @default(true)
+  id                   String      @id @default(cuid())
+  userId               String
+  date                 DateTime    @db.Date // Only date, no time
+  isAttending          Boolean     @default(true)
   preferredLunchOption LaunchType?
   // Timestamps
 
@@ -277,41 +272,3 @@ model Analytics {
   @@index([period])
 }
 
-model Settings {
-  id          String  @id @default(cuid())
-  key         String  @unique
-  value       Json
-  description String?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([key])
-}
-
-model AuditLog {
-  id String @id @default(cuid())
-
-  // Actor
-  userId    String?
-  userEmail String?
-
-  // Action
-  action     String // e.g., "user.created", "request.approved"
-  resource   String // e.g., "User", "Request"
-  resourceId String?
-
-  // Details
-  changes   Json? // Before/after values
-  ipAddress String?
-  userAgent String?
-
-  // Timestamp
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([action])
-  @@index([resource])
-  @@index([createdAt])
-}

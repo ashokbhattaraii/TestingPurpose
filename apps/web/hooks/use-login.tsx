@@ -2,14 +2,19 @@
 
 import { useMutation } from "@tanstack/react-query";
 
-async function startGoogleLogin(): Promise<void> {
+import { fetchWithAuth } from "../lib/api";
+
+async function startGoogleLogin(idToken: string): Promise<any> {
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4001/api/v1";
   if (!baseUrl) {
     throw new Error("NEXT_PUBLIC_API_URL is not set");
   }
 
-  window.location.href = `${baseUrl}/auth/google`;
+  return fetchWithAuth("/auth", {
+    method: "POST",
+    body: { id_token: idToken },
+  });
 }
 
 export function useLogin() {

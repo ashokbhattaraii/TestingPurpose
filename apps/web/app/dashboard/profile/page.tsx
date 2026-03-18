@@ -33,9 +33,8 @@ function getInitials(name: string) {
 }
 
 const roleLabel: Record<string, string> = {
-  employee: "Employee",
-  admin: "Admin",
-  superadmin: "Super Admin",
+  EMPLOYEE: "Employee",
+  ADMIN: "Admin",
 };
 
 export default function ProfilePage() {
@@ -47,7 +46,7 @@ export default function ProfilePage() {
 
   const displayName = user.name ?? "User";
   const displayEmail = user.email ?? "—";
-  const displayRole = roleLabel[user.role] ?? "Employee";
+  const displayRole = roleLabel[user.roles?.[0] || "EMPLOYEE"] ?? "Employee";
   const displayStatus = user.status ?? "active";
   const displayDepartment = user.department ?? "N/A";
   const joinedAt = (user as any).joinedAt
@@ -56,7 +55,15 @@ export default function ProfilePage() {
   const lastLogin = (user as any).lastLogin
     ? new Date((user as any).lastLogin)
     : null;
-  const socialAccounts = (user as any).socialAccounts ?? [];
+  const socialAccounts = [...((user as any).socialAccounts ?? [])];
+  const hasGoogle = socialAccounts.some((acc: any) => acc.provider === "google");
+  if (!hasGoogle && user.email) {
+    socialAccounts.push({
+      provider: "google",
+      email: user.email,
+      connectedAt: (user as any).joinedAt || new Date().toISOString(),
+    });
+  }
 
   const requestsArray = (Array.isArray(requestsData)
     ? requestsData

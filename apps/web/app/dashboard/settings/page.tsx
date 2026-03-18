@@ -23,27 +23,18 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, Lock, Bell, Shield, Copy, Check } from "lucide-react";
+import { Bell, Shield, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
 const roleLabel: Record<string, string> = {
-  employee: "Employee",
-  admin: "Admin",
-  superadmin: "Super Admin",
+  EMPLOYEE: "Employee",
+  ADMIN: "Admin",
 };
 
 export default function SettingsPage() {
   const { user } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  const [formData, setFormData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
 
   const [notificationPrefs, setNotificationPrefs] = useState({
     emailNotifications:
@@ -58,35 +49,7 @@ export default function SettingsPage() {
     }
   }, [user]);
 
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
-  const handleSavePassword = () => {
-    if (formData.newPassword !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-    if (formData.newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters");
-      return;
-    }
-
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      setFormData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-      toast.success("Password updated successfully");
-    }, 1000);
-  };
 
   const handleSaveNotifications = () => {
     setIsSaving(true);
@@ -179,7 +142,7 @@ export default function SettingsPage() {
               </Label>
               <Input
                 type="text"
-                value={roleLabel[user.role]}
+                value={roleLabel[user.roles?.[0] || "EMPLOYEE"]}
                 disabled
                 className="bg-muted"
               />
@@ -207,12 +170,12 @@ export default function SettingsPage() {
               <span className="text-sm text-foreground">
                 {user.lastLogin
                   ? new Date(user.lastLogin).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
                   : "Never"}
               </span>
             </div>
@@ -220,122 +183,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Password & Security */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Lock className="h-5 w-5 text-primary" />
-            <div>
-              <CardTitle className="text-lg">Password & Security</CardTitle>
-              <CardDescription>
-                Update your password and manage security settings
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-xs font-semibold text-blue-900 mb-2">
-              Security Tip
-            </p>
-            <ul className="text-xs text-blue-800 space-y-1">
-              <li>• Use a strong password with at least 8 characters</li>
-              <li>• Combine uppercase, lowercase, numbers, and symbols</li>
-              <li>• Never share your password with anyone</li>
-              <li>• Change your password regularly for better security</li>
-            </ul>
-          </div>
 
-          <Separator />
-
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="current-password" className="text-sm font-medium">
-                Current Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="current-password"
-                  type={showPassword ? "text" : "password"}
-                  name="currentPassword"
-                  placeholder="Enter your current password"
-                  value={formData.currentPassword}
-                  onChange={handlePasswordChange}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1/2 -translate-y-1/2"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="new-password" className="text-sm font-medium">
-                New Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="new-password"
-                  type={showNewPassword ? "text" : "password"}
-                  name="newPassword"
-                  placeholder="Enter new password"
-                  value={formData.newPassword}
-                  onChange={handlePasswordChange}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1/2 -translate-y-1/2"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                >
-                  {showNewPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="confirm-password" className="text-sm font-medium">
-                Confirm New Password
-              </Label>
-              <Input
-                id="confirm-password"
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm new password"
-                value={formData.confirmPassword}
-                onChange={handlePasswordChange}
-              />
-            </div>
-
-            <Button
-              onClick={handleSavePassword}
-              disabled={
-                isSaving ||
-                !formData.currentPassword ||
-                !formData.newPassword ||
-                !formData.confirmPassword
-              }
-              className="w-full sm:w-auto"
-            >
-              {isSaving ? "Updating..." : "Update Password"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Notification Preferences */}
       <Card>

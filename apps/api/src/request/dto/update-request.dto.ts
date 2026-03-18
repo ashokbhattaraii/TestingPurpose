@@ -1,63 +1,73 @@
 import { Type } from 'class-transformer';
 import {
-    ValidateNested,
-    IsEnum,
-    IsOptional,
-    IsString,
-    MinLength,
+  ValidateNested,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
 } from 'class-validator';
-import { IssueCategory, IssuePriority, RequestType, SuppliesCategory } from './create-request.dto';
+import {
+  IssueCategory,
+  IssuePriority,
+  RequestType,
+  SuppliesCategory,
+} from '@prisma/client';
 
 export class UpdateIssueDetailsDto {
-    @IsEnum(IssuePriority)
-    @IsOptional()
-    priority?: IssuePriority;
+  @IsEnum(IssuePriority)
+  @IsOptional()
+  priority?: IssuePriority;
 
-    @IsEnum(IssueCategory)
-    @IsOptional()
-    category?: IssueCategory;
+  @IsEnum(IssueCategory)
+  @IsOptional()
+  category?: IssueCategory;
 
-    @IsOptional()
-    @IsString()
-    location?: string | null;
+  @IsOptional()
+  @IsString()
+  otherCategoryDetails?: string | null;
+
+  @IsOptional()
+  @IsString()
+  location?: string | null;
 }
 
 export class UpdateSuppliesDetailsDto {
-    @IsEnum(SuppliesCategory)
-    @IsOptional()
-    category?: SuppliesCategory;
+  @IsEnum(SuppliesCategory)
+  @IsOptional()
+  category?: SuppliesCategory;
 
-    @IsString()
-    @IsOptional()
-    itemName?: string;
+  @IsOptional()
+  @IsString()
+  otherCategoryDetails?: string | null;
+
+  @IsString()
+  @IsOptional()
+  itemName?: string;
 }
 
 export class UpdateRequestDto {
-    @IsEnum(RequestType)
-    @IsOptional()
-    type?: RequestType;
+  @IsEnum(RequestType)
+  @IsOptional()
+  type?: RequestType;
 
-    @IsString()
-    @IsOptional()
-    @MinLength(3)
-    title?: string;
+  @IsString()
+  @IsOptional()
+  @MinLength(3)
+  title?: string;
 
-    @IsString()
-    @IsOptional()
-    description?: string;
+  @IsString()
+  @IsOptional()
+  description?: string;
 
-    @IsOptional()
-    attachments?: string[];
+  // ISSUE-specific fields
+  @ValidateNested()
+  @Type(() => UpdateIssueDetailsDto)
+  @IsOptional()
+  issueDetails?: UpdateIssueDetailsDto;
 
-    // ISSUE-specific fields
-    @ValidateNested()
-    @Type(() => UpdateIssueDetailsDto)
-    @IsOptional()
-    issueDetails?: UpdateIssueDetailsDto;
-
-    // SUPPLIES-specific fields
-    @ValidateNested()
-    @Type(() => UpdateSuppliesDetailsDto)
-    @IsOptional()
-    suppliesDetails?: UpdateSuppliesDetailsDto;
+  // SUPPLIES-specific fields
+  @ValidateNested()
+  @Type(() => UpdateSuppliesDetailsDto)
+  @IsOptional()
+  suppliesDetails?: UpdateSuppliesDetailsDto;
 }

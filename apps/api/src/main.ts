@@ -9,8 +9,11 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000', // frontend URL
-    credentials: true, // required for cookies
+    origin: [
+      'http://localhost:3000',
+      'https://testing-purpose-web.vercel.app',
+    ],
+    credentials: true,
   });
 
   app.setGlobalPrefix('api');

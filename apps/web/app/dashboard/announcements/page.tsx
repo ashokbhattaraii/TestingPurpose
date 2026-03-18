@@ -1,7 +1,9 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
-import { useAnnouncements, useCreateAnnouncement, usePinAnnouncement } from "@/lib/queries"
+import { useAnnouncements } from "@/hooks/announcement/useAnnouncements"
+import { useCreateAnnouncement } from "@/hooks/announcement/useCreateAnnouncement"
+import { usePinAnnouncement } from "@/hooks/announcement/usePinAnnouncement"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -51,13 +53,13 @@ export default function AnnouncementsPage() {
   const [pinnedFilter, setPinnedFilter] = useState<string>("all")
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
-  const canCreate = user?.role === "admin" || user?.role === "superadmin"
+  const canCreate = user?.roles?.some((r) => r.includes("ADMIN"));
 
   const filtered = announcements?.filter((ann) => {
     const matchSearch =
       ann.title.toLowerCase().includes(search.toLowerCase()) ||
-      ann.content.toLowerCase().includes(search.toLowerCase()) ||
-      ann.authorName.toLowerCase().includes(search.toLowerCase())
+      ann.content.toLowerCase().includes(search.toLowerCase())
+
     const matchPinned =
       pinnedFilter === "all" ||
       (pinnedFilter === "pinned" && ann.pinned) ||
@@ -328,11 +330,10 @@ export default function AnnouncementsPage() {
                         title={ann.pinned ? "Unpin announcement" : "Pin announcement"}
                       >
                         <Pin
-                          className={`h-3.5 w-3.5 ${
-                            ann.pinned
+                          className={`h-3.5 w-3.5 ${ann.pinned
                               ? "fill-primary text-primary"
                               : "text-muted-foreground"
-                          }`}
+                            }`}
                         />
                       </Button>
                     )}

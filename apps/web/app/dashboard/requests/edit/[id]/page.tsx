@@ -69,6 +69,7 @@ export default function EditRequestPage() {
         description: request.description || "",
         issuePriority: request.issueDetails?.priority || "MEDIUM",
         issueCategory: request.issueDetails?.category || "TECHNICAL",
+        otherCategoryDetails: request.issueDetails?.otherCategoryDetails || "",
         location: request.issueDetails?.location || "",
       };
     }
@@ -77,6 +78,7 @@ export default function EditRequestPage() {
       title: request.title,
       description: request.description || "",
       suppliesCategory: request?.suppliesDetails?.category || "OFFICE_Supplies",
+      otherCategoryDetails: request?.suppliesDetails?.otherCategoryDetails || "",
       itemName: request.suppliesDetails?.itemName || "",
     };
   }, [request]);
@@ -94,6 +96,8 @@ export default function EditRequestPage() {
   }, [request, form, getDefaultValues]);
 
   const requestType = form.watch("type");
+  const issueCategory = form.watch("issueCategory");
+  const suppliesCategory = form.watch("suppliesCategory");
 
   const handleTypeChange = (newType: "ISSUE" | "SUPPLIES") => {
     if (newType === "ISSUE") {
@@ -175,12 +179,7 @@ export default function EditRequestPage() {
       },
       {
         onSuccess: () => {
-          toast.success("Request updated successfully.");
           router.push(`/dashboard/requests/${request.id}`);
-        },
-        onError: (error) => {
-          console.error("Failed to update request:", error);
-          toast.error("Failed to update request. Please try again.");
         },
       },
     );
@@ -323,6 +322,25 @@ export default function EditRequestPage() {
                       )}
                     />
 
+                    {issueCategory === "OTHER" && (
+                      <FormField
+                        control={form.control}
+                        name="otherCategoryDetails"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Specify Category *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Please specify (max 15 words)"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
                     <FormField
                       control={form.control}
                       name="issuePriority"
@@ -401,6 +419,25 @@ export default function EditRequestPage() {
                       </FormItem>
                     )}
                   />
+
+                  {suppliesCategory === "OTHER" && (
+                    <FormField
+                      control={form.control}
+                      name="otherCategoryDetails"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Specify Category *</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Please specify (max 15 words)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
                   <FormField
                     control={form.control}

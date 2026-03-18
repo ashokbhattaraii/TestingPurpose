@@ -1,16 +1,16 @@
 import {
-  QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 import axiosInstance from "@/lib/axios/axios";
 import {
   CreateRequestPayload,
   RequestResponse,
 } from "@/lib/type/requestType";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export default function useCreateRequestMutation() {
   const queryClient = useQueryClient();
@@ -21,41 +21,14 @@ export default function useCreateRequestMutation() {
       return response.data;
     },
     onSuccess: (res) => {
-      toast({
-        title: "Request Created",
-        description: "Your service request has been created successfully.",
-      });
-      // Invalidate both keys to ensure all components are updated
-      queryClient.invalidateQueries({ queryKey: ["allRequests"] });
+      toast.success("Request Created: Your service request has been created successfully.");
+      // Invalidate the key to ensure all components are updated
       queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (error: any) => {
-      toast({
-        title: "Error",
-        description:
-          error?.response?.data?.message ||
-          "An error occurred while creating the request.",
-        variant: "destructive",
-      });
+      toast.error(`Error: ${error?.response?.data?.message || "An error occurred while creating the request."}`);
     },
-  });
-}
-
-export function useGetAllRequestsQuery() {
-  return useQuery<RequestResponse[]>({
-    queryKey: ["allRequests"],
-    queryFn: async () => {
-      const response = await axiosInstance.get<{
-        message: string;
-        requests: RequestResponse[];
-      }>("/request/requests");
-      return response.data?.requests || [];
-    },
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchInterval: 60 * 1000,
-    retry: true,
   });
 }

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios/axios";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { IssueCategory, IssuePriority, SuppliesCategory, RequestType } from "@/lib/types";
 
 interface UpdateRequestPayload {
@@ -8,7 +8,6 @@ interface UpdateRequestPayload {
     type?: RequestType;
     title?: string;
     description?: string;
-    attachments?: string[];
     issueDetails?: {
         priority: IssuePriority;
         category: IssueCategory;
@@ -62,6 +61,7 @@ export function useUpdateRequestMutation() {
             return response.data;
         },
         onSuccess: (_, variables) => {
+            toast.success("Request Updated: Your service request has been updated successfully.");
             queryClient.invalidateQueries({ queryKey: ["request", variables.id] });
             queryClient.invalidateQueries({ queryKey: ["allRequests"] });
             queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
@@ -69,6 +69,7 @@ export function useUpdateRequestMutation() {
         },
         onError: (error: any) => {
             console.error(error);
+            toast.error(`Error: ${error?.response?.data?.message || "An error occurred while updating the request."}`);
         }
     });
 }

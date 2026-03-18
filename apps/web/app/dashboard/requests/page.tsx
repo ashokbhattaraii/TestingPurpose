@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
-import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
 import {
   Select,
   SelectContent,
@@ -154,19 +153,15 @@ const normalizePriority = (
 
 export default function RequestsPage() {
   const { user } = useAuth();
-  const isEmployee = user?.role === "EMPLOYEE";
+  const isEmployee = user?.roles?.includes("EMPLOYEE");
 
-  const { data: requests, isLoading } = useGetAllRequestsQuery();
+  const { data: requests, isLoading } = useServiceRequests();
 
-  const allRequests = ((
-    requests as { message?: string; requests?: any[] } | undefined
-  )?.requests ??
-    requests ??
-    []) as any[];
+  const allRequests = requests ?? [];
 
   console.log(" Dashboard - Loading:", isLoading);
   console.log(" Dashboard - User:", user);
-  console.log(" Dashboard - Role:", user?.role);
+  console.log(" Dashboard - Role:", user?.roles);
   console.log(" Dashboard - All Requests:", allRequests);
 
   const [search, setSearch] = useState("");
@@ -174,13 +169,11 @@ export default function RequestsPage() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
-
-  const baseRequests = isEmployee
-    ? allRequests.filter((r) => r.user?.id === user?.id)
-    : allRequests;
+  //display all service request
+  const baseRequests = allRequests;
 
   const filtered =
-    baseRequests.filter((req) => {
+    baseRequests.filter((req: any) => {
       const matchSearch =
         req.title?.toLowerCase().includes(search.toLowerCase()) ||
         req.id?.toLowerCase().includes(search.toLowerCase());
@@ -234,14 +227,22 @@ export default function RequestsPage() {
 
   const getCategoryLabel = (req: any) => {
     if (req.type === "ISSUE" && req.issueDetails?.category) {
-      return ISSUE_CATEGORY_LABELS[
+      const label = ISSUE_CATEGORY_LABELS[
         req.issueDetails.category as keyof typeof ISSUE_CATEGORY_LABELS
       ];
+      if (req.issueDetails.category === "OTHER" && req.issueDetails.otherCategoryDetails) {
+        return `${label}-(${req.issueDetails.otherCategoryDetails})`;
+      }
+      return label;
     }
     if (req.type === "SUPPLIES" && req.suppliesDetails?.category) {
-      return SUPPLIES_CATEGORY_LABELS[
+      const label = SUPPLIES_CATEGORY_LABELS[
         req.suppliesDetails.category as keyof typeof SUPPLIES_CATEGORY_LABELS
       ];
+      if (req.suppliesDetails.category === "OTHER" && req.suppliesDetails.otherCategoryDetails) {
+        return `${label}-(${req.suppliesDetails.otherCategoryDetails})`;
+      }
+      return label;
     }
     return "";
   };
@@ -259,14 +260,14 @@ export default function RequestsPage() {
               : "All service requests across the organization."}
           </p>
         </div>
-        {isEmployee && (
-          <Button asChild size="sm">
-            <Link href="/dashboard/requests/new">
-              <Plus className="mr-1 h-4 w-4" />
-              New Request
-            </Link>
-          </Button>
-        )}
+
+        <Button asChild size="sm">
+          <Link href="/dashboard/requests/new">
+            <Plus className="mr-1 h-4 w-4" />
+            New Request
+          </Link>
+        </Button>
+
       </div>
 
       {/* Filters */}
@@ -328,10 +329,7 @@ export default function RequestsPage() {
                   <SelectItem value="PENDING">Pending</SelectItem>
                   <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
                   <SelectItem value="RESOLVED">Resolved</SelectItem>
-                  <SelectItem value="FULFILLED">Fulfilled</SelectItem>
                   <SelectItem value="REJECTED">Rejected</SelectItem>
-                  <SelectItem value="CLOSED">Closed</SelectItem>
-                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
                   <SelectItem value="ON_HOLD">On-Hold</SelectItem>
                 </SelectContent>
               </Select>
@@ -386,7 +384,8 @@ export default function RequestsPage() {
       ) : (
         <>
           <div className="grid gap-3">
-            {paginatedRequests.map((req) => {
+            {paginatedRequests.map((requestItem) => {
+              const req = requestItem as any;
               const issuePriority = normalizePriority(
                 req.issueDetails?.priority ?? req.issuePriority,
               );

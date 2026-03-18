@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/lib/auth-context";
 import { useReopenRequest } from "@/hooks/request/useReopenRequest";
-import { useDeleteRequest } from "@/hooks/request/useDeleteRequest";
 import { useAssignRequest } from "@/hooks/request/useAssignRequest";
 import { useUpdateRequestStatus } from "@/hooks/request/useUpdateRequestStatus";
 import { useUsers } from "@/lib/queries";
@@ -13,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { useGetRequestByIdQuery } from "@/hooks/request/useGetRequest";
+
 import {
   Select,
   SelectContent,
@@ -38,7 +38,6 @@ import {
   Flag,
   UserPlus,
   Edit2,
-  Trash2,
   FileText,
   ImageIcon,
   File,
@@ -51,7 +50,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { RequestStatus } from "@/lib/types";
 import { toast } from "sonner";
 import {
@@ -60,6 +59,8 @@ import {
   SUPPLIES_CATEGORY_LABELS,
 } from "@/schemas";
 import { useGetAdminUser } from "@/hooks/users/useGetUser";
+import { useCancelRequest } from "@/hooks/request/useCancelRequest";
+import { title } from "process";
 const priorityConfig = {
   LOW: { label: "Low", className: "bg-muted text-muted-foreground" },
   MEDIUM: { label: "Medium", className: "bg-amber-100 text-amber-800" },
@@ -70,6 +71,7 @@ const priorityConfig = {
 export default function RequestDetailPage() {
   const { user } = useAuth();
   const router = useRouter();
+  // const { toast } = useToast();  // removed as per standardization
   const params = useParams();
   const { data: adminUser, isLoading: isGetAdminLoading } = useGetAdminUser();
 
@@ -79,12 +81,13 @@ export default function RequestDetailPage() {
   const { data: allUsers } = useUsers();
   const updateStatus = useUpdateRequestStatus();
   const assignRequest = useAssignRequest();
-  const deleteRequest = useDeleteRequest();
   const reopenRequest = useReopenRequest();
   const [newStatus, setNewStatus] = useState<RequestStatus | "">("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [assignTo, setAssignTo] = useState<string>("");
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+
+
 
   const formatDate = (value: any, pattern: string) => {
     if (!value) return "N/A";
@@ -96,9 +99,20 @@ export default function RequestDetailPage() {
     return newDate;
   };
 
-  const isAdminOrSuper = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  const isAdminOrSuper = user?.roles?.some((r) => r.includes("ADMIN"));
   const isCreator = user?.id === requestById?.request.user.id;
   const request = requestById?.request;
+  // Check if current admin is the assigned admin
+  const isAssignedToMe = request?.approverId === user?.id;
+  // Can this admin manage (assign/update status) this request?
+  // If not yet assigned, any admin can. If assigned, only the assigned admin.
+  const canManageRequest = isAdminOrSuper && !isCreator && (!request?.approverId || isAssignedToMe);
+
+  useEffect(() => {
+    if (request?.approverId) {
+      setAssignTo(request.approverId);
+    }
+  }, [request?.approverId]);
 
   const handleStatusUpdate = () => {
     if (!newStatus || !request) return;
@@ -116,7 +130,6 @@ export default function RequestDetailPage() {
       },
       {
         onSuccess: () => {
-          toast.success(`Request status updated to ${newStatus}.`);
           setNewStatus("");
           setRejectionReason("");
         },
@@ -130,9 +143,6 @@ export default function RequestDetailPage() {
       { id: request.id, userId: user.id, userName: user.name },
       {
         onSuccess: () => {
-          toast.success(
-            "Request has been reopened. Admins have been notified.",
-          );
         },
       },
     );
@@ -155,26 +165,29 @@ export default function RequestDetailPage() {
       },
       {
         onSuccess: () => {
-          toast.success(
-            `Request assigned to ${targetUser.name}. They have been notified.`,
-          );
           setAssignTo("");
         },
       },
     );
   };
+  const { mutate: cancelRequest, isPending: isCancelPending } = useCancelRequest()
+  const handleCancelCommand = () => {
+    //hanlde cancellation of the request by the user who created
+    if (!request || !user) {
+      toast.error("Request not found.");
+      return
+    }
+    if (request?.user.id !== user?.id) {
+      toast.error("You are not authorized to cancel this request.");
+      return
+    }
 
-  const handleDelete = () => {
-    if (!request) return;
-    deleteRequest.mutate(request.id, {
+    cancelRequest(request?.id || "", {
       onSuccess: () => {
-        toast.success("Request deleted successfully.");
-        router.push("/dashboard/requests");
-      },
-      onError: () => {
-        toast.error("Failed to delete request.");
-      },
-    });
+      }
+
+    })
+
   };
 
   if (isLoading) {
@@ -232,10 +245,9 @@ export default function RequestDetailPage() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => setIsDeleteDialogOpen(true)}
+                    onClick={() => setIsCancelDialogOpen(true)}
                   >
-                    <Trash2 className="mr-1 h-4 w-4" />
-                    Delete
+                    Cancel
                   </Button>
                 </>
               )}
@@ -267,10 +279,15 @@ export default function RequestDetailPage() {
                 <div>
                   <p className="text-xs text-muted-foreground">Category</p>
                   <p className="text-sm text-foreground">
-                    {ISSUE_CATEGORY_LABELS[
-                      request.issueDetails
-                        .category as keyof typeof ISSUE_CATEGORY_LABELS
-                    ] || request.issueDetails.category}
+                    {(() => {
+                      const label = ISSUE_CATEGORY_LABELS[
+                        request.issueDetails.category as keyof typeof ISSUE_CATEGORY_LABELS
+                      ] || request.issueDetails.category;
+                      if (request.issueDetails.category === "OTHER" && request.issueDetails.otherCategoryDetails) {
+                        return `${label}-(${request.issueDetails.otherCategoryDetails})`;
+                      }
+                      return label;
+                    })()}
                   </p>
                 </div>
               </div>
@@ -313,10 +330,15 @@ export default function RequestDetailPage() {
                       Supplies Category
                     </p>
                     <p className="text-sm text-foreground">
-                      {SUPPLIES_CATEGORY_LABELS[
-                        request.suppliesDetails
-                          .category as keyof typeof SUPPLIES_CATEGORY_LABELS
-                      ] || request.suppliesDetails.category}
+                      {(() => {
+                        const label = SUPPLIES_CATEGORY_LABELS[
+                          request.suppliesDetails.category as keyof typeof SUPPLIES_CATEGORY_LABELS
+                        ] || request.suppliesDetails.category;
+                        if (request.suppliesDetails.category === "OTHER" && request.suppliesDetails.otherCategoryDetails) {
+                          return `${label}-(${request.suppliesDetails.otherCategoryDetails})`;
+                        }
+                        return label;
+                      })()}
                     </p>
                   </div>
                 </div>
@@ -354,21 +376,22 @@ export default function RequestDetailPage() {
           </div>
 
           {/* Rejection Reason Display */}
-          {request.status === "REJECTED" && (
-            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4">
-              <div className="flex items-start gap-2">
-                <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-destructive">
-                    Request Rejected
-                  </p>
-                  <p className="mt-1 text-sm leading-relaxed text-foreground">
-                    This request has been rejected.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+{/* Rejection Reason Display - यसलाई "Request Rejected" सेक्सनमा रिप्लेस गर्नुहोस् */}
+{request.status === "REJECTED" && (
+  <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 mt-2">
+    <div className="flex items-start gap-2">
+      <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-destructive">
+          Reason for Rejection:
+        </p>
+        <p className="mt-1 text-sm leading-relaxed text-foreground italic border-l-2 border-destructive/20 pl-3">
+          {(request as any).rejectionReason || "No specific reason provided by the admin."}
+        </p>
+      </div>
+    </div>
+  </div>
+)}
 
           {/* Reopen Button for creator when rejected */}
           {isCreator && request.status === "REJECTED" && (
@@ -404,8 +427,29 @@ export default function RequestDetailPage() {
             </p>
           </div>
 
-          {/* Admin: Assign Request */}
+          {/* Notice for non-assigned admins */}
           {isAdminOrSuper &&
+            !isCreator &&
+            request.approverId &&
+            !isAssignedToMe &&
+            !["RESOLVED", "REJECTED"].includes(request.status) && (
+              <div className="rounded-md border border-amber-300/50 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-700/30 p-4">
+                <div className="flex items-start gap-2">
+                  <UserPlus className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                      Assigned to {request.approver?.name || "another admin"}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-amber-700 dark:text-amber-400">
+                      This request has been assigned to another admin. Only the assigned admin can update or manage this request.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          {/* Admin: Assign Request */}
+          {canManageRequest &&
             ["PENDING", "ON_HOLD", "IN_PROGRESS"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <div className="flex items-center gap-2">
@@ -421,17 +465,27 @@ export default function RequestDetailPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {(Array.isArray(adminUser) ? adminUser : adminUser ? [adminUser] : [])
-                        ?.filter((u) => u?.id && u.id !== request.user?.id)
-                        .map((u) => (
-                          <SelectItem key={u.id} value={u.id}>
-                            {u?.name} ({u.department})
-                          </SelectItem>
-                        ))}
+                        ?.filter((u) => u?.id)
+                        .map((u) => {
+                          const isReqCreator = u.id === request.user?.id;
+                          return (
+                            <SelectItem key={u.id} value={u.id} disabled={isReqCreator}>
+                              <div className="flex items-center justify-between w-full min-w-[150px]">
+                                <span>{u?.name} ({u.department})</span>
+                                {isReqCreator && (
+                                  <Badge variant="secondary" className="ml-2 text-[10px] px-1 py-0 h-4 font-normal">
+                                    Creator
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
                     </SelectContent>
                   </Select>
                   <Button
                     onClick={handleAssign}
-                    disabled={!assignTo || assignRequest.isPending}
+                    disabled={!assignTo || assignRequest.isPending || !!request?.approverId}
                     size="sm"
                     variant="outline"
                   >
@@ -445,8 +499,8 @@ export default function RequestDetailPage() {
             )}
 
           {/* Admin: Update Status */}
-          {isAdminOrSuper &&
-            !["RESOLVED", "FULFILLED", "REJECTED", "CLOSED"].includes(request.status) && (
+          {canManageRequest &&
+            !["RESOLVED", "REJECTED"].includes(request.status) && (
               <div className="flex flex-col gap-3 border-t border-border pt-4">
                 <p className="text-sm font-medium text-foreground">
                   Update Status
@@ -470,23 +524,13 @@ export default function RequestDetailPage() {
                       {request.status !== "ON_HOLD" && (
                         <SelectItem value="ON_HOLD">On Hold</SelectItem>
                       )}
-                      {request.type === "ISSUE"
-                        ? request.status !== "RESOLVED" && (
-                          <SelectItem value="RESOLVED">Resolved</SelectItem>
-                        )
-                        : request.status !== "FULFILLED" && (
-                          <SelectItem value="FULFILLED">Fulfilled</SelectItem>
-                        )}
+                      {request.status !== "RESOLVED" && (
+                        <SelectItem value="RESOLVED">Resolved</SelectItem>
+                      )}
                       {request.status !== "REJECTED" && (
                         <SelectItem value="REJECTED">Rejected</SelectItem>
                       )}
-                      {request.status !== "CLOSED" && (
-                        <SelectItem value="CLOSED">Closed</SelectItem>
-                      )}
-                      {/* Allow moving back to pending if needed, but only if not already pending */}
-                      {request.status !== "PENDING" && (
-                        <SelectItem value="PENDING">Pending</SelectItem>
-                      )}
+
                     </SelectContent>
                   </Select>
                   <Button
@@ -529,27 +573,25 @@ export default function RequestDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Cancel Confirmation Dialog */}
       <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        open={isCancelDialogOpen}
+        onOpenChange={setIsCancelDialogOpen}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Request</AlertDialogTitle>
+            <AlertDialogTitle>Cancel Request</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this request? This action cannot
-              be undone.
+              Are you sure you want to cancel this request?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Back</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteRequest.isPending}
+              onClick={handleCancelCommand}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {deleteRequest.isPending ? "Deleting..." : "Delete"}
+              Cancel Request
             </AlertDialogAction>
           </div>
         </AlertDialogContent>

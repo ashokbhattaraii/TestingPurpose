@@ -5,7 +5,7 @@
         "email": "gameab12an@gmail.com",
         "name": "Gamet undefined",
         "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocKDk2d9XZD1NLT5vLlaDFLxiT09alCXgEAuv_KzGvp8bdpPuw=s96-c",
-        "role": "SUPER_ADMIN",
+        "role": "ADMIN",
         "phone": null,
         "department": null,
         "position": null,
@@ -25,9 +25,12 @@ export interface EmployeeType {
   email: string;
   name: string;
   photoURL: string;
-  role: "EMPLOYEE" | "ADMIN" | "SUPER_ADMIN";
+  roles: string[];
   phone: string | null;
   department: string | null;
+  org_unit: string | null;
+  job_title: string | null;
+  employment_type: string | null;
   position: string | null;
   startDate: string | null;
   bio: string | null;

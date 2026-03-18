@@ -1,13 +1,10 @@
-export type UserRole = "SUPER_ADMIN" | "ADMIN" | "EMPLOYEE";
+export type UserRole = "ADMIN" | "EMPLOYEE";
 
 export type RequestStatus =
   | "PENDING"
   | "IN_PROGRESS"
   | "RESOLVED"
-  | "FULFILLED"
   | "REJECTED"
-  | "CLOSED"
-  | "CANCELLED"
   | "ON_HOLD";
 
 export type RequestType = "ISSUE" | "SUPPLIES";
@@ -23,7 +20,7 @@ export type IssueCategory =
   | "OTHER";
 
 export type SuppliesCategory =
-  | "OFFICE_Supplies"
+  | "OFFICE_SUPPLIES"
   | "EQUIPMENT"
   | "STATIONERY"
   | "PANTRY"
@@ -31,7 +28,7 @@ export type SuppliesCategory =
   | "TECHNOLOGY"
   | "OTHER";
 
-export type SocialProvider = "google" | "slack" | "github" | "linkedin";
+export type SocialProvider = "google" | "slack";
 export interface SocialAccount {
   provider: SocialProvider;
   email: string;
@@ -43,7 +40,7 @@ export interface User {
   name: string;
   email: string;
   avatar: string;
-  role: UserRole;
+  roles: string[];
   department: string;
   joinedAt: string;
   status: "active" | "inactive";
@@ -56,14 +53,6 @@ export interface User {
   };
 }
 
-export interface Attachment {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  url: string;
-}
-
 export interface ServiceRequest {
   id: string;
   type: RequestType;
@@ -74,25 +63,18 @@ export interface ServiceRequest {
   // Issue-specific fields
   issuePriority?: IssuePriority;
   issueCategory?: IssueCategory;
+  otherCategoryDetails?: string;
   location?: string;
 
   // Supplies-specific fields
   SuppliesCategory?: SuppliesCategory;
   itemName: string;
 
-  // Common fields
-  attachments?: Attachment[];
-
   // Approval
   approverId?: string;
   approvedAt?: string;
   rejectionReason?: string;
   adminNotes?: string;
-
-  // Fulfillment (for Supplies)
-  isFulfilled?: boolean;
-  fulfilledAt?: string;
-  fulfilledBy?: string;
 
   // Timestamps & Relations
   userId: string;
@@ -128,7 +110,7 @@ export interface Notification {
   userId: string;
   title: string;
   message: string;
-  read: boolean;
+  isRead: boolean;
   createdAt: string;
   link?: string;
 }

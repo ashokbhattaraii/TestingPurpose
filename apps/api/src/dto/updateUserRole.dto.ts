@@ -1,10 +1,9 @@
-import { IsEnum, IsString } from "class-validator";
-import { UserRole } from "@prisma/client";
+import { IsEnum, IsString } from 'class-validator';
 
 export class UpdateUserRoleDto {
-    @IsEnum(UserRole)
-    role: UserRole
+  @IsString({ each: true })
+  roles: string[];
 
-    @IsString()
-    userId: string
+  @IsString()
+  userId: string;
 }

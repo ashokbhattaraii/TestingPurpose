@@ -10,4 +10,4 @@ import { PrismaModule } from '../prisma/prisma.module';
   controllers: [RequestController],
   exports: [RequestService],
 })
-export class RequestModule { }
+export class RequestModule {}

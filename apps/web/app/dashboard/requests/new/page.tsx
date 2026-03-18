@@ -19,11 +19,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   ArrowLeft,
-  Paperclip,
-  X,
-  FileText,
-  ImageIcon,
-  File,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -47,20 +42,10 @@ import {
   SUPPLIES_CATEGORY_LABELS,
   ISSUE_PRIORITY_LABELS,
 } from "@/schemas";
-import type { Attachment } from "@/lib/types";
-import error from "next/error";
 import { CreateRequestPayload } from "@/lib/type/requestType"; // fix import path
 
-//  keep non-hook constants at module level
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const MAX_FILES = 5;
-const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
-
 export default function NewRequestPage() {
-  //  hooks must be inside component
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const { mutate, isPending } = useCreateRequestMutation();
 
   const form = useForm<RequestFormValues>({
@@ -76,6 +61,8 @@ export default function NewRequestPage() {
   });
 
   const requestType = form.watch("type");
+  const issueCategory = form.watch("issueCategory");
+  const suppliesCategory = form.watch("suppliesCategory");
 
   const handleTypeChange = (newType: "ISSUE" | "SUPPLIES") => {
     if (newType === "ISSUE") {
@@ -92,53 +79,10 @@ export default function NewRequestPage() {
         type: "SUPPLIES",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
-        suppliesCategory: "OFFICE_Supplies",
+        suppliesCategory: "OFFICE_SUPPLIES",
         itemName: "",
       });
     }
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
-    const remaining = MAX_FILES - attachments.length;
-    if (remaining <= 0) {
-      toast.error(`Maximum ${MAX_FILES} files allowed.`);
-      return;
-    }
-
-    const newAttachments: Attachment[] = [];
-    const fileArray = Array.from(files).slice(0, remaining);
-
-    for (const file of fileArray) {
-      if (!ACCEPTED_TYPES.includes(file.type)) {
-        toast.error(`"${file.name}" is not a supported file type.`);
-        continue;
-      }
-      if (file.size > MAX_FILE_SIZE) {
-        toast.error(`"${file.name}" exceeds 5MB limit.`);
-        continue;
-      }
-      newAttachments.push({
-        id: `att-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        url: URL.createObjectURL(file),
-      });
-    }
-
-    setAttachments((prev) => [...prev, ...newAttachments]);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const removeAttachment = (id: string) => {
-    setAttachments((prev) => {
-      const removed = prev.find((a) => a.id === id);
-      if (removed) URL.revokeObjectURL(removed.url);
-      return prev.filter((a) => a.id !== id);
-    });
   };
 
   const handleSubmit = async (data: RequestFormValues) => {
@@ -148,18 +92,19 @@ export default function NewRequestPage() {
       type: apiType as RequestFormValues["type"],
       title: data.title,
       description: data.description?.trim() || undefined,
-      attachments: attachments.map((a) => a.name),
       ...(data.type === "ISSUE"
         ? {
           issueDetails: {
             priority: data.issuePriority!,
             category: data.issueCategory!,
+            otherCategoryDetails: data.issueCategory === "OTHER" ? data.otherCategoryDetails : undefined,
             location: data.location?.trim() || undefined,
           },
         }
         : {
           suppliesDetails: {
             category: data.suppliesCategory!,
+            otherCategoryDetails: data.suppliesCategory === "OTHER" ? data.otherCategoryDetails : undefined,
             itemName: data.itemName!,
           },
         }),
@@ -167,14 +112,7 @@ export default function NewRequestPage() {
 
     mutate(payload, {
       onSuccess: () => {
-        toast.success("Request created successfully!");
         router.push("/dashboard/requests");
-      },
-      onError: (error: any) => {
-        toast.error(
-          error?.response?.data?.message ||
-          "An error occurred while creating the request.",
-        );
       },
     });
   };
@@ -313,6 +251,25 @@ export default function NewRequestPage() {
                       )}
                     />
 
+                    {issueCategory === "OTHER" && (
+                      <FormField
+                        control={form.control}
+                        name="otherCategoryDetails"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Specify Category *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Please specify (max 15 words)"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
                     <FormField
                       control={form.control}
                       name="issuePriority"
@@ -392,6 +349,25 @@ export default function NewRequestPage() {
                     )}
                   />
 
+                  {suppliesCategory === "OTHER" && (
+                    <FormField
+                      control={form.control}
+                      name="otherCategoryDetails"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Specify Category *</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Please specify (max 15 words)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
                   <FormField
                     control={form.control}
                     name="itemName"
@@ -411,60 +387,7 @@ export default function NewRequestPage() {
                 </>
               )}
 
-              {/* Attachments */}
-              <div className="flex flex-col gap-2">
-                <FormLabel>Attachments</FormLabel>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  aria-label="Upload attachments"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={attachments.length >= MAX_FILES}
-                  className="w-fit gap-2"
-                >
-                  <Paperclip className="h-4 w-4" />
-                  Add Attachment
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  Max {MAX_FILES} files, up to 5MB each. Supported: images, PDF,
-                  Word, text.
-                </p>
-
-                {attachments.length > 0 && (
-                  <div className="mt-1 flex flex-col gap-1.5">
-                    {attachments.map((att) => (
-                      <div
-                        key={att.id}
-                        className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm"
-                      >
-                        <span className="flex-1 truncate text-foreground">
-                          {att.name}
-                        </span>
-                        <span className="shrink-0 text-xs text-muted-foreground"></span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 shrink-0"
-                          onClick={() => removeAttachment(att.id)}
-                        >
-                          <X className="h-3.5 w-3.5" />
-                          <span className="sr-only">Remove {att.name}</span>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Submit Button */}
 
               <Button type="submit" className="mt-2" disabled={isPending}>
                 {isPending ? "Creating Request..." : "Create Request"}

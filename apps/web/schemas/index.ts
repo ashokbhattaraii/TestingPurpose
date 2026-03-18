@@ -15,7 +15,7 @@ export const ISSUE_CATEGORIES = [
 ] as const;
 
 export const SUPPLIES_CATEGORIES = [
-  "OFFICE_Supplies",
+  "OFFICE_SUPPLIES",
   "EQUIPMENT",
   "STATIONERY",
   "PANTRY",
@@ -41,7 +41,7 @@ export const SUPPLIES_CATEGORY_LABELS: Record<
   (typeof SUPPLIES_CATEGORIES)[number],
   string
 > = {
-  OFFICE_Supplies: "Office Supplies",
+  OFFICE_SUPPLIES: "Office Supplies",
   EQUIPMENT: "Equipment",
   STATIONERY: "Stationery",
   PANTRY: "Pantry",
@@ -79,6 +79,14 @@ export const requestSchema = z.discriminatedUnion("type", [
     issueCategory: z.enum(ISSUE_CATEGORIES, {
       errorMap: () => ({ message: "Please select a category" }),
     }),
+    otherCategoryDetails: z
+      .string()
+      .max(200, "Details must be less than 200 characters")
+      .refine(
+        (val) => !val || val.trim().split(/\s+/).filter(Boolean).length <= 15,
+        "Maximum 15 words allowed"
+      )
+      .optional(),
     location: z
       .string()
       .max(200, "Location must be less than 200 characters")
@@ -98,6 +106,14 @@ export const requestSchema = z.discriminatedUnion("type", [
     suppliesCategory: z.enum(SUPPLIES_CATEGORIES, {
       errorMap: () => ({ message: "Please select a supplies category" }),
     }),
+    otherCategoryDetails: z
+      .string()
+      .max(200, "Details must be less than 200 characters")
+      .refine(
+        (val) => !val || val.trim().split(/\s+/).filter(Boolean).length <= 15,
+        "Maximum 15 words allowed"
+      )
+      .optional(),
     itemName: z
       .string()
       .min(2, "Item name must be at least 2 characters")

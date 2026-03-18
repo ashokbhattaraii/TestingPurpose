@@ -3,9 +3,9 @@ import { useState } from "react";
 
 import { useAuth } from "@/lib/auth-context";
 import {
-  useAnnouncements,
   useLunchTokens,
 } from "@/lib/queries";
+import { useAnnouncements } from "@/hooks/announcement/useAnnouncements";
 import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useGetAllRequestsQuery } from "@/hooks/request/useCreateRequest";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
@@ -70,7 +69,7 @@ export function EmployeeDashboard() {
     useLunchContext();
 
   const { data: allRequests, isLoading: requestsLoading } =
-    useGetAllRequestsQuery();
+    useServiceRequests();
 
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
 
@@ -78,30 +77,40 @@ export function EmployeeDashboard() {
 
   //  Show ONLY user's requests in "Your Recent Requests"
   const userRequests =
-    allRequests?.filter((r) => r.user?.id === user?.id) ?? [];
+    allRequests?.filter((r: any) => r.user?.id === user?.id) ?? [];
 
   const pending =
-    userRequests.filter((r) => r.status === "PENDING").length ?? 0;
+    userRequests.filter((r: any) => r.status === "PENDING").length ?? 0;
   const inProgress =
-    userRequests.filter((r) => r.status === "IN_PROGRESS").length ?? 0;
+    userRequests.filter((r: any) => r.status === "IN_PROGRESS").length ?? 0;
   // Counts for requests in different states
   const onhold =
-    userRequests.filter((r) => r.status === "ON_HOLD").length ?? 0;
+    userRequests.filter((r: any) => r.status === "ON_HOLD").length ?? 0;
   const rejected =
-    userRequests.filter((r) => r.status === "REJECTED").length ?? 0;
+    userRequests.filter((r: any) => r.status === "REJECTED").length ?? 0;
   const total = userRequests.length ?? 0;
 
   const recentRequests =
     userRequests
       ?.filter(
-        (r) =>
+        (r: any) =>
           r.title.toLowerCase().includes(search.toLowerCase()) ||
           r.id.toString().toLowerCase().includes(search.toLowerCase()),
       )
       .slice(0, 5) ?? [];
 
+  // Active requests for system-wide view (PENDING)
+  const activeRequests =
+    allRequests
+      ?.filter((r: any) => r.status === "PENDING")
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .slice(0, 5) ?? [];
+
   const pinnedAnnouncements =
-    announcements?.filter((a) => a.pinned).slice(0, 2) ?? [];
+    announcements?.filter((a) => a.pinned).slice(0, 5) ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -227,10 +236,10 @@ export function EmployeeDashboard() {
         )}
       </div>
 
-      {/* Recent Requests & Announcements */}
+      {/* Recent Requests, Active Requests & Announcements */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Recent Requests */}
-        <Card className="lg:col-span-2">
+        {/* Your Recent Requests */}
+        <Card className="lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-sm font-medium text-foreground">
               Your Recent Requests
@@ -256,11 +265,64 @@ export function EmployeeDashboard() {
                 No requests yet. Create your first request.
               </p>
             ) : (
-              <div className="divide-y divide-border rounded-xl border border-border overflow-hidden bg-white shadow-sm">
-                {recentRequests.map((req) => (
+              <div className="space-y-3">
+                {recentRequests.map((req: any) => (
                   <Link
                     key={req?.id}
                     href={`/dashboard/requests/${req?.id}`}
+                    className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-white hover:border-border hover:shadow-md"
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                        {req.title}
+                      </span>
+                      <StatusBadge status={req.status} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        Requested {format(new Date(req.createdAt), "MMM d, h:mm a")}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Active Requests (System-wide) */}
+        <Card className="lg:col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardTitle className="text-sm font-medium text-foreground">
+              Active Requests
+            </CardTitle>
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                href="/dashboard/requests"
+                className="text-xs text-muted-foreground"
+              >
+                View all
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {requestsLoading ? (
+              <div className="flex flex-col gap-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-14" />
+                ))}
+              </div>
+            ) : activeRequests.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                No active requests.
+              </p>
+            ) : (
+              <div className="divide-y divide-border rounded-xl border border-border overflow-hidden bg-white">
+                {activeRequests.map((req: any) => (
+                  <Link
+                    key={req.id}
+                    href={`/dashboard/requests/${req.id}`}
                     className="group flex items-center justify-between px-4 py-4 transition-all duration-200 hover:bg-slate-50"
                   >
                     <div className="flex items-center gap-4">
@@ -268,20 +330,17 @@ export function EmployeeDashboard() {
                         <ClipboardList className="h-5 w-5" />
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                           {req.title}
                         </span>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-                          <span>{format(new Date(req.createdAt), "MMM d, h:mm a")}</span>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="font-medium text-slate-700 truncate max-w-[80px]">{req.user?.name}</span>
                           <span>•</span>
-                          <span className="font-mono text-[10px] uppercase opacity-70">RE-{req.id.slice(0, 6)}</span>
+                          <span>{format(new Date(req.createdAt), "MMM d")}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      {req.type === "ISSUE" && req.issueDetails?.priority && (
-                        <PriorityBadge priority={req.issueDetails.priority} />
-                      )}
+                    <div className="flex items-center gap-2">
                       <StatusBadge status={req.status} />
                     </div>
                   </Link>
@@ -292,7 +351,7 @@ export function EmployeeDashboard() {
         </Card>
 
         {/* Announcements */}
-        <Card>
+        <Card className="lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-sm font-medium text-foreground">
               Announcements
@@ -309,7 +368,7 @@ export function EmployeeDashboard() {
           <CardContent>
             {annLoading ? (
               <div className="flex flex-col gap-3">
-                {Array.from({ length: 2 }).map((_, i) => (
+                {Array.from({ length: 5 }).map((_, i) => (
                   <Skeleton key={i} className="h-16" />
                 ))}
               </div>

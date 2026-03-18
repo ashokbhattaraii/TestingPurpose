@@ -1,7 +1,7 @@
 import { RequestStatus } from '@prisma/client';
 
 export class UpdateRequestStatusDto {
-    status: RequestStatus;
-    rejectionReason?: string;
-    adminNotes?: string;
+  status: RequestStatus;
+  rejectionReason?: string;
+  adminNotes?: string;
 }

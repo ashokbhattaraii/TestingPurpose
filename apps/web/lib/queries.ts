@@ -8,12 +8,10 @@ import type {
 } from "./types";
 import {
   serviceRequests,
-  announcements,
   users,
   analyticsData,
   lunchTokens,
   notifications,
-  getSortedAnnouncements,
 } from "./data";
 import axiosInstance from "./axios/axios";
 
@@ -24,12 +22,6 @@ function delay<T>(data: T, ms = 300): Promise<T> {
 
 // Note: Request-related hooks have been moved to @/hooks/request/ folder
 
-export function useAnnouncements() {
-  return useQuery({
-    queryKey: ["announcements"],
-    queryFn: () => delay(getSortedAnnouncements()),
-  });
-}
 
 export function useUsers() {
   return useQuery({
@@ -42,6 +34,11 @@ export function useAnalytics() {
   return useQuery({
     queryKey: ["analytics"],
     queryFn: () => delay({ ...analyticsData }),
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30 * 1000,
+    retry: true,
   });
 }
 
@@ -51,14 +48,14 @@ export function useUpdateUserRole() {
   return useMutation({
     mutationFn: ({
       userId,
-      role,
+      roles,
     }: {
       userId: string;
-      role: import("./types").UserRole;
+      roles: string[];
     }) => {
       const user = users.find((u) => u.id === userId);
       if (user) {
-        user.role = role;
+        user.roles = roles;
       }
       return delay(user);
     },
@@ -134,30 +131,27 @@ export function useCollectLunchToken() {
 
 // --- Notification Hooks ---
 
-export function useNotifications(userId?: string, includeRead = false) {
-  return useQuery({
-    queryKey: ["notifications", userId, includeRead],
-    queryFn: () => {
-      let filtered = userId
-        ? notifications.filter((n) => n.userId === userId)
-        : [...notifications];
-      if (!includeRead) {
-        filtered = filtered.filter((n) => !n.read);
-      }
-      return delay([...filtered]);
+export function useNotifications(userId?: string) {
+  return useQuery<Notification[]>({
+    queryKey: ["notifications"],
+    queryFn: async () => {
+      const response = await axiosInstance.get<Notification[]>("/notifications");
+      return response.data;
     },
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 15 * 1000,
+    retry: true,
   });
 }
-
+//notification
 export function useMarkNotificationRead() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (notificationId: string) => {
-      const notif = notifications.find((n) => n.id === notificationId);
-      if (notif) {
-        notif.read = true;
-      }
-      return delay(notif);
+    mutationFn: async (notificationId: string) => {
+      const response = await axiosInstance.patch<Notification>(`/notifications/${notificationId}/read`);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -168,13 +162,9 @@ export function useMarkNotificationRead() {
 export function useMarkAllNotificationsRead() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (userId: string) => {
-      notifications.forEach((n) => {
-        if (n.userId === userId && !n.read) {
-          n.read = true;
-        }
-      });
-      return delay(null);
+    mutationFn: async () => {
+      const response = await axiosInstance.patch("/notifications/read-all");
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -182,59 +172,4 @@ export function useMarkAllNotificationsRead() {
   });
 }
 
-// --- Announcement Hooks ---
-
-export function useCreateAnnouncement() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      title,
-      content,
-      authorId,
-      authorName,
-    }: {
-      title: string;
-      content: string;
-      authorId: string;
-      authorName: string;
-    }) => {
-      const announcement = {
-        id: `a${announcements.length + 1}`,
-        title,
-        content,
-        author: authorId,
-        authorName,
-        createdAt: new Date().toISOString(),
-        pinned: false,
-      };
-      announcements.unshift(announcement);
-      return delay(announcement);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["announcements"] });
-    },
-  });
-}
-
-export function usePinAnnouncement() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      announcementId,
-      pinned,
-    }: {
-      announcementId: string;
-      pinned: boolean;
-    }) => {
-      const announcement = announcements.find((a) => a.id === announcementId);
-      if (announcement) {
-        announcement.pinned = pinned;
-      }
-      return delay(announcement);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["announcements"] });
-    },
-  });
-}
 
