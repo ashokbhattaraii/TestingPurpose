@@ -58,8 +58,8 @@ export default function AnnouncementsPage() {
   const filtered = announcements?.filter((ann) => {
     const matchSearch =
       ann.title.toLowerCase().includes(search.toLowerCase()) ||
-      ann.content.toLowerCase().includes(search.toLowerCase()) ||
-      ann.authorName.toLowerCase().includes(search.toLowerCase())
+      ann.content.toLowerCase().includes(search.toLowerCase())
+
     const matchPinned =
       pinnedFilter === "all" ||
       (pinnedFilter === "pinned" && ann.pinned) ||
