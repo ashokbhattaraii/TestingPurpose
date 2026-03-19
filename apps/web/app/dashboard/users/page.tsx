@@ -80,7 +80,7 @@ export default function UsersPage() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     if (user && !normalizeRole(user?.roles?.[0])) {
@@ -110,7 +110,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, itemsPerPage]);
 
   const currentUserRole = normalizeRole(user?.roles?.[0]);
   const isAdmin = currentUserRole === "ADMIN";
@@ -296,6 +296,23 @@ export default function UsersPage() {
               </span>{" "}
               professionals
             </span>
+            <div className="flex items-center gap-2">
+              <Label className="text-xs text-muted-foreground">Entries per page</Label>
+              <Select
+                value={String(itemsPerPage)}
+                onValueChange={(value) => setItemsPerPage(Number(value))}
+              >
+                <SelectTrigger className="h-8 w-[70px] text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
 
@@ -306,49 +323,18 @@ export default function UsersPage() {
               <div className="text-xs text-muted-foreground">
                 Page {currentPage} of {totalPages}
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="h-8 w-8 p-0"
+                  className="h-8 px-3"
                   title="Previous page"
                 >
-                  <ChevronLeft className="h-4 w-4" />
-                  <span className="sr-only">Previous page</span>
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Previous
                 </Button>
-
-                {/* Page numbers */}
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((page) => {
-                      const diff = Math.abs(page - currentPage);
-                      return (
-                        diff === 0 ||
-                        diff <= 1 ||
-                        page === 1 ||
-                        page === totalPages
-                      );
-                    })
-                    .map((page, idx, arr) => (
-                      <div key={page}>
-                        {idx > 0 && arr[idx - 1] !== page - 1 && (
-                          <span className="px-2 text-xs text-muted-foreground">
-                            ...
-                          </span>
-                        )}
-                        <Button
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setCurrentPage(page)}
-                          className="h-8 w-8 p-0 text-xs"
-                        >
-                          {page}
-                        </Button>
-                      </div>
-                    ))}
-                </div>
 
                 <Button
                   variant="outline"
@@ -357,11 +343,11 @@ export default function UsersPage() {
                     setCurrentPage((p) => Math.min(totalPages, p + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="h-8 w-8 p-0"
+                  className="h-8 px-3"
                   title="Next page"
                 >
-                  <ChevronRight className="h-4 w-4" />
-                  <span className="sr-only">Next page</span>
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             </div>
