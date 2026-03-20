@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useLaunchAttendanceSummary } from "@/hooks/launch/useLaunchAttendance";
+import { useLunchAttendanceSummary } from "@/hooks/lunch/useLunchAttendance";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
 
 const PRIORITY_CONFIG = {

@@ -8,7 +8,7 @@ import { SupabaseService } from './supabase/supabase.service';
 import { SupabaseModule } from './supabase/supabase.module';
 import { RequestModule } from './request/request.module';
 import { UserModule } from './user/user.module';
-import { LaunchModule } from './launch/launch.module';
+import { LunchModule } from './lunch/lunch.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationModule } from './notification/notification.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
@@ -25,7 +25,7 @@ import { CronModule } from './cron/cron.module';
     SlackModule,
     RequestModule,
     UserModule,
-    LaunchModule,
+    LunchModule,
     NotificationModule,
     AnnouncementsModule,
     CronModule,

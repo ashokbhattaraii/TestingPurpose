@@ -77,7 +77,7 @@ export default function EditRequestPage() {
       type: "SUPPLIES",
       title: request.title,
       description: request.description || "",
-      suppliesCategory: request?.suppliesDetails?.category || "OFFICE_Supplies",
+      suppliesCategory: request?.suppliesDetails?.category || "OFFICE_SUPPLIES",
       otherCategoryDetails: request?.suppliesDetails?.otherCategoryDetails || "",
       itemName: request.suppliesDetails?.itemName || "",
     };
@@ -114,7 +114,7 @@ export default function EditRequestPage() {
         type: "SUPPLIES",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
-        suppliesCategory: "OFFICE_Supplies",
+        suppliesCategory: "OFFICE_SUPPLIES",
         itemName: "",
       });
     }

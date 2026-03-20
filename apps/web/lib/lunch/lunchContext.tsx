@@ -1,6 +1,6 @@
 "use client";
 import { useContext, createContext, useMemo, useEffect } from "react";
-import { useLaunchAttendanceSummary } from "@/hooks/launch/useLaunchAttendance";
+import { useLunchAttendanceSummary } from "@/hooks/lunch/useLunchAttendance";
 
 export interface LunchContextType {
   totalAttending: number;
@@ -25,7 +25,7 @@ export const LunchProvider = ({ children }: { children: React.ReactNode }) => {
   const needsLunchData = lunchRoutes.includes(pathname);
 
   // Only run the query if a user is logged in AND we are on a lunch-relevant route
-  const { data: attendanceSummary } = useLaunchAttendanceSummary(
+  const { data: attendanceSummary } = useLunchAttendanceSummary(
     !!user && needsLunchData
   );
 

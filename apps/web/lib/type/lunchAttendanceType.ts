@@ -1,13 +1,13 @@
 import { MealPreference } from "../types";
 
-type LauncAttendanceType = {
+type LunchAttendanceType = {
   isAttending: boolean;
   preferredLunchOption: MealPreference;
   userId?: string;
 };
 
-// Matches the actual API response from GET /launch/attendance-summary
-type LaunchAttendanceSummary = {
+// Matches the actual API response from GET /lunch/attendance-summary
+type LunchAttendanceSummary = {
   date: string;
   summary: {
     total: number;
@@ -26,7 +26,7 @@ type LaunchAttendanceSummary = {
   }[];
 };
 
-export type { LauncAttendanceType, LaunchAttendanceSummary };
+export type { LunchAttendanceType, LunchAttendanceSummary };
 
 type myAttendanceResponse = {
   message: string;
