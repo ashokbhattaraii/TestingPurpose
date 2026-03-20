@@ -1,8 +1,8 @@
 {
-  "name": "omus",
+  "name": "workops",
   "version": "1.0.0",
   "private": true,
-  "description": "OMUS — Monorepo powered by Turborepo (Next.js + NestJS)",
+  "description": "WorkOps — Monorepo powered by Turborepo (Next.js + NestJS)",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -10,14 +10,14 @@
   "type": "module",
   "scripts": {
     "dev": "turbo run dev --parallel",
-    "dev:web": "turbo run dev --filter=@omus/web",
-    "dev:api": "turbo run dev --filter=@omus/api",
+    "dev:web": "turbo run dev --filter=@workops/web",
+    "dev:api": "turbo run dev --filter=@workops/api",
     "build": "turbo run build",
-    "build:web": "turbo run build --filter=@omus/web",
-    "build:api": "turbo run build --filter=@omus/api",
+    "build:web": "turbo run build --filter=@workops/web",
+    "build:api": "turbo run build --filter=@workops/api",
     "start": "turbo run start",
-    "start:web": "turbo run start --filter=@omus/web",
-    "start:api": "turbo run start --filter=@omus/api",
+    "start:web": "turbo run start --filter=@workops/web",
+    "start:api": "turbo run start --filter=@workops/api",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "clean": "turbo run clean",

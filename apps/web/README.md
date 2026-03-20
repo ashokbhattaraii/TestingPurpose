@@ -1,4 +1,4 @@
-# OMUS Web (@omus/web)
+# WorkOps Web (@omus/web)
 
 > Next.js 16 frontend for the Office Management Unified System.
 

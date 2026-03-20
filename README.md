@@ -1,6 +1,6 @@
-# OMUS Monorepo
+# WorkOps Monorepo
 
-> **O**ffice **M**anagement **U**nified **S**ystem — A modern, full-stack monorepo for office utility and facility management.
+> **WorkOps** — A modern, full-stack monorepo for office utility and facility management.
 
 ---
 
@@ -57,7 +57,7 @@ pnpm run dev
 ## 🏗️ Repository Structure
 
 ```text
-OMUS/
+WorkOps/
 ├── apps/
 │   ├── web/              # @omus/web   — Frontend Dashboard
 │   └── api/              # @omus/api   — REST & Real-time API

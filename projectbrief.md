@@ -1,4 +1,4 @@
-# OMUS — Comprehensive Project Brief
+# WorkOps — Comprehensive Project Brief
 
 > Living architecture document. Last updated based on current codebase analysis.
 
@@ -9,8 +9,8 @@
 1. [Project Identity](#1-project-identity)
 2. [High-Level Architecture](#2-high-level-architecture)
 3. [Complete Folder Structure](#3-complete-folder-structure)
-4. [Frontend — `@omus/web` (Next.js)](#4-frontend--omusweb-nextjs)
-5. [Backend — `@omus/api` (NestJS)](#5-backend--omusapi-nestjs)
+4. [Frontend — `@workops/web` (Next.js)](#4-frontend--workopsweb-nextjs)
+5. [Backend — `@workops/api` (NestJS)](#5-backend--workopsapi-nestjs)
 6. [Database Layer — Prisma + PostgreSQL](#6-database-layer--prisma--postgresql)
 7. [Shared Packages](#7-shared-packages)
 8. [Data Flow & Communication](#8-data-flow--communication)
@@ -34,11 +34,11 @@
 
 | Field | Value |
 |---|---|
-| **Name** | OMUS |
+| **Name** | WorkOps |
 | **Type** | Full-stack monorepo application |
 | **Monorepo Engine** | Turborepo (`^2.8.10`) |
-| **Frontend** | Next.js (React) — `@omus/web` |
-| **Backend** | NestJS (Node.js) — `@omus/api` |
+| **Frontend** | Next.js (React) — `@workops/web` |
+| **Backend** | NestJS (Node.js) — `@workops/api` |
 | **ORM** | Prisma (`^6.19.2`) |
 | **Database** | PostgreSQL (via `pg ^8.18.0`) |
 | **Node** | `>=18` |
@@ -53,10 +53,10 @@ Build a scalable, maintainable, production-ready full-stack platform from a sing
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                     OMUS Monorepo                   │
+│                     WorkOps Monorepo                   │
 │                                                     │
 │  ┌──────────────┐    HTTP/REST    ┌──────────────┐  │
-│  │  @omus/web   │ ◄────────────► │  @omus/api   │  │
+│  │  @workops/web   │ ◄────────────► │  @workops/api   │  │
 │  │  (Next.js)   │    (JSON)      │  (NestJS)    │  │
 │  │              │                │              │  │
 │  │  Pages/App   │                │  Modules     │  │
@@ -95,9 +95,9 @@ Build a scalable, maintainable, production-ready full-stack platform from a sing
 ## 3) Complete Folder Structure
 
 ```text
-OMUS/
+WorkOps/
 ├─ apps/
-│  ├─ web/                              # @omus/web — Next.js frontend
+│  ├─ web/                              # @workops/web — Next.js frontend
 │  │  ├─ public/                        # Static assets (images, fonts, icons)
 │  │  ├─ src/                           # Source root (or app/ if using App Router)
 │  │  │  ├─ app/                        # Next.js App Router (if using App Router)
@@ -142,9 +142,9 @@ OMUS/
 │  │  ├─ next.config.js                # Next.js configuration
 │  │  ├─ tailwind.config.ts            # Tailwind CSS configuration (if used)
 │  │  ├─ tsconfig.json                 # TypeScript config
-│  │  └─ package.json                  # @omus/web workspace package
+│  │  └─ package.json                  # @workops/web workspace package
 │  │
-│  └─ api/                              # @omus/api — NestJS backend
+│  └─ api/                              # @workops/api — NestJS backend
 │     ├─ prisma/
 │     │  ├─ schema.prisma              # Prisma data model
 │     │  └─ migrations/               # Migration history
@@ -182,7 +182,7 @@ OMUS/
 │     ├─ test/                         # E2E tests
 │     ├─ nest-cli.json                 # NestJS CLI config
 │     ├─ tsconfig.json                 # TypeScript config
-│     └─ package.json                  # @omus/api workspace package
+│     └─ package.json                  # @workops/api workspace package
 │
 ├─ packages/                            # Shared workspace packages
 │  ├─ config/                          # Shared ESLint/TS/Prettier configs
@@ -199,7 +199,7 @@ OMUS/
 
 ---
 
-## 4) Frontend — `@omus/web` (Next.js)
+## 4) Frontend — `@workops/web` (Next.js)
 
 ### 4.1 Routing Approach
 
@@ -269,7 +269,7 @@ export default function DashboardPage() {
 
 ---
 
-## 5) Backend — `@omus/api` (NestJS)
+## 5) Backend — `@workops/api` (NestJS)
 
 ### 5.1 Module Architecture
 
@@ -760,7 +760,7 @@ Layout (Sidebar + Navbar + Main Content Area)
 
 ## 11) State Management Approach
 
-OMUS uses **React Context + Custom Hooks** (no Redux/Zustand):
+WorkOps uses **React Context + Custom Hooks** (no Redux/Zustand):
 
 ### State Categories
 
@@ -935,7 +935,7 @@ app.enableCors({
 
 ```env
 # .env (root)
-DATABASE_URL=postgresql://user:password@localhost:5432/omus
+DATABASE_URL=postgresql://user:password@localhost:5432/workops
 JWT_SECRET=your-secret-key
 FRONTEND_URL=http://localhost:3000
 
@@ -981,7 +981,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 |---|---|
 | **Task graph** | Runs tasks in correct dependency order |
 | **Caching** | Skips unchanged builds (hashes inputs) |
-| **Filtering** | `--filter=@omus/web` targets single workspace |
+| **Filtering** | `--filter=@workops/web` targets single workspace |
 | **Parallelism** | `--parallel` runs independent tasks concurrently |
 | **Persistent tasks** | Dev servers stay alive (`persistent: true`) |
 
@@ -1100,4 +1100,4 @@ npm run docs:brief       # Print this document
 
 ---
 
-*End of OMUS Project Brief*
+*End of WorkOps Project Brief*
