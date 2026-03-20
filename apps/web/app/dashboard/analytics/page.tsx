@@ -299,7 +299,6 @@ export default function AnalyticsPage() {
     }
   }, [drillDown, normalizedRequests, timePeriod, typeFilter, statusFilter]);
 
-  // Drill-down pagination & search
   const DRILLDOWN_PAGE_SIZE = 10;
   const [ddPage, setDdPage] = useState(1);
   const [ddSearch, setDdSearch] = useState("");
