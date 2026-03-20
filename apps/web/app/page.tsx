@@ -19,7 +19,7 @@ import {
 } from "@/components/home";
 
 export default function HomePage() {
-
+  //menus
   const [activeSection, setActiveSection] = useState<string>("");
   const features: FeatureCard[] = [
     {
