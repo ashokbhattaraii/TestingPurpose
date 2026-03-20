@@ -69,7 +69,12 @@ model User {
   roles    String[] @default(["employee"])
 
   // Profile Information
+  cuid             String?   @unique
+  gender           String?
   phone            String?
+  phone_home       String?
+  phone_work       String?
+  phone_recovery   String?
   department       String?
   org_unit         String?
   job_title        String?

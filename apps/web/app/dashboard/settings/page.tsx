@@ -142,9 +142,31 @@ export default function SettingsPage() {
               </Label>
               <Input
                 type="text"
-                value={roleLabel[user.roles?.[0] || "EMPLOYEE"]}
+                value={user.is_admin ? "Admin" : roleLabel[user.roles?.[0] || "EMPLOYEE"]}
                 disabled
                 className="bg-muted"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium text-foreground">
+                UID
+              </Label>
+              <Input
+                type="text"
+                value={user.uid}
+                disabled
+                className="bg-muted font-mono text-xs"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium text-foreground">
+                CUID
+              </Label>
+              <Input
+                type="text"
+                value={user.cuid ?? "—"}
+                disabled
+                className="bg-muted font-mono text-xs"
               />
             </div>
           </div>
@@ -157,9 +179,10 @@ export default function SettingsPage() {
                 Account Status
               </Label>
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-green-600" />
+                <div className={`h-2 w-2 rounded-full ${user.active ? "bg-green-600" : "bg-red-600"}`} />
                 <span className="text-sm capitalize font-medium text-foreground">
-                  {user.status ?? "active"}
+                  {user.active ? "Active" : "Inactive"}
+                  {user.pending_approval && " (Pending Approval)"}
                 </span>
               </div>
             </div>
@@ -179,6 +202,102 @@ export default function SettingsPage() {
                   : "Never"}
               </span>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Personal Details */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Personal Details</CardTitle>
+          <CardDescription>
+            Your personal information as recorded in the system
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-foreground">Gender</Label>
+            <Input
+              type="text"
+              value={user.gender === "M" ? "Male" : user.gender === "F" ? "Female" : user.gender ?? "—"}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-foreground">Home Phone</Label>
+            <Input
+              type="text"
+              value={user.phone_home ?? "—"}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-foreground">Work Phone</Label>
+            <Input
+              type="text"
+              value={user.phone_work ?? "—"}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-foreground">Recovery Phone</Label>
+            <Input
+              type="text"
+              value={user.phone_recovery ?? "—"}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Professional Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Professional Information</CardTitle>
+          <CardDescription>
+            Your organization and employment details
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-foreground">Organization Unit</Label>
+            <Input
+              type="text"
+              value={user.org_unit ?? "—"}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-foreground">Department</Label>
+            <Input
+              type="text"
+              value={user.department ?? "—"}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-foreground">Job Title</Label>
+            <Input
+              type="text"
+              value={user.job_title ?? "—"}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium text-foreground">Employment Type</Label>
+            <Input
+              type="text"
+              value={user.employment_type ?? "—"}
+              disabled
+              className="bg-muted capitalize"
+            />
           </div>
         </CardContent>
       </Card>

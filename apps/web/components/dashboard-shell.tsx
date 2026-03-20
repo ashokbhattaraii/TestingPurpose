@@ -520,9 +520,13 @@ function MobileSidebarContent({
       <div className="border-t border-sidebar-border p-3">
         <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent/50 px-3 py-2.5">
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
-              {getInitials(user?.name || "U")}
-            </AvatarFallback>
+            {user?.thumbnail_url ? (
+              <img src={user.thumbnail_url} alt={user.name} className="h-full w-full object-cover rounded-full" />
+            ) : (
+              <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
+                {getInitials(user?.name || "U")}
+              </AvatarFallback>
+            )}
           </Avatar>
           <div className="flex flex-col min-w-0">
             <span className="text-xs font-semibold text-sidebar-foreground truncate">
@@ -635,9 +639,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
-                        {getInitials(user?.name || "U")}
-                      </AvatarFallback>
+                      {user?.thumbnail_url ? (
+                        <img src={user.thumbnail_url} alt={user.name} className="h-full w-full object-cover rounded-full" />
+                      ) : (
+                        <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
+                          {getInitials(user?.name || "U")}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                   </TooltipTrigger>
                   {sidebarCollapsed && (
@@ -723,9 +731,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2 text-foreground">
                   <Avatar className="h-7 w-7">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-                      {getInitials(user.name)}
-                    </AvatarFallback>
+                    {user.thumbnail_url ? (
+                      <img src={user.thumbnail_url} alt={user.name} className="h-full w-full object-cover rounded-full" />
+                    ) : (
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    )}
                   </Avatar>
                   <span className="hidden text-sm md:inline-block">
                     {user.name}

@@ -3,9 +3,38 @@ import { JwtService } from '@nestjs/jwt';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { SupabaseService } from '../supabase/supabase.service';
-import type { RsOfficeClient, AuthResult } from '@rumsan/user';
+import type {
+  RsOfficeClient,
+  AuthResult,
+  User as RsUser,
+} from '@rumsan/user';
+
 import { RS_OFFICE_CLIENT } from '../rsoffice/rsoffice.module';
 import { CryptoService } from './crypto.service';
+
+interface ExtendedAuthUser {
+  cuid: string;
+  name: string;
+  email: string;
+  thumbnail_url?: string;
+  gender?: string;
+  department?: string;
+  org_unit?: string;
+  job_title?: string;
+  employment_type?: string;
+  phone_home?: string;
+  phone_work?: string;
+  phone_recovery?: string;
+  roles?: string[];
+}
+
+interface ExtendedAuthResult extends AuthResult {
+  user: ExtendedAuthUser;
+  orgUnit?: string;
+  jobTitle?: string;
+  employmentType?: string;
+}
+
 
 @Injectable()
 export class AuthService {
@@ -39,26 +68,36 @@ export class AuthService {
 
     console.log('Rumsan login result:', rsAuthResult);
 
+    const rsAuthResultExtended = rsAuthResult as ExtendedAuthResult;
+
+
     // Decode ID token to get profile info
     const jwtContent = JSON.parse(
       Buffer.from(id_token.split('.')[1], 'base64').toString(),
     );
     console.log('Decoded JWT content:', jwtContent);
 
+    const rsUser = rsAuthResultExtended?.user;
     const googleUser = {
       email: jwtContent.email,
-      firstName: jwtContent.given_name,
-      lastName: jwtContent.family_name,
-      picture: jwtContent.picture,
+      firstName: rsUser?.name?.split(' ')[0] || jwtContent.given_name,
+      lastName:
+        rsUser?.name?.split(' ').slice(1).join(' ') || jwtContent.family_name,
+      picture: rsUser?.thumbnail_url || jwtContent.picture,
       googleId: jwtContent.sub,
-      roles: rsAuthResult?.roles,
-      accessToken: undefined,
-      refreshToken: undefined,
-      expiresAt: undefined,
-      orgUnit: undefined,
-      jobTitle: undefined,
-      employmentType: undefined,
+      roles: rsAuthResultExtended?.roles || rsUser?.roles,
+      cuid: rsUser?.cuid,
+      gender: rsUser?.gender,
+      department: rsUser?.department,
+      orgUnit: rsUser?.org_unit || rsAuthResultExtended?.orgUnit,
+      jobTitle: rsUser?.job_title || rsAuthResultExtended?.jobTitle,
+      employmentType:
+        rsUser?.employment_type || rsAuthResultExtended?.employmentType,
+      phoneHome: rsUser?.phone_home,
+      phoneWork: rsUser?.phone_work,
+      phoneRecovery: rsUser?.phone_recovery,
     };
+
 
     console.log(' Processing Google login for:', googleUser.email);
 
@@ -124,22 +163,19 @@ export class AuthService {
       user = await this.prisma.user.create({
         data: {
           uid: supabaseUserId,
+          cuid: googleUser.cuid,
           email: googleUser.email,
           name: `${googleUser.firstName} ${googleUser.lastName}`,
           photoURL: googleUser.picture,
-          connectedAccounts: {
-            create: {
-              provider: 'google',
-              providerAccountId: googleUser.googleId,
-              accessToken: googleUser.accessToken,
-              refreshToken: googleUser.refreshToken,
-              expiresAt: googleUser.expiresAt,
-            },
-          },
+          gender: googleUser.gender,
           roles: finalRoles,
           org_unit: googleUser.orgUnit,
+          department: googleUser.department,
           job_title: googleUser.jobTitle,
           employment_type: googleUser.employmentType,
+          phone_home: googleUser.phoneHome,
+          phone_work: googleUser.phoneWork,
+          phone_recovery: googleUser.phoneRecovery,
           isActive: true,
           lastLoginAt: new Date(),
         },
@@ -153,9 +189,18 @@ export class AuthService {
         where: { id: user.id },
         data: {
           uid: supabaseUserId,
+          cuid: googleUser.cuid,
           name: `${googleUser.firstName} ${googleUser.lastName}`,
           photoURL: googleUser.picture,
+          gender: googleUser.gender,
           roles: finalRoles,
+          org_unit: googleUser.orgUnit,
+          department: googleUser.department,
+          job_title: googleUser.jobTitle,
+          employment_type: googleUser.employmentType,
+          phone_home: googleUser.phoneHome,
+          phone_work: googleUser.phoneWork,
+          phone_recovery: googleUser.phoneRecovery,
           lastLoginAt: new Date(),
         },
       });
@@ -168,8 +213,17 @@ export class AuthService {
         data: {
           lastLoginAt: new Date(),
           roles: finalRoles,
+          cuid: googleUser.cuid,
           name: `${googleUser.firstName} ${googleUser.lastName}`,
           photoURL: googleUser.picture,
+          gender: googleUser.gender,
+          org_unit: googleUser.orgUnit,
+          department: googleUser.department,
+          job_title: googleUser.jobTitle,
+          employment_type: googleUser.employmentType,
+          phone_home: googleUser.phoneHome,
+          phone_work: googleUser.phoneWork,
+          phone_recovery: googleUser.phoneRecovery,
         },
       });
       console.log(' User updated in public schema');
@@ -212,7 +266,7 @@ export class AuthService {
    * 3. POST /auth/google (X‑App‑Id, id_token, challenge, app_signature)
    *    → user JWT
    */
-  async loginWithGoogle(token: string): Promise<AuthResult> {
+  async loginWithGoogle(token: string): Promise<ExtendedAuthResult> {
     console.log('[RS Auth] Step 1: Getting challenge for appId:', this.appId);
     const { challenge } = await this.rsClient.auth.getChallenge({
       appId: this.appId,
@@ -239,6 +293,6 @@ export class AuthService {
     );
     console.log('[RS Auth] Step 3 OK — roles:', rsAuthResult?.roles);
 
-    return rsAuthResult;
+    return rsAuthResult as ExtendedAuthResult;
   }
 }
