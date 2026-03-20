@@ -5,8 +5,7 @@ const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:4001/api/v1",
   withCredentials: true,
 });
-// Attach the access_token cookie as a Bearer token manually.
-// This bypasses the Vercel cross-domain cookie bug entirely.
+
 axiosInstance.interceptors.request.use(
   (config) => {
     // Only run in the browser
