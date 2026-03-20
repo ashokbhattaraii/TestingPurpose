@@ -24,7 +24,7 @@ export function useMyLunchAttendance() {
 
 export function useMarkLunchAttendance() {
   const queryClient = useQueryClient();
-  // const { toast } = useToast();  // removed as per standardization
+
 
   return useMutation({
     mutationKey: ["lunch-attendance", "my"],
