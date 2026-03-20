@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useAnnouncements } from "@/hooks/announcement/useAnnouncements";
-import { useServiceRequests } from "@/hooks/request/useServiceRequests";      
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -93,7 +93,7 @@ export function AdminDashboard() {
 
   // ✅ Logic: Filter requests assigned to the current admin
   // Line 97 tira yeso garnuhos:
-const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) ?? [];
+  const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) ?? [];
   const recentAssigned = assignedToMe.slice(0, 5);
 
   // Active requests for system-wide view (PENDING)
@@ -211,7 +211,7 @@ const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) 
               </CardContent>
             </Card>
 
-            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-[#FFFD8F] h-32">
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-yellow-200 h-32">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div className="flex items-center justify-between">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFFD8F] group-hover:bg-[#FFFD8F]/90 transition-colors">
@@ -221,7 +221,7 @@ const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) 
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground tracking-tight">{onhold}</p>
-                  <p className="text-[10px] font-medium text-[#FFFD8F] uppercase tracking-wider">On-Hold</p>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">On-Hold</p>
                 </div>
               </CardContent>
             </Card>

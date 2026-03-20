@@ -189,7 +189,7 @@ export function EmployeeDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-[#FFFD8F] h-32">
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-yellow-200 h-32">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div className="flex items-center justify-between">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFFD8F] group-hover:bg-[#FFFD8F]/90 transition-colors">
@@ -199,7 +199,7 @@ export function EmployeeDashboard() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground tracking-tight">{onhold}</p>
-                  <p className="text-[10px] font-medium text-[#FFFD8F] uppercase tracking-wider">On-Hold</p>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">On-Hold</p>
                 </div>
               </CardContent>
             </Card>
