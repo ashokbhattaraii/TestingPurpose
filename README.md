@@ -11,7 +11,7 @@ OMUS/
 ├── apps/
 │   ├── web/              # @omus/web   — Next.js 16 (React 19, Tailwind CSS)
 │   └── api/              # @omus/api   — NestJS 11 (Prisma, Passport JWT, Supabase)
-├── packages/             # Shared packages (types, config, utils — future)
+├── packages/             # Shared packages (types, config, utils — planned)
 ├── .gitignore
 ├── .npmrc
 ├── package.json          # Root workspace + Turborepo scripts
@@ -23,20 +23,21 @@ OMUS/
 
 ## Tech Stack
 
-| Layer        | Technology                              |
-| ------------ | --------------------------------------- |
-| **Monorepo** | Turborepo + npm workspaces              |
-| **Frontend** | Next.js 16, React 19, Tailwind CSS, ShadCN |
-| **Backend**  | NestJS 11, Prisma ORM, Passport JWT     |
-| **Database** | PostgreSQL via Supabase                 |
-| **Language** | TypeScript (strict)                     |
+| Layer        | Technology                                      |
+| ------------ | ----------------------------------------------- |
+| **Monorepo** | Turborepo + pnpm workspaces                     |
+| **Frontend** | Next.js 16, React 19, Tailwind CSS, ShadCN, React Query |
+| **Backend**  | NestJS 11, Prisma ORM, Passport JWT, Socket.io  |
+| **Auth**     | Supabase Auth + Rumsan Office Identity          |
+| **Database** | PostgreSQL via Supabase Pooler                  |
+| **Language** | TypeScript (strict)                             |
 
 ---
 
 ## Prerequisites
 
-- **Node.js** >= 18
-- **npm** >= 10
+- **Node.js** >= 20 (Targeting Node 24 per config)
+- **pnpm** >= 10
 
 ---
 
@@ -47,86 +48,66 @@ OMUS/
 ```bash
 git clone <repo-url> omus
 cd omus
-npm install
+pnpm install
 ```
 
 ### 2. Set up environment variables
 
-```bash
-# Frontend
-cp apps/web/.env.example apps/web/.env
+Copy the `.env.example` to `.env` in the root (or relevant apps). Note that the API requires `DATABASE_URL` for Prisma and `RS_USER_URL` for Rumsan Identity.
 
-# Backend
-cp apps/api/.env.example apps/api/.env
+### 3. Database Sync
+
+```bash
+# Generate Prisma Client
+pnpm run db:generate
+
+# Sync schema with dev database
+pnpm run db:push
 ```
 
 ---
 
 ## Available Scripts
 
-Run all commands from the **monorepo root**.
+Run all commands from the **monorepo root** using `pnpm`.
 
 ### 🔵 Development
 
 | Command            | Description                          |
 | ------------------ | ------------------------------------ |
-| `npm run dev`      | Run **all** apps in parallel (watch) |
-| `npm run dev:web`  | Run **frontend** only                |
-| `npm run dev:api`  | Run **backend** only                 |
+| `pnpm run dev`     | Run **all** apps in parallel (watch) |
+| `pnpm run dev:web` | Run **frontend** only                |
+| `pnpm run dev:api` | Run **backend** only                 |
 
 ### 🟢 Build
 
 | Command             | Description               |
 | ------------------- | ------------------------- |
-| `npm run build`     | Build **all** apps        |
-| `npm run build:web` | Build frontend only       |
-| `npm run build:api` | Build backend only        |
+| `pnpm run build`    | Build **all** apps        |
+| `pnpm run build:web`| Build frontend only       |
+| `pnpm run build:api`| Build backend only        |
+
+### 🗄️ Database Management
+
+| Command             | Description                          |
+| ------------------- | ------------------------------------ |
+| `pnpm run db:generate` | Update Prisma Client types        |
+| `pnpm run db:push`     | Push schema changes to DB (dev)   |
+| `pnpm run db:studio`   | Open Prisma Studio (GUI)          |
+| `pnpm run migrate`     | Create a new migration file       |
 
 ### 🚀 Start (Production)
 
 | Command              | Description                        |
 | -------------------- | ---------------------------------- |
-| `npm run start`      | Start **all** apps (needs build)   |
-| `npm run start:web`  | Start frontend (needs build)       |
-| `npm run start:api`  | Start backend (needs build)        |
+| `pnpm run start`      | Start **all** apps (needs build)   |
 
 ### 🧹 Lint & Format
 
 | Command              | Description                     |
 | -------------------- | ------------------------------- |
-| `npm run lint`       | Lint **all** apps               |
-| `npm run lint:web`   | Lint frontend only              |
-| `npm run lint:api`   | Lint backend only               |
-| `npm run format`     | Format all (Prettier)           |
-| `npm run format:api` | Format backend only             |
-
-### 🧪 Test
-
-| Command              | Description                          |
-| -------------------- | ------------------------------------ |
-| `npm run test`       | Run all unit tests                   |
-| `npm run test:web`   | Run frontend tests                   |
-| `npm run test:api`   | Run backend unit tests               |
-| `npm run test:e2e`   | Run backend end-to-end tests         |
-
-### 🗑️ Clean
-
-| Command              | Description                         |
-| -------------------- | ----------------------------------- |
-| `npm run clean`      | Clean build artifacts in all apps   |
-| `npm run clean:web`  | Clean frontend `.next/`             |
-| `npm run clean:api`  | Clean backend `dist/`               |
-
----
-
-## Turborepo Remote Cache (Optional)
-
-Speed up CI/CD with Turborepo remote caching:
-
-```bash
-npx turbo login
-npx turbo link
-```
+| `pnpm run lint`       | Lint **all** apps               |
+| `pnpm run format`     | Format all (Prettier)           |
 
 ---
 

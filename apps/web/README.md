@@ -1,40 +1,47 @@
-﻿# 🏢 WorkOps - Office Utility Management
+# OMUS Web (@omus/web)
 
-**WorkOps** is a centralized digital platform designed to streamline office operations. It simplifies how employees and facility managers handle service requests, manage utilities, and coordinate office maintenance.
+> Next.js 16 frontend for the Office Management Unified System.
 
-**Live Demo:** [testing-purpose-theta.vercel.app](https://testing-purpose-theta.vercel.app)
+## Features
 
----
+- **Service Request Dashboard**: Visual tracking of issues and supplies requests.
+- **Analytics Visualization**: Real-time charts for request distribution and status.
+- **Role-based UI**: Dynamic layouts for Admins and Employees.
+- **Real-time Updates**: Socket.io integration for instant notifications.
+- **Modern UI**: Built with Tailwind CSS and Radix UI primitives (via ShadCN).
 
-## 🚀 Key Features
+## Tech Stack
 
-* **Service Requests:** Easy-to-use interface for reporting facility issues or requesting Supplies.
-* **Utility Tracking:** Monitor and manage office resources in one dashboard.
-* **Facility Coordination:** Real-time status updates on maintenance tasks.
-* **Optimized Performance:** Built with Next.js for lightning-fast page loads.
+- **Framework**: Next.js 16 (App Router)
+- **State Management**: React Context + TanStack Query (v5)
+- **Styling**: Tailwind CSS + ShadCN UI
+- **Icons**: Lucide React + React Feather
+- **Real-time**: Socket.io Client
 
----
+## Setup
 
-## 🛠️ Tech Stack
+1. **Install Dependencies**
+   ```bash
+   pnpm install
+   ```
 
-* **Framework:** [Next.js](https://nextjs.org/) (App Router)
-* **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-* **Font:** [Geist](https://vercel.com/font)
-* **Deployment:** [Vercel](https://vercel.com/)
+2. **Environment Variables**
+   Ensure `.env.local` contains:
+   - `NEXT_PUBLIC_API_URL`: Backend API endpoint.
+   - `NEXT_PUBLIC_GOOGLE_CLIENT_ID`: For Google OAuth.
 
----
-
-## 🏃 Getting Started
-
-### 📦 Install and Run (At Once)
-If the standard installation fails due to dependency conflicts, use the following commands to install including legacy peer dependencies and start the server immediately:
+## Development
 
 ```bash
-# Using npm (Recommended if peer errors occur)
-npm install --legacy-peer-deps && npm run dev
+pnpm run dev
+```
 
-# Using yarn
-yarn install && yarn dev
+## Production
 
-# Using pnpm
-pnpm install --no-frozen-lockfile && pnpm dev
+```bash
+# Build for production
+pnpm run build
+
+# Start production server
+pnpm run start
+```
