@@ -15,9 +15,9 @@ interface HeroProps {
 
 export function HeroSection({
   stats = [
-    { title: "Service Requests", desc: "2,543 processed" },
-    { title: "Team Members", desc: "1,240 active" },
-    { title: "Office Facilities", desc: "95% optimal" },
+    { title: "Service Requests", desc: "Report & Resolve" },
+    { title: "Lunch Tokens", desc: "Daily Attendance" },
+    { title: "Announcements", desc: "Office Updates" },
   ],
 }: HeroProps) {
   const router = useRouter();
@@ -29,15 +29,13 @@ export function HeroSection({
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-4">
             <span className="inline-flex w-fit rounded-full bg-primary/15 px-4 py-2 text-sm font-semibold text-primary">
-              ✨ Unified Workspace Management
+              ✨ Internal Office Portal
             </span>
             <h1 className="text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance leading-tight">
-              Streamline Your Office Operations
+              Your Office, Simplified
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed text-balance">
-              WorkOps is the all-in-one platform for managing office utilities,
-              service requests, and facility coordination. Keep your workplace
-              running smoothly with centralized control and real-time insights.
+              Sign in to manage your daily service requests, log lunch attendance, and stay up to date with the latest team announcements without the fluff.
             </p>
           </div>
 
@@ -60,22 +58,7 @@ export function HeroSection({
             </Button>
           </div>
 
-          {/* Social Proof */}
-          <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-primary/10">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-primary" />
-              <span className="text-sm text-foreground font-medium">
-                Trusted by 500+ companies
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <span className="text-sm text-foreground font-medium">
-                Enterprise security
-              </span>
-            </div>
           </div>
-        </div>
 
         {/* Right Visual - Stats Cards */}
         <div className="relative hidden lg:block">
