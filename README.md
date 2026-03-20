@@ -1,118 +1,90 @@
 # OMUS Monorepo
 
-> **O**ffice **M**anagement **U**nified **S**ystem — Turborepo monorepo with Next.js frontend and NestJS backend.
+> **O**ffice **M**anagement **U**nified **S**ystem — A modern, full-stack monorepo for office utility and facility management.
 
 ---
 
-## Repository Structure
+## 🚀 Quick Start
 
+Get the project up and running in minutes.
+
+### 1. Clone the repository
+```bash
+git clone <repo-url> omus
+cd omus
 ```
-OMUS/
-├── apps/
-│   ├── web/              # @omus/web   — Next.js 16 (React 19, Tailwind CSS)
-│   └── api/              # @omus/api   — NestJS 11 (Prisma, Passport JWT, Supabase)
-├── packages/             # Shared packages (types, config, utils — planned)
-├── .gitignore
-├── .npmrc
-├── package.json          # Root workspace + Turborepo scripts
-├── turbo.json            # Turborepo pipeline config
-└── README.md
+
+### 2. Install dependencies
+Make sure you have [pnpm](https://pnpm.io/installation) installed.
+```bash
+pnpm install
+```
+
+### 3. Setup Environment Variables
+Copy the root `.env.example` (if present) or create `.env` files in `apps/web` and `apps/api`.
+- **API**: Requires `DATABASE_URL` (PostgreSQL) and `RS_USER_URL` (Identity).
+- **Web**: Requires `NEXT_PUBLIC_API_URL`.
+
+### 4. Database Setup
+```bash
+# Generate Prisma Client types
+pnpm run db:generate
+
+# Sync schema to your database
+pnpm run db:push
+```
+
+### 5. Start Developing
+```bash
+pnpm run dev
 ```
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 | Layer        | Technology                                      |
 | ------------ | ----------------------------------------------- |
 | **Monorepo** | Turborepo + pnpm workspaces                     |
-| **Frontend** | Next.js 16, React 19, Tailwind CSS, ShadCN, React Query |
-| **Backend**  | NestJS 11, Prisma ORM, Passport JWT, Socket.io  |
+| **Frontend** | Next.js 16 (App Router), React 19, Tailwind CSS |
+| **Backend**  | NestJS 11, Prisma ORM, Socket.io                |
 | **Auth**     | Supabase Auth + Rumsan Office Identity          |
-| **Database** | PostgreSQL via Supabase Pooler                  |
-| **Language** | TypeScript (strict)                             |
+| **Database** | PostgreSQL                                      |
+| **Language** | TypeScript (Strict Mode)                        |
 
 ---
 
-## Prerequisites
+## 🏗️ Repository Structure
 
-- **Node.js** >= 20 (Targeting Node 24 per config)
-- **pnpm** >= 10
-
----
-
-## Getting Started
-
-### 1. Clone & install all dependencies
-
-```bash
-git clone <repo-url> omus
-cd omus
-pnpm install
-```
-
-### 2. Set up environment variables
-
-Copy the `.env.example` to `.env` in the root (or relevant apps). Note that the API requires `DATABASE_URL` for Prisma and `RS_USER_URL` for Rumsan Identity.
-
-### 3. Database Sync
-
-```bash
-# Generate Prisma Client
-pnpm run db:generate
-
-# Sync schema with dev database
-pnpm run db:push
+```text
+OMUS/
+├── apps/
+│   ├── web/              # @omus/web   — Frontend Dashboard
+│   └── api/              # @omus/api   — REST & Real-time API
+├── packages/             # Shared logic (Planned)
+├── package.json          # Root workspace scripts
+├── turbo.json            # Build pipeline configuration
+└── README.md             # This guide
 ```
 
 ---
 
-## Available Scripts
+## 📜 Available Scripts
 
-Run all commands from the **monorepo root** using `pnpm`.
+Run these from the **root directory**.
 
-### 🔵 Development
-
-| Command            | Description                          |
-| ------------------ | ------------------------------------ |
-| `pnpm run dev`     | Run **all** apps in parallel (watch) |
-| `pnpm run dev:web` | Run **frontend** only                |
-| `pnpm run dev:api` | Run **backend** only                 |
-
-### 🟢 Build
-
-| Command             | Description               |
-| ------------------- | ------------------------- |
-| `pnpm run build`    | Build **all** apps        |
-| `pnpm run build:web`| Build frontend only       |
-| `pnpm run build:api`| Build backend only        |
-
-### 🗄️ Database Management
-
-| Command             | Description                          |
-| ------------------- | ------------------------------------ |
-| `pnpm run db:generate` | Update Prisma Client types        |
-| `pnpm run db:push`     | Push schema changes to DB (dev)   |
-| `pnpm run db:studio`   | Open Prisma Studio (GUI)          |
-| `pnpm run migrate`     | Create a new migration file       |
-
-### 🚀 Start (Production)
-
-| Command              | Description                        |
-| -------------------- | ---------------------------------- |
-| `pnpm run start`      | Start **all** apps (needs build)   |
-
-### 🧹 Lint & Format
-
-| Command              | Description                     |
-| -------------------- | ------------------------------- |
-| `pnpm run lint`       | Lint **all** apps               |
-| `pnpm run format`     | Format all (Prettier)           |
+| Command | Action |
+| :--- | :--- |
+| `pnpm run dev` | Starts both Web and API in watch mode |
+| `pnpm run build` | Builds all applications for production |
+| `pnpm run lint` | Runs ESLint across the entire monorepo |
+| `pnpm run format` | Formats code using Prettier |
+| `pnpm run db:studio` | Opens Prisma Studio to view/edit data |
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 1. Create a feature branch: `git checkout -b feat/your-feature`
-2. Commit with conventional commits: `feat:`, `fix:`, `chore:`, etc.
-3. Open a Pull Request against `main`
+2. Commit changes: `git commit -m "feat: added awesome feature"`
+3. Push and open a Pull Request.
