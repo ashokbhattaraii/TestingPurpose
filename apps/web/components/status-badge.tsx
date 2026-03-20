@@ -24,7 +24,7 @@ const statusConfig: Record<
   },
   ON_HOLD: {
     label: "On Hold",
-    className: "bg-orange-100 text-orange-800 border-orange-200",
+    className: "bg-[#FFFD8F] text-black border-[#FFFD8F]",
   },
 };
 
