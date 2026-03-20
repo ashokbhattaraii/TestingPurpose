@@ -3,7 +3,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { SlackService } from '../slack/slack.service.js';
-import { LaunchType } from '@prisma/client';
+import { LunchType } from '@prisma/client';
 
 @Injectable()
 export class SlackCronService implements OnModuleInit {
@@ -63,10 +63,10 @@ export class SlackCronService implements OnModuleInit {
       });
 
       const vegPeople = records.filter(
-        (r) => r.preferredLunchOption === LaunchType.VEG,
+        (r) => r.preferredLunchOption === LunchType.VEG,
       );
       const nonVegPeople = records.filter(
-        (r) => r.preferredLunchOption === LaunchType.NON_VEG,
+        (r) => r.preferredLunchOption === LunchType.NON_VEG,
       );
 
       const vegNames = vegPeople.map((r) => r.user.name);

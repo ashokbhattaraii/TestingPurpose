@@ -20,29 +20,29 @@ interface BenefitsSectionProps {
 export function BenefitsSection({
   sidebarBenefits = [
     {
-      title: "Improved Efficiency",
-      desc: "Streamline operations and reduce overhead",
+      title: "All-in-One Portal",
+      desc: "Requests, lunch, and news in one single dashboard.",
     },
     {
-      title: "Better Communication",
-      desc: "Keep teams synchronized in real-time",
+      title: "Instant Status Updates",
+      desc: "Track your requests from pending to resolved real-time.",
     },
     {
-      title: "Cost Savings",
-      desc: "Reduce waste and optimize resource usage",
+      title: "Role-Based Features",
+      desc: "Tools tailored for both employees and admin staff.",
     },
   ],
   mainBenefits = [
-    "Centralized control of all office utilities and services",
-    "Real-time tracking and notifications for immediate action",
-    "Comprehensive analytics and detailed reporting",
-    "User-friendly interface for all skill levels",
-    "24/7 priority support for enterprise clients",
-    "Secure role-based access control system",
+    "Single sign-on for all office service requests",
+    "Digital lunch tokens and preference management",
+    "Real-time announcements and important broadcasts",
+    "Simple tracking of IT and facility issues",
+    "Detailed analytics for admins to optimize resources",
+    "Clean, modern interface shared by the whole team",
   ],
-  heading = "Why Choose WorkOps?",
-  subheading = "Transform how your organization manages office operations with our intuitive and comprehensive platform designed for modern workplaces.",
-  ctaText = "Start Using WorkOps",
+  heading = "Built for Our Workspace",
+  subheading = "WorkOps is designed to remove friction from our everyday office tasks, giving everyone more time to focus on what matters.",
+  ctaText = "Get Started",
 }: BenefitsSectionProps) {
   const router = useRouter();
 

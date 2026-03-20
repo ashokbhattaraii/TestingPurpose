@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import {
-  Building2,
+  ClipboardList,
+  UtensilsCrossed,
+  Megaphone,
   BarChart3,
-  Users,
-  Clock,
-  Zap,
-  Shield,
 } from "lucide-react";
 import {
   Navigation,
@@ -21,42 +19,32 @@ import {
 } from "@/components/home";
 
 export default function HomePage() {
-
+  //menus
   const [activeSection, setActiveSection] = useState<string>("");
   const features: FeatureCard[] = [
     {
-      icon: Clock,
-      title: "Real-Time Updates",
+      icon: ClipboardList,
+      title: "Service Requests",
       description:
-        "Get instant notifications about service requests and facility issues",
+        "Easily submit requests for office supplies or report facility/IT issues.",
     },
     {
-      icon: Users,
-      title: "Team Collaboration",
+      icon: UtensilsCrossed,
+      title: "Lunch Management",
       description:
-        "Keep your entire team synchronized with shared announcements",
+        "Input your daily lunch attendance and manage meal preferences smoothly.",
+    },
+    {
+      icon: Megaphone,
+      title: "Announcements",
+      description:
+        "Stay updated with important office news and team broadcasts.",
     },
     {
       icon: BarChart3,
-      title: "Analytics Dashboard",
+      title: "Admin Analytics",
       description:
-        "Track metrics and gain insights into office utilization",
-    },
-    {
-      icon: Zap,
-      title: "Quick Service Requests",
-      description: "Submit and track maintenance requests in seconds",
-    },
-    {
-      icon: Shield,
-      title: "Role-Based Access",
-      description:
-        "Secure permissions for employees and admins",
-    },
-    {
-      icon: Building2,
-      title: "Facility Management",
-      description: "Centralize all office operations in one platform",
+        "Comprehensive dashboards for admins to review, track, and resolve requests.",
     },
   ];
 

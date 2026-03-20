@@ -1,13 +1,13 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { LaunchAttendanceDto } from '../dto/launch.dto';
-import { LaunchType } from '@prisma/client';
+import { LunchAttendanceDto } from '../dto/lunch.dto';
+import { LunchType } from '@prisma/client';
 import { SlackService } from '../slack/slack.service';
 import { time } from 'console';
 import { Cron } from '@nestjs/schedule';
 @Injectable()
-export class LaunchService {
-  private readonly logger = new Logger(LaunchService.name);
+export class LunchService {
+  private readonly logger = new Logger(LunchService.name);
   constructor(
     private prisma: PrismaService,
     private slackService: SlackService,
@@ -32,7 +32,7 @@ export class LaunchService {
     this.logger.log('Attendance window check bypassed for testing');
   }
 
-  async launchAttendance(userId: string, dto: LaunchAttendanceDto) {
+  async lunchAttendance(userId: string, dto: LunchAttendanceDto) {
     this.checkAttendanceWindow();
     const today = this.getKathmanduDateOnly();
     console.log('Checking attendance window...', dto);

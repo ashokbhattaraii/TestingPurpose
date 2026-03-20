@@ -16,6 +16,7 @@ import {
   ClipboardList,
   Clock,
   CheckCircle2,
+  TrendingUp,
   AlertCircle,
   Plus,
   Megaphone,
@@ -188,13 +189,13 @@ export function EmployeeDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-blue-200 h-32">
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-yellow-200 h-32">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div className="flex items-center justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100 transition-colors">
-                    <Clock className="h-5 w-5 text-blue-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFFD8F] group-hover:bg-[#FFFD8F]/90 transition-colors">
+                    <Clock className="h-5 w-5 text-black" />
                   </div>
-                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Hold</span>
+                  <span className="text-[10px] font-bold text-black bg-[#FFFD8F] px-2 py-0.5 rounded-full">Hold</span>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground tracking-tight">{onhold}</p>
@@ -203,13 +204,13 @@ export function EmployeeDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200 h-32">
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-blue-200 h-32">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div className="flex items-center justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 group-hover:bg-emerald-100 transition-colors">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100 transition-colors">
+                    <TrendingUp className="h-5 w-5 text-blue-600" />
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Work</span>
+                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Work</span>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground tracking-tight">{inProgress}</p>

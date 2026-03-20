@@ -3,13 +3,13 @@
 import { useAuth } from "@/lib/auth-context";
 import { EmployeeDashboard } from "@/components/dashboard-employee";
 import { AdminDashboard } from "@/components/dashboard-admin";
-import { useLaunchAttendanceSummary } from "@/hooks/launch/useLaunchAttendance";
+import { useLunchAttendanceSummary } from "@/hooks/lunch/useLunchAttendance";
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
-  const { data: launchSummary } = useLaunchAttendanceSummary();
+  const { data: lunchSummary } = useLunchAttendanceSummary();
 
-  console.log("Launch Attendance Summary:", launchSummary);
+  console.log("Lunch Attendance Summary:", lunchSummary);
 
   if (isLoading) {
     return (

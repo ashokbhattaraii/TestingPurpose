@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  useMarkLaunchAttendance,
+  useMarkLunchAttendance,
   useMyLunchAttendance,
-} from "@/hooks/launch/useLaunchAttendance";
+} from "@/hooks/lunch/useLunchAttendance";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
 import {
   UtensilsCrossed,
@@ -69,7 +69,7 @@ export default function LunchTokenPage() {
     };
   }, [allTokensToday]);
 
-  const { mutate: handleAttendance, isPending } = useMarkLaunchAttendance();
+  const { mutate: handleAttendance, isPending } = useMarkLunchAttendance();
 
   const handleCollect = () => {
     if (!preferredLunchOption) {

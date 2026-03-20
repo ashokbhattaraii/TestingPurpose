@@ -14,16 +14,27 @@ import router from "next/navigation";
 interface User {
   id: string;
   uid: string;
+  cuid?: string;
   email: string;
   name: string;
+  gender?: string;
+  active?: boolean;
+  pending_approval?: boolean;
+  is_admin?: boolean;
   roles: string[];
   photoURL?: string;
+  thumbnail_url?: string;
   department?: string;
   org_unit?: string;
   job_title?: string;
   employment_type?: string;
+  phone_home?: string | null;
+  phone_work?: string | null;
+  phone_recovery?: string | null;
   status?: "active" | "inactive" | "suspended" | string;
   lastLogin?: string | Date | null;
+  created_at?: string;
+  updated_at?: string;
   notificationPreferences?: NotificationPreferences;
 }
 

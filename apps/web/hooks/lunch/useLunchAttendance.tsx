@@ -1,9 +1,9 @@
 import axiosInstance from "@/lib/axios/axios";
 import {
-  LauncAttendanceType,
-  LaunchAttendanceSummary,
+  LunchAttendanceType,
+  LunchAttendanceSummary,
   myAttendanceResponse,
-} from "@/lib/type/launchAttendaceType";
+} from "@/lib/type/lunchAttendanceType";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -11,7 +11,7 @@ export function useMyLunchAttendance() {
   return useQuery({
     queryKey: ["lunch-attendance", "my"],
     queryFn: async () => {
-      const response = await axiosInstance.get("/launch/my-attendance");
+      const response = await axiosInstance.get("/lunch/my-attendance");
       return response.data as myAttendanceResponse;
     },
     staleTime: 0,
@@ -22,28 +22,28 @@ export function useMyLunchAttendance() {
   });
 }
 
-export function useMarkLaunchAttendance() {
+export function useMarkLunchAttendance() {
   const queryClient = useQueryClient();
-  // const { toast } = useToast();  // removed as per standardization
+
 
   return useMutation({
-    mutationKey: ["launch-attendance", "my"],
+    mutationKey: ["lunch-attendance", "my"],
     // Accept optional userId so the optimistic update can match the correct attendance record
-    mutationFn: async (payload: LauncAttendanceType & { userId?: string }) => {
-      const response = await axiosInstance.post("/launch/attendance", {
+    mutationFn: async (payload: LunchAttendanceType & { userId?: string }) => {
+      const response = await axiosInstance.post("/lunch/attendance", {
         isAttending: payload.isAttending,
         preferredLunchOption: payload.preferredLunchOption,
       });
       return response.data as {
         message: string;
-        attendance: LaunchAttendanceSummary;
+        attendance: LunchAttendanceSummary;
       };
     },
 
     onMutate: async (payload) => {
       // Cancel in-flight refetches so they do not overwrite the optimistic update
       await queryClient.cancelQueries({
-        queryKey: ["launch-attendance-summary"],
+        queryKey: ["lunch-attendance-summary"],
       });
       await queryClient.cancelQueries({
         queryKey: ["lunch-attendance", "my"],
@@ -51,7 +51,7 @@ export function useMarkLaunchAttendance() {
 
       // Snapshot current values for rollback on error
       const previousSummary = queryClient.getQueryData([
-        "launch-attendance-summary",
+        "lunch-attendance-summary",
       ]);
       const previousMyAttendance = queryClient.getQueryData([
         "lunch-attendance",
@@ -59,7 +59,7 @@ export function useMarkLaunchAttendance() {
       ]);
 
       // Optimistically update the summary so counts change immediately in the context
-      queryClient.setQueryData(["launch-attendance-summary"], (old: any) => {
+      queryClient.setQueryData(["lunch-attendance-summary"], (old: any) => {
         if (!old) return old;
 
         const attendances: any[] = old.attendances ?? [];
@@ -127,7 +127,7 @@ export function useMarkLaunchAttendance() {
     onError: (error: any, _, context) => {
       // Rollback to snapshots on error
       queryClient.setQueryData(
-        ["launch-attendance-summary"],
+        ["lunch-attendance-summary"],
         context?.previousSummary,
       );
       queryClient.setQueryData(
@@ -145,7 +145,7 @@ export function useMarkLaunchAttendance() {
     onSettled: () => {
       // Always refetch after mutation to sync with server truth
       queryClient.invalidateQueries({
-        queryKey: ["launch-attendance-summary"],
+        queryKey: ["lunch-attendance-summary"],
       });
       queryClient.invalidateQueries({
         queryKey: ["lunch-attendance", "my"],
@@ -155,12 +155,12 @@ export function useMarkLaunchAttendance() {
   });
 }
 
-export function useLaunchAttendanceSummary(enabled: boolean = true) {
+export function useLunchAttendanceSummary(enabled: boolean = true) {
   return useQuery({
-    queryKey: ["launch-attendance-summary"],
+    queryKey: ["lunch-attendance-summary"],
     queryFn: async () => {
-      const response = await axiosInstance.get("/launch/attendance-summary");
-      return response.data as LaunchAttendanceSummary;
+      const response = await axiosInstance.get("/lunch/attendance-summary");
+      return response.data as LunchAttendanceSummary;
     },
     enabled: enabled,
     staleTime: 0,

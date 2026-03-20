@@ -22,7 +22,7 @@ enum RequestType {
 
 
 
-enum LaunchType {
+enum LunchType {
   VEG
   NON_VEG
 }
@@ -69,7 +69,12 @@ model User {
   roles    String[] @default(["employee"])
 
   // Profile Information
+  cuid             String?   @unique
+  gender           String?
   phone            String?
+  phone_home       String?
+  phone_work       String?
+  phone_recovery   String?
   department       String?
   org_unit         String?
   job_title        String?
@@ -233,7 +238,7 @@ model LunchAttendance {
   userId               String
   date                 DateTime    @db.Date // Only date, no time
   isAttending          Boolean     @default(true)
-  preferredLunchOption LaunchType?
+  preferredLunchOption LunchType?
   // Timestamps
 
   createdAt DateTime @default(now())

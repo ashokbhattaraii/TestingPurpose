@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useAnnouncements } from "@/hooks/announcement/useAnnouncements";
-import { useServiceRequests } from "@/hooks/request/useServiceRequests";      
+import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +12,7 @@ import {
   ClipboardList,
   Clock,
   CheckCircle2,
+  TrendingUp,
   AlertCircle,
   BarChart3,
   Plus,
@@ -23,7 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { useLaunchAttendanceSummary } from "@/hooks/launch/useLaunchAttendance";
+import { useLunchAttendanceSummary } from "@/hooks/lunch/useLunchAttendance";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
 
 const PRIORITY_CONFIG = {
@@ -92,7 +93,7 @@ export function AdminDashboard() {
 
   // ✅ Logic: Filter requests assigned to the current admin
   // Line 97 tira yeso garnuhos:
-const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) ?? [];
+  const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) ?? [];
   const recentAssigned = assignedToMe.slice(0, 5);
 
   // Active requests for system-wide view (PENDING)
@@ -180,13 +181,13 @@ const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) 
               </CardContent>
             </Card>
 
-            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200 h-32">
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-blue-200 h-32">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div className="flex items-center justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 group-hover:bg-emerald-100 transition-colors">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100 transition-colors">
+                    <TrendingUp className="h-5 w-5 text-blue-600" />
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Work</span>
+                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Work</span>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground tracking-tight">{inProgress}</p>
@@ -210,13 +211,13 @@ const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) 
               </CardContent>
             </Card>
 
-            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-amber-200 h-32">
+            <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-yellow-200 h-32">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div className="flex items-center justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 group-hover:bg-amber-100 transition-colors">
-                    <Clock className="h-5 w-5 text-amber-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFFD8F] group-hover:bg-[#FFFD8F]/90 transition-colors">
+                    <Clock className="h-5 w-5 text-black" />
                   </div>
-                  <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Hold</span>
+                  <span className="text-[10px] font-bold text-black bg-[#FFFD8F] px-2 py-0.5 rounded-full">Hold</span>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground tracking-tight">{onhold}</p>

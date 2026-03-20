@@ -17,6 +17,13 @@ import {
   CheckCircle,
   Edit3,
   Link as LinkIcon,
+  Phone,
+  User as UserIcon,
+  Briefcase,
+  Globe,
+  Fingerprint,
+  ShieldCheck,
+  AlertCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -46,22 +53,33 @@ export default function ProfilePage() {
 
   const displayName = user.name ?? "User";
   const displayEmail = user.email ?? "—";
-  const displayRole = roleLabel[user.roles?.[0] || "EMPLOYEE"] ?? "Employee";
-  const displayStatus = user.status ?? "active";
+  const displayRole = user.is_admin
+    ? "Admin"
+    : roleLabel[user.roles?.[0] || "EMPLOYEE"] ?? "Employee";
+  const displayStatus = user.active ? "Active" : "Inactive";
   const displayDepartment = user.department ?? "N/A";
-  const joinedAt = (user as any).joinedAt
+  const displayGender = user.gender === "M" ? "Male" : user.gender === "F" ? "Female" : user.gender ?? "N/A";
+  const displayJobTitle = user.job_title ?? "N/A";
+  const displayOrgUnit = user.org_unit ?? "N/A";
+  const displayEmploymentType = user.employment_type ?? "N/A";
+
+  const joinedAt = user.created_at
+    ? new Date(user.created_at)
+    : (user as any).joinedAt
     ? new Date((user as any).joinedAt)
     : null;
+  const updatedAt = user.updated_at ? new Date(user.updated_at) : null;
   const lastLogin = (user as any).lastLogin
     ? new Date((user as any).lastLogin)
     : null;
+
   const socialAccounts = [...((user as any).socialAccounts ?? [])];
   const hasGoogle = socialAccounts.some((acc: any) => acc.provider === "google");
   if (!hasGoogle && user.email) {
     socialAccounts.push({
       provider: "google",
       email: user.email,
-      connectedAt: (user as any).joinedAt || new Date().toISOString(),
+      connectedAt: user.created_at || (user as any).joinedAt || new Date().toISOString(),
     });
   }
 
@@ -93,14 +111,22 @@ export default function ProfilePage() {
         <CardContent className="flex flex-col items-center gap-6 p-6 sm:flex-row sm:items-start sm:gap-8">
           <div className="relative">
             <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
-              <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
-                {getInitials(displayName)}
-              </AvatarFallback>
+              {user.thumbnail_url ? (
+                <img
+                  src={user.thumbnail_url}
+                  alt={displayName}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
+                  {getInitials(displayName)}
+                </AvatarFallback>
+              )}
             </Avatar>
             <Button
               size="sm"
               variant="outline"
-              className="absolute -bottom-2 -right-2 rounded-full h-8 w-8 p-0 bg-transparent"
+              className="absolute -bottom-2 -right-2 rounded-full h-8 w-8 p-0 bg-white ring-2 ring-primary/20"
               onClick={() => setIsEditingAvatar(!isEditingAvatar)}
               title="Update profile picture"
             >
@@ -150,18 +176,18 @@ export default function ProfilePage() {
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-medium text-muted-foreground">
-                  Role
+                  Job Title
                 </span>
                 <span className="text-sm font-semibold text-foreground">
-                  {displayRole}
+                  {displayJobTitle}
                 </span>
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-medium text-muted-foreground">
-                  Status
+                  Employment
                 </span>
-                <span className="text-sm font-semibold capitalize text-green-600">
-                  {displayStatus}
+                <span className="text-sm font-semibold capitalize text-foreground">
+                  {displayEmploymentType}
                 </span>
               </div>
             </div>
@@ -169,13 +195,72 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
+      {/* Personal & Professional Details */}
+      <div className="grid gap-6 sm:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <UserIcon className="h-5 w-5 text-primary" />
+              Personal Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="flex items-center justify-between p-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Gender</span>
+              <span className="text-sm font-medium">{displayGender}</span>
+            </div>
+            <div className="flex items-center justify-between p-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Home Phone</span>
+              <span className="text-sm font-medium">{user.phone_home ?? "—"}</span>
+            </div>
+            <div className="flex items-center justify-between p-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Work Phone</span>
+              <span className="text-sm font-medium">{user.phone_work ?? "—"}</span>
+            </div>
+            <div className="flex items-center justify-between p-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Recovery Phone</span>
+              <span className="text-sm font-medium">{user.phone_recovery ?? "—"}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Briefcase className="h-5 w-5 text-primary" />
+              Professional Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="flex items-center justify-between p-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Organization Unit</span>
+              <span className="text-sm font-medium">{displayOrgUnit}</span>
+            </div>
+            <div className="flex items-center justify-between p-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Department</span>
+              <span className="text-sm font-medium">{displayDepartment}</span>
+            </div>
+            <div className="flex items-center justify-between p-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Employment Type</span>
+              <span className="text-sm font-semibold capitalize">{displayEmploymentType}</span>
+            </div>
+            <div className="flex items-center justify-between p-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Job Title</span>
+              <span className="text-sm font-medium">{displayJobTitle}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+
+
       {/* Account Activity */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Account Activity</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <div className="flex items-start gap-3 p-3 border border-border rounded-lg">
               <Clock className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
               <div className="flex flex-col gap-1">
@@ -200,36 +285,14 @@ export default function ProfilePage() {
                 </span>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Contact Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Contact Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex items-start gap-3 p-3 border border-border rounded-lg">
-              <Mail className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-              <div className="flex flex-col gap-1 flex-1 min-w-0">
-                <span className="text-sm font-medium text-foreground">
-                  Email
-                </span>
-                <span className="text-xs text-muted-foreground break-all">
-                  {displayEmail}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 border border-border rounded-lg">
-              <Building className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+              <Calendar className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium text-foreground">
-                  Department
+                  Last Updated
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {displayDepartment}
+                  {updatedAt ? format(updatedAt, "MMM d, yyyy 'at' h:mm a") : "N/A"}
                 </span>
               </div>
             </div>

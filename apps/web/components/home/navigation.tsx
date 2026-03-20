@@ -21,8 +21,6 @@ export function Navigation({
   navLinks = [
     { label: "Features", href: "#features", section: "features" },
     { label: "Benefits", href: "#benefits", section: "benefits" },
-    // ✅ थपिएको: Assigned to Me menu option
-    { label: "Assigned to Me", href: "/dashboard/assigned-requests", section: "assigned" },
   ],
   onNavClick = () => {},
   activeSection = "",

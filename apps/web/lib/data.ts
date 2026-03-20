@@ -206,7 +206,7 @@ export const serviceRequests: ServiceRequest[] = [
     type: "SUPPLIES",
     title: "Restock printer paper",
     description: "All printers on the 2nd floor are out of A4 paper.",
-    SuppliesCategory: "OFFICE_Supplies",
+    SuppliesCategory: "OFFICE_SUPPLIES",
     itemName: "A4 Printer Paper",
     status: "IN_PROGRESS",
     userId: "u2",
@@ -215,7 +215,7 @@ export const serviceRequests: ServiceRequest[] = [
     assignedToName: "Sita Poudel",
     createdAt: "2026-02-05T08:30:00Z",
     updatedAt: "2026-02-06T09:00:00Z",
-    category: "OFFICE_Supplies",
+    category: "OFFICE_SUPPLIES",
   },
   {
     id: "SR-007",
@@ -458,7 +458,7 @@ export const analyticsData: AnalyticsData = {
     { category: "PANTRY", count: 3 },
     { category: "FACILITY", count: 4 },
     { category: "SECURITY", count: 1 },
-    { category: "OFFICE_Supplies", count: 1 },
+    { category: "OFFICE_SUPPLIES", count: 1 },
     { category: "EQUIPMENT", count: 1 },
   ],
   requestsByMonth: [

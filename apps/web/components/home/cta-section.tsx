@@ -11,9 +11,9 @@ interface CTASectionProps {
 }
 
 export function CTASection({
-  heading = "Ready to Transform Your Office?",
-  subheading = "Join hundreds of companies that trust WorkOps for their facility management needs.",
-  ctaText = "Get Started Now",
+  heading = "Jump Right In",
+  subheading = "Sign in to manage your daily office needs and stay connected with the team.",
+  ctaText = "Sign In Now",
 }: CTASectionProps) {
   const router = useRouter();
 

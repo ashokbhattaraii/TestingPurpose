@@ -85,7 +85,7 @@ const PIE_COLORS = [
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-amber-100 text-amber-700",
   "in-progress": "bg-blue-100 text-blue-700",
-  "on-hold": "bg-orange-100 text-orange-700",
+  "on-hold": "bg-[#FFFD8F] text-black",
   resolved: "bg-emerald-100 text-emerald-700",
   rejected: "bg-red-100 text-red-700",
 };
@@ -174,12 +174,13 @@ function computeAnalytics(requests: ServiceRequest[]) {
     );
   }
 
-  const categoryMap = new Map<string, number>();
+  const typeMap = new Map<string, number>();
   requests.forEach((r) => {
-    categoryMap.set(r.category, (categoryMap.get(r.category) ?? 0) + 1);
+    const label = r.type === "ISSUE" ? "Issue" : "Supplies";
+    typeMap.set(label, (typeMap.get(label) ?? 0) + 1);
   });
-  const requestsByCategory = Array.from(categoryMap, ([category, count]) => ({
-    category,
+  const requestsByType = Array.from(typeMap, ([type, count]) => ({
+    type,
     count,
   }));
 
@@ -211,7 +212,7 @@ function computeAnalytics(requests: ServiceRequest[]) {
     onHoldRequests,
     resolvedRequests,
     avgResolutionTimeHours,
-    requestsByCategory,
+    requestsByType,
     requestsByMonth,
     requestsByStatus,
   };
@@ -234,7 +235,7 @@ export default function AnalyticsPage() {
   const { isLoading: analyticsLoading } = useAnalytics();
 
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("all");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [drillDown, setDrillDown] = useState<DrillDownState | null>(null);
 
@@ -255,14 +256,14 @@ export default function AnalyticsPage() {
   const filteredRequests = useMemo(() => {
     if (!normalizedRequests || !Array.isArray(normalizedRequests)) return [];
     let filtered = filterByTimePeriod(normalizedRequests, timePeriod);
-    if (categoryFilter !== "all") {
-      filtered = filtered.filter((r) => r.category === categoryFilter);
+    if (typeFilter !== "all") {
+      filtered = filtered.filter((r) => r.type === typeFilter);
     }
     if (statusFilter !== "all") {
       filtered = filtered.filter((r) => r.status === statusFilter);
     }
     return filtered;
-  }, [allRequests, timePeriod, categoryFilter, statusFilter]);
+  }, [allRequests, timePeriod, typeFilter, statusFilter]);
 
   const analytics = useMemo(
     () => computeAnalytics(filteredRequests),
@@ -273,8 +274,8 @@ export default function AnalyticsPage() {
   const drillDownRequests = useMemo(() => {
     if (!drillDown || !normalizedRequests || !Array.isArray(normalizedRequests)) return [];
     let base = filterByTimePeriod(normalizedRequests, timePeriod);
-    if (categoryFilter !== "all")
-      base = base.filter((r) => r.category === categoryFilter);
+    if (typeFilter !== "all")
+      base = base.filter((r) => r.type === typeFilter);
     if (statusFilter !== "all")
       base = base.filter((r) => r.status === statusFilter);
 
@@ -285,7 +286,7 @@ export default function AnalyticsPage() {
             format(parseISO(r.createdAt), "MMM yyyy") === drillDown.filterValue,
         );
       case "category":
-        return base.filter((r) => r.category === drillDown.filterValue);
+        return base.filter((r) => (r.type === "ISSUE" ? "Issue" : "Supplies") === drillDown.filterValue);
       case "status":
         return base.filter(
           (r) =>
@@ -296,9 +297,8 @@ export default function AnalyticsPage() {
       default:
         return [];
     }
-  }, [drillDown, normalizedRequests, timePeriod, categoryFilter, statusFilter]);
+  }, [drillDown, normalizedRequests, timePeriod, typeFilter, statusFilter]);
 
-  // Drill-down pagination & search
   const DRILLDOWN_PAGE_SIZE = 10;
   const [ddPage, setDdPage] = useState(1);
   const [ddSearch, setDdSearch] = useState("");
@@ -330,13 +330,13 @@ export default function AnalyticsPage() {
 
   const activeFilterCount = [
     timePeriod !== "all" ? 1 : 0,
-    categoryFilter !== "all" ? 1 : 0,
+    typeFilter !== "all" ? 1 : 0,
     statusFilter !== "all" ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
   const clearFilters = () => {
     setTimePeriod("all");
-    setCategoryFilter("all");
+    setTypeFilter("all");
     setStatusFilter("all");
   };
 
@@ -386,8 +386,8 @@ export default function AnalyticsPage() {
       `Resolved: ${analytics.resolvedRequests}`,
       `Avg Resolution Time: ${analytics.avgResolutionTimeHours}h`,
       "",
-      "--- By Category ---",
-      ...analytics.requestsByCategory.map((c) => `  ${c.category}: ${c.count}`),
+      "--- By Request Type ---",
+      ...analytics.requestsByType.map((c) => `  ${c.type}: ${c.count}`),
       "",
       "--- By Month ---",
       ...analytics.requestsByMonth.map((m) => `  ${m.month}: ${m.count}`),
@@ -493,20 +493,14 @@ export default function AnalyticsPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="h-9 w-[160px] text-xs">
-                  <SelectValue placeholder="Category" />
+                  <SelectValue placeholder="Request Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Food and Supplies">
-                    Food and Supplies
-                  </SelectItem>
-                  <SelectItem value="Office Maintenance">
-                    Office Maintenance
-                  </SelectItem>
-                  <SelectItem value="Cleaning">Cleaning</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="all">All Request Type</SelectItem>
+                  <SelectItem value="ISSUE">Issue</SelectItem>
+                  <SelectItem value="SUPPLIES">Supplies</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -515,7 +509,7 @@ export default function AnalyticsPage() {
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="in-progress">In Progress</SelectItem>
                   <SelectItem value="on-hold">On Hold</SelectItem>
@@ -687,11 +681,11 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* Requests by Category - Clickable Pie */}
+        {/* Requests by Type - Clickable Pie */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-sm font-medium text-foreground">
-              Requests by Category
+              Requests by Type
             </CardTitle>
             <span className="text-[10px] text-muted-foreground">
               Click a slice for details
@@ -700,7 +694,7 @@ export default function AnalyticsPage() {
           <CardContent>
             {isLoading ? (
               <Skeleton className="h-60" />
-            ) : analytics.requestsByCategory.length === 0 ? (
+            ) : analytics.requestsByType.length === 0 ? (
               <div className="flex h-60 items-center justify-center text-sm text-muted-foreground">
                 No data for this period
               </div>
@@ -708,26 +702,26 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
-                    data={analytics.requestsByCategory}
+                    data={analytics.requestsByType}
                     cx="50%"
                     cy="50%"
                     innerRadius={55}
                     outerRadius={85}
                     paddingAngle={4}
                     dataKey="count"
-                    nameKey="category"
+                    nameKey="type"
                     className="cursor-pointer"
                     onClick={(data) => {
-                      if (data?.category) {
+                      if (data?.type) {
                         setDrillDown({
                           type: "category",
-                          label: `${data.category} Requests`,
-                          filterValue: data.category,
+                          label: `${data.type} Requests`,
+                          filterValue: data.type,
                         });
                       }
                     }}
                   >
-                    {analytics.requestsByCategory.map((_, index) => (
+                    {analytics.requestsByType.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={PIE_COLORS[index % PIE_COLORS.length]}

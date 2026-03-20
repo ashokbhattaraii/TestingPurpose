@@ -84,10 +84,10 @@ export class AuthGuard implements CanActivate, OnModuleInit {
       }
     }
 
+
     let { valid, payload } = await this.crypto.verifyJwt(token, this.signingPublicKey)
 
-    // Fallback: Try verifying with local JWT secret if crypto verification fails
-    // This is because AuthService signs tokens with HS256 using JwtService
+
     if (!valid || !payload) {
       try {
         if (this.jwtService) {
