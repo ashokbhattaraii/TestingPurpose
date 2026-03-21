@@ -95,7 +95,7 @@ export interface Announcement {
 }
 
 export type MealPreference = "VEG" | "NON_VEG";
-
+//types
 export interface LunchToken {
   id: string;
   userId: string;
