@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useAnalytics } from "@/lib/queries";
+import { useAnalytics } from "@/hooks/analytics/useAnalytics";
 import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";

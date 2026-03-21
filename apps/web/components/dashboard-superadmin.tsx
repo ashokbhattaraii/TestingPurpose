@@ -1,10 +1,8 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import {
-  useUsers,
-  useAnalytics,
-} from "@/lib/queries";
+import { useUsers } from "@/hooks/users/useUsers";
+import { useAnalytics } from "@/hooks/analytics/useAnalytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

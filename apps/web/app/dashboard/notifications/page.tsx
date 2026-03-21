@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useNotifications, useMarkNotificationRead } from "@/lib/queries";
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/notification/useNotifications";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Bell, BellOff } from "lucide-react";
@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { Notification } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { useMarkAllNotificationsRead } from "@/lib/queries";
+
 
 export default function NotificationsPage() {
   const { user } = useAuth();

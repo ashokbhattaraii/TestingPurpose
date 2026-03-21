@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Building2, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { users } from "@/lib/data";
+
 import { useLogin } from "@/hooks/use-login";
 import { toast } from "sonner";
 import { GoogleLogin } from "@react-oauth/google";

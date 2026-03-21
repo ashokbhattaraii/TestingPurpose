@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useReopenRequest } from "@/hooks/request/useReopenRequest";
 import { useAssignRequest } from "@/hooks/request/useAssignRequest";
 import { useUpdateRequestStatus } from "@/hooks/request/useUpdateRequestStatus";
-import { useUsers } from "@/lib/queries";
+
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,7 +78,7 @@ export default function RequestDetailPage() {
   console.log("Admin User Data:", adminUser);
   const id = params.id as string;
   const { data: requestById, isLoading } = useGetRequestByIdQuery(id);
-  const { data: allUsers } = useUsers();
+
   const updateStatus = useUpdateRequestStatus();
   const assignRequest = useAssignRequest();
   const reopenRequest = useReopenRequest();
