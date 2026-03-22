@@ -48,7 +48,8 @@ export default function LunchTokenPage() {
   const { totalAttending, totalTokens, totalVegetarian, totalNonVegetarian } =
     useLunchContext();
 
-  const canCollect = isBefore11AM();
+  const isWeekend = new Date().getDay() === 0 || new Date().getDay() === 6;
+  const canCollect = !isWeekend && isBefore11AM();
 
   // Read from myAttendance.attendance — matches the actual API response shape
   const alreadyCollected = myAttendance?.attendance?.isAttending === true;
@@ -177,13 +178,20 @@ export default function LunchTokenPage() {
             </p>
             <div className="flex items-center gap-2 mt-1">
               <Clock className="h-3 w-3 text-muted-foreground" />
-              <span className="text-xs text-green-600 font-medium">
-                Token collection is open (Testing: No Time Restriction)
+              <span className={`text-xs font-medium ${isWeekend ? 'text-yellow-600' : 'text-green-600'}`}>
+                {isWeekend
+                  ? "Collection closed on weekends"
+                  : "Token collection is open (Testing: No Time Restriction)"}
               </span>
             </div>
           </div>
-          {alreadyCollected ? (
-            <Badge className="bg-green-100 text-green-800 gap-1">
+          {isWeekend ? (
+            <Badge className="bg-yellow-100 text-yellow-800 gap-1 hover:bg-yellow-100/80">
+              <Clock className="h-3 w-3" />
+              Weekend
+            </Badge>
+          ) : alreadyCollected ? (
+            <Badge className="bg-green-100 text-green-800 gap-1 hover:bg-green-100/80">
               <CheckCircle2 className="h-3 w-3" />
               Collected
             </Badge>
@@ -285,9 +293,11 @@ export default function LunchTokenPage() {
             >
               {isPending
                 ? "Collecting..."
-                : !canCollect
-                  ? "Collection Closed (After 11 AM)"
-                  : "Collect Lunch Token"}
+                : isWeekend
+                  ? "Collection Closed (Weekend)"
+                  : !canCollect
+                    ? "Collection Closed (After 11 AM)"
+                    : "Collect Lunch Token"}
             </Button>
             {/* Removed time restriction notice for testing */}
           </CardContent>

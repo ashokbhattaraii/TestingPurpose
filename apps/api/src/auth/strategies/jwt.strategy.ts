@@ -52,6 +52,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       org_unit: user.org_unit,
       job_title: user.job_title,
       employment_type: user.employment_type,
+      gender: user.gender,
+      department: user.department,
+      phone: user.phone,
+      phone_home: user.phone_home,
+      phone_work: user.phone_work,
+      phone_recovery: user.phone_recovery,
+      lastLogin: user.lastLoginAt,
+      active: user.isActive,
+      created_at: user.createdAt,
+      updated_at: user.updatedAt,
     };
   }
 }

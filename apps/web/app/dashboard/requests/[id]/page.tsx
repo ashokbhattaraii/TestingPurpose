@@ -100,7 +100,7 @@ export default function RequestDetailPage() {
   };
 
   const isAdminOrSuper = user?.roles?.some((r) => r.includes("ADMIN"));
-  const isCreator = user?.id === requestById?.request.user.id;
+  const isCreator = user?.id === requestById?.request.userId;
   const request = requestById?.request;
   // Check if current admin is the assigned admin
   const isAssignedToMe = request?.approverId === user?.id;
@@ -177,7 +177,7 @@ export default function RequestDetailPage() {
       toast.error("Request not found.");
       return
     }
-    if (request?.user.id !== user?.id) {
+    if (request?.userId !== user?.id) {
       toast.error("You are not authorized to cancel this request.");
       return
     }
@@ -467,7 +467,7 @@ export default function RequestDetailPage() {
                       {(Array.isArray(adminUser) ? adminUser : adminUser ? [adminUser] : [])
                         ?.filter((u) => u?.id)
                         .map((u) => {
-                          const isReqCreator = u.id === request.user?.id;
+                          const isReqCreator = u.id === request?.userId;
                           return (
                             <SelectItem key={u.id} value={u.id} disabled={isReqCreator}>
                               <div className="flex items-center justify-between w-full min-w-[150px]">

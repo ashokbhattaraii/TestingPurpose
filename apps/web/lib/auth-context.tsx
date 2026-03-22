@@ -28,6 +28,7 @@ interface User {
   org_unit?: string;
   job_title?: string;
   employment_type?: string;
+  phone?: string | null;
   phone_home?: string | null;
   phone_work?: string | null;
   phone_recovery?: string | null;

@@ -25,6 +25,7 @@ export type CreateRequestPayload = ApiRequestPayload;
 
 export type RequestResponse = {
   id: string;
+  userId: string;
   type: AppRequestType;
   title: string;
   description: string;
@@ -42,21 +43,16 @@ export type RequestResponse = {
   status: RequestStatus;
   approverId?: string;
   approver?: {
-    id: string;
     name: string;
-    email: string;
-    roles: string[];
-    department: string;
+    photoURL?: string;
+    isAdmin: boolean;
   };
   createdAt: string;
   updatedAt: string;
   user: {
-    id: string;
     name: string;
-    email: string;
-    role: string;
-    department: string;
     photoURL?: string;
+    isAdmin: boolean;
   };
 };
 

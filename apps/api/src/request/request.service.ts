@@ -20,6 +20,43 @@ export class RequestService {
     private prisma: PrismaService,
     private notificationService: NotificationService,
   ) { }
+  private formatRequestDetails(request: any) {
+    if (!request) return request;
+    const result = { ...request };
+    
+    if (result.user) {
+      result.user = {
+        name: result.user.name,
+        photoURL: result.user.photoURL,
+        isAdmin: Array.isArray(result.user.roles) 
+          ? result.user.roles.some((r: string) => r.toLowerCase().includes('admin'))
+          : false,
+      };
+    }
+    
+    if (result.approver) {
+      result.approver = {
+        name: result.approver.name,
+        photoURL: result.approver.photoURL,
+        isAdmin: Array.isArray(result.approver.roles) 
+          ? result.approver.roles.some((r: string) => r.toLowerCase().includes('admin'))
+          : false,
+      };
+    }
+
+    if (result.issueDetails) {
+      delete result.issueDetails.requestId;
+      delete result.issueDetails.id;
+    }
+
+    if (result.suppliesDetails) {
+      delete result.suppliesDetails.requestId;
+      delete result.suppliesDetails.id;
+    }
+
+    return result;
+  }
+
   private removeNullish<T>(value: T): T {
     if (Array.isArray(value)) {
       return value.map((v) => this.removeNullish(v)) as T;
@@ -126,7 +163,7 @@ export class RequestService {
 
     const returnMsg = {
       message: 'Request created successfully',
-      request,
+      request: this.formatRequestDetails(request),
     };
     return this.removeNullish(returnMsg);
   }
@@ -151,7 +188,7 @@ export class RequestService {
     });
     const returnMsg = {
       message: 'Total requests fetched successfully',
-      requests,
+      requests: requests.map(r => this.formatRequestDetails(r)),
     };
     return this.removeNullish(returnMsg);
   }
@@ -190,7 +227,7 @@ export class RequestService {
     }
     return this.removeNullish({
       message: 'Request fetched successfully',
-      request,
+      request: this.formatRequestDetails(request),
     });
   }
 
@@ -291,7 +328,7 @@ export class RequestService {
 
     return this.removeNullish({
       message: 'Request updated successfully',
-      request,
+      request: this.formatRequestDetails(request),
     });
   }
 
@@ -353,7 +390,7 @@ export class RequestService {
 
     return {
       message: 'Status updated successfully',
-      request,
+      request: this.formatRequestDetails(request),
     };
   }
 
@@ -405,7 +442,7 @@ export class RequestService {
 
     return {
       message: 'Request assigned successfully',
-      request,
+      request: this.formatRequestDetails(request),
     };
   }
 
@@ -442,7 +479,7 @@ export class RequestService {
 
     return {
       message: 'Request reopened successfully',
-      request,
+      request: this.formatRequestDetails(request),
     };
   }
 
@@ -485,7 +522,7 @@ export class RequestService {
 
     return {
       message: 'Request cancelled successfully',
-      request,
+      request: this.formatRequestDetails(request),
     };
   }
 }

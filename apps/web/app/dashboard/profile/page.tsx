@@ -123,15 +123,6 @@ export default function ProfilePage() {
                 </AvatarFallback>
               )}
             </Avatar>
-            <Button
-              size="sm"
-              variant="outline"
-              className="absolute -bottom-2 -right-2 rounded-full h-8 w-8 p-0 bg-white ring-2 ring-primary/20"
-              onClick={() => setIsEditingAvatar(!isEditingAvatar)}
-              title="Update profile picture"
-            >
-              <Edit3 className="h-3.5 w-3.5" />
-            </Button>
           </div>
 
           <div className="flex flex-1 flex-col items-center gap-3 text-center sm:items-start sm:text-left">
@@ -210,16 +201,8 @@ export default function ProfilePage() {
               <span className="text-sm font-medium">{displayGender}</span>
             </div>
             <div className="flex items-center justify-between p-2 border-b border-border/50">
-              <span className="text-sm text-muted-foreground">Home Phone</span>
+              <span className="text-sm text-muted-foreground">Phone</span>
               <span className="text-sm font-medium">{user.phone_home ?? "—"}</span>
-            </div>
-            <div className="flex items-center justify-between p-2 border-b border-border/50">
-              <span className="text-sm text-muted-foreground">Work Phone</span>
-              <span className="text-sm font-medium">{user.phone_work ?? "—"}</span>
-            </div>
-            <div className="flex items-center justify-between p-2 border-b border-border/50">
-              <span className="text-sm text-muted-foreground">Recovery Phone</span>
-              <span className="text-sm font-medium">{user.phone_recovery ?? "—"}</span>
             </div>
           </CardContent>
         </Card>

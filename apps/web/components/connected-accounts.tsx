@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Slack, Mail, Trash2, Plus, Check } from "lucide-react";
+import { Slack, Mail, Trash2, Plus, Check, Clock } from "lucide-react";
 import type { SocialAccount, SocialProvider } from "@/lib/types";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -180,9 +180,16 @@ export function ConnectedAccounts({
                         {config.icon}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-foreground">
-                          {config.label}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-foreground">
+                            {config.label}
+                          </span>
+                          {provider === "slack" && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-purple-100 text-purple-700 hover:bg-purple-100 italic font-normal">
+                              Coming Soon
+                            </Badge>
+                          )}
+                        </div>
                         <span className="text-xs text-muted-foreground">
                           Connect your {config.label} account
                         </span>
@@ -191,13 +198,19 @@ export function ConnectedAccounts({
                     <Button
                       size="sm"
                       onClick={() => handleConnect(provider)}
-                      disabled={connecting === provider}
-                      className="gap-1"
+                      disabled={connecting === provider || provider === "slack"}
+                      className="gap-1 min-w-[100px]"
+                      variant={provider === "slack" ? "secondary" : "default"}
                     >
                       {connecting === provider ? (
                         <>
                           <span className="animate-pulse">Connecting...</span>
                         </>
+                      ) : provider === "slack" ? (
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3 w-3" />
+                          Coming Soon
+                        </div>
                       ) : (
                         <>
                           <Plus className="h-3.5 w-3.5" />

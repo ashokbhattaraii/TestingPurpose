@@ -22,7 +22,9 @@ import {
   ArrowUp,
   ArrowRight,
   ArrowDown,
+  Search,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -114,36 +116,37 @@ export function EmployeeDashboard() {
   return (
     <div className="flex flex-col gap-6">
       {/* ✅ Welcome Section */}
-      <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold text-foreground">
-          Welcome back, {user?.name?.split(" ")[0]}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Here is a summary of your service requests.
-        </p>
-      </div>
-
-      {/* ✅ Search + New Request */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <form onSubmit={(e) => e.preventDefault()} className="flex-1">
-          <input
-            type="text"
-            placeholder="Search requests..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </form>
-
-        <div className="flex gap-2">
-          <Link href="/dashboard/requests/new">
-            <Button className="w-full justify-start gap-2">
-              <Plus className="h-4 w-4" />
-              New Request
-            </Button>
-          </Link>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-xl font-semibold text-foreground">
+            Welcome back, {user?.name?.split(" ")[0]}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Here is a summary of your service requests.
+          </p>
         </div>
+        <Button asChild size="sm">
+          <Link href="/dashboard/requests/new">
+            <Plus className="mr-1 h-4 w-4" />
+            New Request
+          </Link>
+        </Button>
       </div>
+
+      {/* ✅ Search Bar (Consistent UI) */}
+      <Card className="border-none shadow-sm bg-muted/20">
+        <CardContent className="p-4">
+          <div className="relative min-w-0 flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search your requests by title or ID..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 bg-white/50 focus:bg-white transition-all border-none shadow-inner max-w-md"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
