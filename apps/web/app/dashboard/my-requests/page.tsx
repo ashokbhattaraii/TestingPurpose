@@ -276,19 +276,31 @@ export default function MyRequestsPage() {
                   <Button
                     variant="outline"
                     className={cn(
-                      "justify-start gap-2 text-left font-normal bg-white/50 hover:bg-white",
+                      "group justify-start gap-2 text-left font-normal bg-white/50 hover:bg-white transition-all",
                       !dateRange && "text-muted-foreground",
                     )}
                   >
-                    <CalendarIcon className="h-4 w-4 shrink-0" />
+                    <CalendarIcon className="h-4 w-4 shrink-0 text-primary" />
                     {dateRange?.from ? (
-                      dateRange.to ? (
-                        <span className="max-w-[150px] truncate">
-                          {format(dateRange.from, "MMM d")} - {format(dateRange.to, "MMM d")}
+                      <div className="flex items-center gap-1.5">
+                        <span className="max-w-[150px] truncate text-foreground font-medium">
+                          {dateRange.to ? (
+                            `${format(dateRange.from, "MMM d")} - ${format(dateRange.to, "MMM d")}`
+                          ) : (
+                            format(dateRange.from, "MMM d, yyyy")
+                          )}
                         </span>
-                      ) : (
-                        <span>{format(dateRange.from, "MMM d, yyyy")}</span>
-                      )
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDateChange(undefined);
+                          }}
+                          className="hover:bg-primary/20 p-0.5 rounded-full transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
                     ) : (
                       <span>Date Range</span>
                     )}
@@ -302,6 +314,7 @@ export default function MyRequestsPage() {
                     selected={dateRange}
                     onSelect={handleDateChange}
                     numberOfMonths={2}
+                    disabled={(date) => date > new Date()}
                   />
                 </PopoverContent>
               </Popover>
