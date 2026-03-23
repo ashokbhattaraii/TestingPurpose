@@ -51,7 +51,7 @@ export class AuthService {
     if (!appId) throw new Error('APP_ID env var is required');
     this.appId = appId;
   }
-
+//test
   async googleLogin(id_token: string) {
     // Authenticate with Rumsan Office Client to get the user's cross-app role and ID
     const rsAuthResult = await this.loginWithGoogle(id_token).catch((e) => {
