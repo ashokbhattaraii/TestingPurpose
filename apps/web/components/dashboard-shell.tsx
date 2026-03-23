@@ -81,6 +81,13 @@ const navItems: NavItem[] = [
     section: "General",
   },
   {
+    label: "My Requests",
+    href: "/dashboard/my-requests",
+    icon: <ClipboardList className="h-4 w-4" />,
+    roles: ["EMPLOYEE"],
+    section: "General",
+  },
+  {
     label: "Assigned to Me",
     href: "/dashboard/assigned-requests",
     icon: <UserCheck className="h-4 w-4" />,
