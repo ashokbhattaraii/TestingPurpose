@@ -14,11 +14,14 @@ import { NotificationModule } from './notification/notification.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { SlackModule } from './slack/slack.module';
 import { CronModule } from './cron/cron.module';
+import { AnalyticsService } from './analytics/analytics.service';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
+    AnalyticsModule,
     ScheduleModule.forRoot(),
     AuthModule,
     SupabaseModule,
@@ -29,9 +32,10 @@ import { CronModule } from './cron/cron.module';
     NotificationModule,
     AnnouncementsModule,
     CronModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SupabaseService],
+  providers: [AppService, SupabaseService, AnalyticsService],
   exports: [AuthModule, SupabaseModule],
 })
 export class AppModule {}
