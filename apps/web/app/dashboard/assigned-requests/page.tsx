@@ -18,6 +18,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import {
   UserCheck,
   ClipboardList,
   Search,
@@ -36,6 +42,13 @@ import {
   ISSUE_CATEGORY_LABELS,
   SUPPLIES_CATEGORY_LABELS,
 } from "@/schemas";
+import {
+  isWithinInterval,
+  startOfDay,
+  endOfDay,
+  isSameDay,
+} from "date-fns";
+import type { DateRange } from "react-day-picker";
 
 
 
@@ -68,6 +81,24 @@ const normalizePriority = (value: unknown): PriorityKey | null => {
   return null;
 };
 
+const toValidDate = (value: unknown): Date | null => {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+  if (typeof value === "string" || typeof value === "number") {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  if (value && typeof value === "object") {
+    const obj = value as any;
+    if (typeof obj.toDate === "function") {
+      const d = obj.toDate();
+      return d instanceof Date && !Number.isNaN(d.getTime()) ? d : null;
+    }
+  }
+  return null;
+};
+
 const getCategoryLabel = (req: any) => {
   if (req.type === "ISSUE" && req.issueDetails?.category) {
     const label = ISSUE_CATEGORY_LABELS[req.issueDetails.category as keyof typeof ISSUE_CATEGORY_LABELS];
@@ -93,6 +124,7 @@ export default function AssignedRequestsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -116,7 +148,22 @@ export default function AssignedRequestsPage() {
       const matchesStatus = statusFilter === "all" || req.status === statusFilter;
       const matchesType = typeFilter === "all" || req.type === typeFilter;
 
-      return matchesSearch && matchesStatus && matchesType;
+      let matchesDate = true;
+      if (dateRange?.from) {
+        const reqDate = toValidDate(req.createdAt);
+        if (!reqDate) {
+          matchesDate = false;
+        } else if (dateRange.to) {
+          matchesDate = isWithinInterval(reqDate, {
+            start: startOfDay(dateRange.from),
+            end: endOfDay(dateRange.to),
+          });
+        } else {
+          matchesDate = isSameDay(reqDate, dateRange.from);
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesType && matchesDate;
     });
   }, [assignedRequests, searchTerm, statusFilter, typeFilter]);
 
@@ -140,10 +187,15 @@ export default function AssignedRequestsPage() {
     setTypeFilter(value);
     setCurrentPage(1);
   };
+  const handleDateChange = (range: DateRange | undefined) => {
+    setDateRange(range);
+    setCurrentPage(1);
+  };
   const clearFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
     setTypeFilter("all");
+    setDateRange(undefined);
     setCurrentPage(1);
   };
   const handleItemsPerPageChange = (value: string) => {
@@ -151,7 +203,7 @@ export default function AssignedRequestsPage() {
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = searchTerm || statusFilter !== "all" || typeFilter !== "all";
+  const hasActiveFilters = searchTerm || statusFilter !== "all" || typeFilter !== "all" || dateRange;
 
   return (
     <div className="flex flex-col gap-6">
@@ -190,6 +242,54 @@ export default function AssignedRequestsPage() {
               />
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "group justify-start gap-2 text-left font-normal bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all",
+                      !dateRange && "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="h-4 w-4 shrink-0 text-primary" />
+                    {dateRange?.from ? (
+                      <div className="flex items-center gap-1.5">
+                        <span className="max-w-[150px] truncate text-foreground font-medium">
+                          {dateRange.to ? (
+                            `${format(dateRange.from, "MMM d")} - ${format(dateRange.to, "MMM d")}`
+                          ) : (
+                            format(dateRange.from, "MMM d, yyyy")
+                          )}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDateChange(undefined);
+                          }}
+                          className="hover:bg-primary/20 p-0.5 rounded-full transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <span>Date Range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={handleDateChange}
+                    numberOfMonths={2}
+                    disabled={(date) => date > new Date()}
+                  />
+                </PopoverContent>
+              </Popover>
+
               <Select value={statusFilter} onValueChange={handleStatusFilter}>
                 <SelectTrigger className="w-[140px] bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10">
                   <SelectValue placeholder="Status" />
