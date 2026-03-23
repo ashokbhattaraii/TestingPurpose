@@ -199,13 +199,13 @@ export function SuperadminDashboard() {
                   <Skeleton key={i} className="h-14" />
                 ))}
               </div>
-            ) : recentUserRequests.length === 0 ? (
+            ) : recentUserRequests?.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">
                 No requests found.
               </p>
             ) : (
               <div className="space-y-3">
-                {recentUserRequests.map((req: RequestResponse) => (
+                {recentUserRequests?.map((req: RequestResponse) => (
                   <Link
                     key={req.id}
                     href={`/dashboard/requests/${req.id}`}
