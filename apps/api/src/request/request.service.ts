@@ -168,8 +168,15 @@ export class RequestService {
     return this.removeNullish(returnMsg);
   }
 
-  async getRequests() {
+  async getRequests(options?: { userId?: string; role?: string; currentUserId?: string }) {
+    const normalizedRole = options?.role?.toUpperCase();
+    const effectiveUserId =
+      normalizedRole === 'ADMIN' || normalizedRole === 'SUPERADMIN'
+        ? options?.userId
+        : options?.userId ?? options?.currentUserId;
+
     const requests = await this.prisma.request.findMany({
+      where: effectiveUserId ? { userId: effectiveUserId } : undefined,
       orderBy: { createdAt: 'desc' },
       include: {
         issueDetails: true,

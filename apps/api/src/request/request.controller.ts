@@ -6,6 +6,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDto } from './dto/create-request.dto';
@@ -30,8 +31,14 @@ export class RequestController {
 
   @Get('requests')
   @UseGuards(AuthGuard)
-  getAllRequests(@CurrentUser() user: UserPayload) {
-    return this.requestService.getRequests();
+  getAllRequests(@CurrentUser() user: UserPayload, @Query('userId') userId?: string) {
+    // Non-admins should only see their own requests; admins can pass userId to filter or see all
+    const role = user?.role?.toUpperCase();
+    return this.requestService.getRequests({
+      userId,
+      role,
+      currentUserId: user?.id,
+    });
   }
 
   @Get(':id')
