@@ -5,7 +5,8 @@ export type RequestStatus =
   | "IN_PROGRESS"
   | "RESOLVED"
   | "REJECTED"
-  | "ON_HOLD";
+  | "ON_HOLD"
+  | "CANCELLED";
 
 export type RequestType = "ISSUE" | "SUPPLIES";
 

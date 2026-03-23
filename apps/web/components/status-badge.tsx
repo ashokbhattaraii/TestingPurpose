@@ -26,6 +26,10 @@ const statusConfig: Record<
     label: "On Hold",
     className: "bg-[#FFFD8F] text-black border-[#FFFD8F]",
   },
+  CANCELLED: {
+    label: "Cancelled",
+    className: "bg-slate-100 text-slate-800 border-slate-200",
+  },
 };
 
 export function StatusBadge({ status }: { status: RequestStatus }) {

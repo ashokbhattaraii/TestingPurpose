@@ -5,6 +5,8 @@ import { useServiceRequests } from "@/hooks/request/useServiceRequests";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusBadge } from "@/components/status-badge";
 import {
   Select,
   SelectContent,
@@ -12,20 +14,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { StatusBadge } from "@/components/status-badge";
 import {
   Plus,
   Search,
   ChevronLeft,
   ChevronRight,
-  CalendarIcon,
-  X,
   ArrowUp,
   ArrowRight,
   ArrowDown,
+  CalendarIcon,
+  X,
   AlertTriangle,
   Users,
 } from "lucide-react";
@@ -38,10 +42,15 @@ import {
   isSameDay,
 } from "date-fns";
 import { useState } from "react";
+import type { RequestStatus } from "@/lib/types";
 import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
-import type { RequestStatus } from "@/lib/types";
-import { ISSUE_CATEGORY_LABELS, SUPPLIES_CATEGORY_LABELS } from "@/schemas";
+
+import {
+  ISSUE_CATEGORY_LABELS,
+  ISSUE_PRIORITY_LABELS,
+  SUPPLIES_CATEGORY_LABELS,
+} from "@/schemas";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
@@ -71,9 +80,9 @@ function PriorityBadge({
   const Icon = config.icon;
   return (
     <span
-      className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${config.className}`}
+      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider shadow-sm ${config.className}`}
     >
-      <Icon className="h-3 w-3" />
+      <Icon className="h-3.5 w-3.5" />
       {config.label}
     </span>
   );
@@ -139,31 +148,11 @@ const normalizePriority = (
   return null;
 };
 
-const getCategoryLabel = (req: any) => {
-  if (req.type === "ISSUE" && req.issueDetails?.category) {
-    const label = ISSUE_CATEGORY_LABELS[
-      req.issueDetails.category as keyof typeof ISSUE_CATEGORY_LABELS
-    ];
-    if (req.issueDetails.category === "OTHER" && req.issueDetails.otherCategoryDetails) {
-      return `${label}-(${req.issueDetails.otherCategoryDetails})`;
-    }
-    return label;
-  }
-  if (req.type === "SUPPLIES" && req.suppliesDetails?.category) {
-    const label = SUPPLIES_CATEGORY_LABELS[
-      req.suppliesDetails.category as keyof typeof SUPPLIES_CATEGORY_LABELS
-    ];
-    if (req.suppliesDetails.category === "OTHER" && req.suppliesDetails.otherCategoryDetails) {
-      return `${label}-(${req.suppliesDetails.otherCategoryDetails})`;
-    }
-    return label;
-  }
-  return "";
-};
-
 export default function MyRequestsPage() {
   const { user } = useAuth();
-  const { data, isLoading } = useServiceRequests(user?.id);
+  const { data: requests, isLoading } = useServiceRequests(user?.id);
+
+  const allRequests = requests ?? [];
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -172,10 +161,8 @@ export default function MyRequestsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const baseRequests = data ?? [];
-
   const filtered =
-    baseRequests.filter((req: any) => {
+    allRequests.filter((req: any) => {
       const matchSearch =
         req.title?.toLowerCase().includes(search.toLowerCase()) ||
         req.id?.toLowerCase().includes(search.toLowerCase());
@@ -200,7 +187,7 @@ export default function MyRequestsPage() {
       return matchSearch && matchStatus && matchType && matchDate;
     }) ?? [];
 
-  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const paginatedRequests = filtered.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
@@ -227,6 +214,28 @@ export default function MyRequestsPage() {
     setCurrentPage(1);
   };
 
+  const getCategoryLabel = (req: any) => {
+    if (req.type === "ISSUE" && req.issueDetails?.category) {
+      const label = ISSUE_CATEGORY_LABELS[
+        req.issueDetails.category as keyof typeof ISSUE_CATEGORY_LABELS
+      ];
+      if (req.issueDetails.category === "OTHER" && req.issueDetails.otherCategoryDetails) {
+        return `${label}-(${req.issueDetails.otherCategoryDetails})`;
+      }
+      return label;
+    }
+    if (req.type === "SUPPLIES" && req.suppliesDetails?.category) {
+      const label = SUPPLIES_CATEGORY_LABELS[
+        req.suppliesDetails.category as keyof typeof SUPPLIES_CATEGORY_LABELS
+      ];
+      if (req.suppliesDetails.category === "OTHER" && req.suppliesDetails.otherCategoryDetails) {
+        return `${label}-(${req.suppliesDetails.otherCategoryDetails})`;
+      }
+      return label;
+    }
+    return "";
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -235,7 +244,7 @@ export default function MyRequestsPage() {
             My Requests
           </h1>
           <p className="text-base font-medium text-muted-foreground mt-1">
-            Your submitted service requests.
+            Track and manage service requests you have created.
           </p>
         </div>
 
@@ -245,7 +254,6 @@ export default function MyRequestsPage() {
             New Request
           </Link>
         </Button>
-
       </div>
 
       {/* Filters */}
@@ -255,7 +263,7 @@ export default function MyRequestsPage() {
             <div className="relative min-w-0 flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search requests..."
+                placeholder="Search your requests..."
                 value={search}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="pl-9 bg-white/50 focus:bg-white transition-all border-none shadow-inner"
@@ -309,6 +317,7 @@ export default function MyRequestsPage() {
                   <SelectItem value="RESOLVED">Resolved</SelectItem>
                   <SelectItem value="REJECTED">Rejected</SelectItem>
                   <SelectItem value="ON_HOLD">On-Hold</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -373,12 +382,10 @@ export default function MyRequestsPage() {
                 <Link key={req.id} href={`/dashboard/requests/${req.id}`}>
                   <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/30 overflow-hidden">
                     <CardContent className="flex flex-col sm:flex-row p-0 h-full">
-                      <div
-                        className={cn(
-                          "w-2 sm:w-1.5 shrink-0 transition-colors",
-                          isSupplies ? "bg-blue-500" : "bg-orange-500",
-                        )}
-                      />
+                      <div className={cn(
+                        "w-2 sm:w-1.5 shrink-0 transition-colors",
+                        isSupplies ? "bg-blue-500" : "bg-orange-500"
+                      )} />
 
                       <div className="flex flex-col flex-1 gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex flex-col gap-2">
@@ -394,15 +401,10 @@ export default function MyRequestsPage() {
                                 "flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-bold uppercase rounded-full shadow-sm hover:shadow transition-shadow",
                                 isSupplies
                                   ? "bg-blue-50 text-blue-700 border border-blue-200"
-                                  : "bg-orange-50 text-orange-700 border border-orange-200",
+                                  : "bg-orange-50 text-orange-700 border border-orange-200"
                               )}
                             >
-                              <div
-                                className={cn(
-                                  "h-1 w-1 rounded-full animate-pulse",
-                                  isSupplies ? "bg-blue-500" : "bg-orange-500",
-                                )}
-                              />
+                              <div className={cn("h-1 w-1 rounded-full animate-pulse", isSupplies ? "bg-blue-500" : "bg-orange-500")} />
                               {isSupplies ? "Supplies" : "Issue"}
                             </span>
                           </div>
@@ -414,9 +416,7 @@ export default function MyRequestsPage() {
                             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1.5">
                                 <Users className="h-4 w-4" />
-                                <span className="font-semibold text-foreground/80">
-                                  {req.user?.name ?? req.createdByName ?? "Unknown"}
-                                </span>
+                                <span className="font-semibold text-foreground/80">{req.user?.name ?? req.createdByName ?? "You"}</span>
                               </div>
                               {isSupplies && req.suppliesDetails?.itemName && (
                                 <>
@@ -436,7 +436,7 @@ export default function MyRequestsPage() {
                               {req.type === "ISSUE" && issuePriority && (
                                 <PriorityBadge priority={issuePriority} />
                               )}
-                              <StatusBadge status={req.status as RequestStatus} />
+                              <StatusBadge status={req.status} />
                             </div>
                             <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium">
                               <CalendarIcon className="h-4 w-4" />
@@ -459,49 +459,44 @@ export default function MyRequestsPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-2">
-              <p className="text-sm text-muted-foreground">
-                Showing {(currentPage - 1) * itemsPerPage + 1}-
-                {Math.min(currentPage * itemsPerPage, filtered.length)} of {" "}
-                {filtered.length}
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Entries per page</span>
-                  <Select
-                    value={String(itemsPerPage)}
-                    onValueChange={handleItemsPerPageChange}
-                  >
-                    <SelectTrigger className="h-8 w-[70px] text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="25">25</SelectItem>
-                      <SelectItem value="50">50</SelectItem>
-                      <SelectItem value="100">100</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft className="mr-1 h-4 w-4" />
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Entries per page</span>
+                <Select
+                  value={String(itemsPerPage)}
+                  onValueChange={handleItemsPerPageChange}
+                >
+                  <SelectTrigger className="h-8 w-[70px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="mr-1 h-4 w-4" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
               </div>
             </div>
           )}

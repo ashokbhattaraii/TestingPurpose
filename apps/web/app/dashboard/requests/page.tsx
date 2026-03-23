@@ -336,6 +336,7 @@ export default function RequestsPage() {
                   <SelectItem value="RESOLVED">Resolved</SelectItem>
                   <SelectItem value="REJECTED">Rejected</SelectItem>
                   <SelectItem value="ON_HOLD">On-Hold</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
 

@@ -510,7 +510,7 @@ export class RequestService {
     const request = await this.prisma.request.update({
       where: { id: id },
       data: {
-        status: RequestStatus.REJECTED,
+        status: 'CANCELLED' as RequestStatus,
         rejectionReason: 'Cancelled by user',
       },
       include: {

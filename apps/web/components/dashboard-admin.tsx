@@ -276,7 +276,7 @@ export function AdminDashboard() {
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link
-                href="/dashboard/requests"
+                href="/dashboard/my-requests"
                 className="text-xs text-muted-foreground"
               >
                 View all

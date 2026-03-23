@@ -200,6 +200,7 @@ export default function AssignedRequestsPage() {
                   <SelectItem value="ON_HOLD">On Hold</SelectItem>
                    <SelectItem value="RESOLVED">Resolved</SelectItem>
                    <SelectItem value="REJECTED">Rejected</SelectItem>
+                   <SelectItem value="CANCELLED">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
 

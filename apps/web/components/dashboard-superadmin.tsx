@@ -45,8 +45,8 @@ export function SuperadminDashboard() {
   const avgTime = analytics?.avgResolutionTimeHours ?? 0;
 
   // Show admin's own requests if any
-  const userRequests = allRequests?.filter((r: RequestResponse) => r.user?.id === user?.id) ?? [];
-  const recentUserRequests = userRequests.slice(0, 5);
+  const userRequests = allRequests
+  const recentUserRequests = userRequests?.slice(0, 5);
 
   return (
     <div className="flex flex-col gap-6">
@@ -185,7 +185,7 @@ export function SuperadminDashboard() {
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link
-                href="/dashboard/requests"
+                href="/dashboard/my-requests"
                 className="text-xs text-muted-foreground"
               >
                 View all
