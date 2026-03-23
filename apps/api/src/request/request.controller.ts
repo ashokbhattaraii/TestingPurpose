@@ -33,10 +33,13 @@ export class RequestController {
   @UseGuards(AuthGuard)
   getAllRequests(@CurrentUser() user: UserPayload, @Query('userId') userId?: string) {
     // Non-admins should only see their own requests; admins can pass userId to filter or see all
-    const role = user?.role?.toUpperCase();
     return this.requestService.getRequests({
       userId,
-      role,
+      roles: Array.isArray((user as any)?.roles)
+        ? (user as any).roles.map((r: string) => r.toUpperCase())
+        : user?.role
+          ? [user.role.toUpperCase()]
+          : [],
       currentUserId: user?.id,
     });
   }

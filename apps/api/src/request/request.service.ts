@@ -168,12 +168,22 @@ export class RequestService {
     return this.removeNullish(returnMsg);
   }
 
-  async getRequests(options?: { userId?: string; role?: string; currentUserId?: string }) {
-    const normalizedRole = options?.role?.toUpperCase();
-    const effectiveUserId =
-      normalizedRole === 'ADMIN' || normalizedRole === 'SUPERADMIN'
-        ? options?.userId
-        : options?.userId ?? options?.currentUserId;
+  async getRequests(options?: { userId?: string; roles?: string[]; currentUserId?: string }) {
+    const roles = options?.roles ?? [];
+    const isAdmin = roles.includes('ADMIN') || roles.includes('SUPERADMIN');
+
+    const requestedUserId = options?.userId;
+    let effectiveUserId: string | undefined;
+
+    if (requestedUserId) {
+      // Admins can filter by any user; non-admins can only filter to themselves
+      effectiveUserId = isAdmin || requestedUserId === options?.currentUserId
+        ? requestedUserId
+        : options?.currentUserId;
+    } else {
+      // No userId provided: return all requests (used by Service Requests page)
+      effectiveUserId = undefined;
+    }
 
     const requests = await this.prisma.request.findMany({
       where: effectiveUserId ? { userId: effectiveUserId } : undefined,
