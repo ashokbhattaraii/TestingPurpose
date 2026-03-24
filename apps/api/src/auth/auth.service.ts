@@ -78,11 +78,15 @@ export class AuthService {
     console.log('Decoded JWT content:', jwtContent);
 
     const rsUser = rsAuthResultExtended?.user;
+    const firstName = (rsUser?.name?.split(' ')[0] || jwtContent.given_name || '').trim();
+    const lastName = (rsUser?.name?.split(' ').slice(1).join(' ') || jwtContent.family_name || '').trim();
+    const fullName = [firstName, lastName].filter(Boolean).join(' ');
+
     const googleUser = {
       email: jwtContent.email,
-      firstName: rsUser?.name?.split(' ')[0] || jwtContent.given_name,
-      lastName:
-        rsUser?.name?.split(' ').slice(1).join(' ') || jwtContent.family_name,
+      firstName,
+      lastName,
+      fullName,
       picture: rsUser?.thumbnail_url || jwtContent.picture,
       googleId: jwtContent.sub,
       roles: rsAuthResultExtended?.roles || rsUser?.roles,
@@ -119,7 +123,7 @@ export class AuthService {
       // Update Supabase Auth user metadata
       await supabaseClient.auth.admin.updateUserById(supabaseUserId, {
         user_metadata: {
-          full_name: `${googleUser.firstName} ${googleUser.lastName}`,
+          full_name: googleUser.fullName,
           avatar_url: googleUser.picture,
           provider: 'google',
           google_id: googleUser.googleId,
@@ -134,7 +138,7 @@ export class AuthService {
           email: googleUser.email,
           email_confirm: true,
           user_metadata: {
-            full_name: `${googleUser.firstName} ${googleUser.lastName}`,
+            full_name: googleUser.fullName,
             avatar_url: googleUser.picture,
             provider: 'google',
             google_id: googleUser.googleId,
@@ -165,7 +169,7 @@ export class AuthService {
           uid: supabaseUserId,
           cuid: googleUser.cuid,
           email: googleUser.email,
-          name: `${googleUser.firstName} ${googleUser.lastName}`,
+          name: googleUser.fullName,
           photoURL: googleUser.picture,
           gender: googleUser.gender,
           roles: finalRoles,
@@ -190,7 +194,7 @@ export class AuthService {
         data: {
           uid: supabaseUserId,
           cuid: googleUser.cuid,
-          name: `${googleUser.firstName} ${googleUser.lastName}`,
+          name: googleUser.fullName,
           photoURL: googleUser.picture,
           gender: googleUser.gender,
           roles: finalRoles,
@@ -214,7 +218,7 @@ export class AuthService {
           lastLoginAt: new Date(),
           roles: finalRoles,
           cuid: googleUser.cuid,
-          name: `${googleUser.firstName} ${googleUser.lastName}`,
+          name: googleUser.fullName,
           photoURL: googleUser.picture,
           gender: googleUser.gender,
           org_unit: googleUser.orgUnit,
