@@ -120,10 +120,10 @@ export function AdminDashboard() {
       {/* Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Admin Dashboard
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base font-medium text-muted-foreground mt-1">
             Manage and resolve office service requests.
           </p>
         </div>

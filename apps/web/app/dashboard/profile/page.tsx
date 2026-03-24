@@ -93,9 +93,9 @@ export default function ProfilePage() {
     <div className="mx-auto max-w-4xl flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage your account information and preferredLunchOption
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">My Profile</h1>
+          <p className="text-base font-medium text-muted-foreground mt-1">
+            Manage your account information and preferences.
           </p>
         </div>
         <Button asChild>

@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "WorkOps - Office Utility Management",
   description:
     "Centralized digital platform for office utility management, service requests, and facility coordination.",
+  icons: {
+    icon: "/rumsan-logo-blk.png",
+  },
 };
 
 export default function RootLayout({

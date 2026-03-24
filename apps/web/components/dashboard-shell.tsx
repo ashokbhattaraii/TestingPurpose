@@ -256,41 +256,39 @@ function NotificationPopover({ userId }: { userId: string }) {
                 .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                 .slice(0, 5)
                 .map((notif: Notification) => (
-                <div
-                  key={notif.id}
-                  onClick={() => handleNotificationClick(notif)}
-                  className={cn(
-                    "border-b border-border p-3 text-xs last:border-b-0 transition-colors",
-                    notif.link ? "cursor-pointer hover:bg-muted/50" : "",
-                    notif.isRead ? "bg-background" : "bg-primary/5",
-                  )}
-                >
-                  <div className="flex items-start gap-2">
-                    <div
-                      className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${
-                        notif.isRead ? "bg-muted" : "bg-primary"
-                      }`}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`${
-                          notif.isRead
-                            ? "text-muted-foreground"
-                            : "font-medium text-foreground"
-                        }`}
-                      >
-                        {notif.title}
-                      </p>
-                      <p className="text-muted-foreground line-clamp-2 mt-0.5">
-                        {notif.message}
-                      </p>
-                      <span className="text-[10px] text-muted-foreground mt-1.5 block">
-                        {format(new Date(notif.createdAt), "MMM d, h:mm a")}
-                      </span>
+                  <div
+                    key={notif.id}
+                    onClick={() => handleNotificationClick(notif)}
+                    className={cn(
+                      "border-b border-border p-3 text-xs last:border-b-0 transition-colors",
+                      notif.link ? "cursor-pointer hover:bg-muted/50" : "",
+                      notif.isRead ? "bg-background" : "bg-primary/5",
+                    )}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div
+                        className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${notif.isRead ? "bg-muted" : "bg-primary"
+                          }`}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className={`${notif.isRead
+                              ? "text-muted-foreground"
+                              : "font-medium text-foreground"
+                            }`}
+                        >
+                          {notif.title}
+                        </p>
+                        <p className="text-muted-foreground line-clamp-2 mt-0.5">
+                          {notif.message}
+                        </p>
+                        <span className="text-[10px] text-muted-foreground mt-1.5 block">
+                          {format(new Date(notif.createdAt), "MMM d, h:mm a")}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </ScrollArea>
         )}
@@ -516,8 +514,8 @@ function MobileSidebarContent({
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-14 items-center gap-3 border-b border-sidebar-border px-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary shadow-md">
-          <Building2 className="h-5 w-5 text-sidebar-primary-foreground" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1">
+          <img src="/rumsan-logo-blk.png" alt="Rumsan Logo" className="h-full w-full object-contain" />
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-bold text-sidebar-foreground tracking-tight">
@@ -603,8 +601,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           >
             {!sidebarCollapsed && (
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary shadow-md">
-                  <Building2 className="h-5 w-5 text-sidebar-primary-foreground" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1">
+                  <img src="/rumsan-logo-blk.png" alt="Rumsan Logo" className="h-full w-full object-contain" />
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-sidebar-foreground tracking-tight">
@@ -737,7 +735,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
             {user && <NotificationPopover userId={user.id} />}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

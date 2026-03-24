@@ -141,10 +141,10 @@ export default function AnnouncementsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Announcements
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base font-medium text-muted-foreground mt-1">
             Office-wide announcements and updates.
           </p>
         </div>

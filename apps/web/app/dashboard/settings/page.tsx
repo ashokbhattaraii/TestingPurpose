@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,7 +56,7 @@ export default function SettingsPage() {
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);
-      toast.success("Notification preferredLunchOptions saved");
+      // Removed toast as per request
     }, 1000);
   };
 
@@ -72,10 +73,9 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-4xl flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage your account security, preferredLunchOptions, and privacy
-          settings.
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
+        <p className="text-base font-medium text-muted-foreground mt-1">
+          Manage your account security, preferences, and privacy settings.
         </p>
       </div>
 
@@ -309,15 +309,18 @@ export default function SettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-primary" />
-            <div>
+            <div className="flex items-center gap-2">
               <CardTitle className="text-lg">
                 Notification Preferences
               </CardTitle>
-              <CardDescription>
-                Choose how you want to receive notifications
-              </CardDescription>
+              <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider h-5">
+                Upcoming
+              </Badge>
             </div>
           </div>
+          <CardDescription className="ml-7">
+            Choose how you want to receive notifications
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           <div className="space-y-4">
@@ -382,13 +385,18 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <Button
-            onClick={handleSaveNotifications}
-            disabled={isSaving}
-            className="w-full sm:w-auto"
-          >
-            {isSaving ? "Saving..." : "Save Preferences"}
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={handleSaveNotifications}
+              disabled={isSaving}
+              className="w-full sm:w-auto"
+            >
+              {isSaving ? "Saving..." : "Save Preferences"}
+            </Button>
+            <Badge variant="outline" className="hidden sm:flex text-[10px] font-semibold uppercase text-muted-foreground border-muted-foreground/20">
+              Coming Soon
+            </Badge>
+          </div>
         </CardContent>
       </Card>
 
@@ -397,13 +405,16 @@ export default function SettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            <div>
+            <div className="flex items-center gap-2">
               <CardTitle className="text-lg">Privacy Settings</CardTitle>
-              <CardDescription>
-                Control your privacy and visibility settings
-              </CardDescription>
+              <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider h-5">
+                Upcoming
+              </Badge>
             </div>
           </div>
+          <CardDescription className="ml-7">
+            Control your privacy and visibility settings
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -445,9 +456,14 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="w-full sm:w-auto bg-transparent">
-            Save Privacy Settings
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" className="w-full sm:w-auto bg-transparent">
+              Save Privacy Settings
+            </Button>
+            <Badge variant="outline" className="hidden sm:flex text-[10px] font-semibold uppercase text-muted-foreground border-muted-foreground/20">
+              Coming Soon
+            </Badge>
+          </div>
         </CardContent>
       </Card>
     </div>

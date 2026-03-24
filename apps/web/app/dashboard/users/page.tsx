@@ -121,10 +121,10 @@ export default function UsersPage() {
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-foreground bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Users
           </h1>
-          <p className="text-sm text-muted-foreground mt-1 max-w-md">
+          <p className="text-base font-medium text-muted-foreground mt-1 max-w-md">
             View system users and their profiles across the organization.
           </p>
         </div>

@@ -117,11 +117,11 @@ export function EmployeeDashboard() {
     <div className="flex flex-col gap-6">
       {/* ✅ Welcome Section */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold text-foreground">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Welcome back, {user?.name?.split(" ")[0]}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base font-medium text-muted-foreground mt-1">
             Here is a summary of your service requests.
           </p>
         </div>

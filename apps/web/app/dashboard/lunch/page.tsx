@@ -112,9 +112,9 @@ export default function LunchTokenPage() {
   return (
     <div className="mx-auto max-w-3xl flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-foreground">Lunch Token</h1>
-        <p className="text-sm text-muted-foreground">
-          Collect your daily lunch token before 11:00 AM
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Lunch Token</h1>
+        <p className="text-base font-medium text-muted-foreground mt-1">
+          Collect your daily lunch token before 11:00 AM.
         </p>
       </div>
 

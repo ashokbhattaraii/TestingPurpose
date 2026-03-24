@@ -423,8 +423,8 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Analytics</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Analytics</h1>
+          <p className="text-base font-medium text-muted-foreground mt-1">
             Resolution metrics and request distribution.
           </p>
         </div>
