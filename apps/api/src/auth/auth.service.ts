@@ -51,7 +51,7 @@ export class AuthService {
     if (!appId) throw new Error('APP_ID env var is required');
     this.appId = appId;
   }
-//test
+  //test
   async googleLogin(id_token: string) {
     // Authenticate with Rumsan Office Client to get the user's cross-app role and ID
     const rsAuthResult = await this.loginWithGoogle(id_token).catch((e) => {
@@ -66,7 +66,7 @@ export class AuthService {
       return null;
     });
 
-    console.log('Rumsan login result:', rsAuthResult);
+    // console.log('Rumsan login result:', rsAuthResult);
 
     const rsAuthResultExtended = rsAuthResult as ExtendedAuthResult;
 
@@ -75,7 +75,7 @@ export class AuthService {
     const jwtContent = JSON.parse(
       Buffer.from(id_token.split('.')[1], 'base64').toString(),
     );
-    console.log('Decoded JWT content:', jwtContent);
+    // console.log('Decoded JWT content:', jwtContent);
 
     const rsUser = rsAuthResultExtended?.user;
     const firstName = (rsUser?.name?.split(' ')[0] || jwtContent.given_name || '').trim();
@@ -89,7 +89,7 @@ export class AuthService {
       fullName,
       picture: rsUser?.thumbnail_url || jwtContent.picture,
       googleId: jwtContent.sub,
-      roles: rsAuthResultExtended?.roles || rsUser?.roles,
+      roles: rsAuthResultExtended?.roles || rsUser?.roles || "employee",
       cuid: rsUser?.cuid,
       gender: rsUser?.gender,
       department: rsUser?.department,
@@ -103,7 +103,7 @@ export class AuthService {
     };
 
 
-    console.log(' Processing Google login for:', googleUser.email);
+    // console.log('Processing Google login for:', googleUser.email);
 
     const supabaseClient = this.supabase.getClient();
 
@@ -118,7 +118,7 @@ export class AuthService {
     if (user && user.uid) {
       // User exists with Supabase UID
       supabaseUserId = user.uid;
-      console.log('Found existing user with Supabase UID:', supabaseUserId);
+      // console.log('Found existing user with Supabase UID:', supabaseUserId);
 
       // Update Supabase Auth user metadata
       await supabaseClient.auth.admin.updateUserById(supabaseUserId, {
@@ -130,7 +130,7 @@ export class AuthService {
           last_login: new Date().toISOString(),
         },
       });
-      console.log(' Updated Supabase Auth user metadata');
+      // console.log('Updated Supabase Auth user metadata');
     } else {
       // Create new Supabase Auth user
       const { data: authData, error: authError } =
@@ -153,7 +153,7 @@ export class AuthService {
 
       supabaseUserId = authData.user.id;
       isNewUser = true;
-      console.log(' Created new user in Supabase Auth:', supabaseUserId);
+      // console.log('Created new user in Supabase Auth:', supabaseUserId);
     }
 
     // Now handle Prisma user record
@@ -162,7 +162,7 @@ export class AuthService {
     const finalRoles: string[] = googleUser.roles || ['employee'];
 
     if (!user) {
-      console.log(' Creating user in public schema');
+      // console.log('Creating user in public schema');
 
       user = await this.prisma.user.create({
         data: {
@@ -184,10 +184,10 @@ export class AuthService {
           lastLoginAt: new Date(),
         },
       });
-      console.log(' User created in public schema:', user.id);
+      // console.log('User created in public schema:', user.id);
     } else if (!user.uid) {
       // User exists but doesn't have UID - link it
-      console.log('️ Linking existing user to Supabase Auth');
+      // console.log('Linking existing user to Supabase Auth');
 
       user = await this.prisma.user.update({
         where: { id: user.id },
@@ -210,7 +210,7 @@ export class AuthService {
       });
     } else {
       // User exists with UID - just update
-      console.log('️ Updating existing user in public schema');
+      // console.log('Updating existing user in public schema');
 
       user = await this.prisma.user.update({
         where: { id: user.id },
@@ -230,10 +230,10 @@ export class AuthService {
           phone_recovery: googleUser.phoneRecovery,
         },
       });
-      console.log(' User updated in public schema');
+      // console.log('User updated in public schema');
     }
 
-    console.log(' Generating JWT token');
+    // console.log('Generating JWT token');
 
     const payload = {
       sub: user.id,
@@ -266,36 +266,27 @@ export class AuthService {
    * provided by `@rumsan/user`.
    *
    * 1. GET  /auth/challenge?app_id=<APP_ID>   → short‑lived challenge JWT
-   * 2. Sign the challenge with the app’s secp256k1 private key
+   * 2. Sign the challenge with the app's secp256k1 private key
    * 3. POST /auth/google (X‑App‑Id, id_token, challenge, app_signature)
    *    → user JWT
    */
   async loginWithGoogle(token: string): Promise<ExtendedAuthResult> {
-    console.log('[RS Auth] Step 1: Getting challenge for appId:', this.appId);
+    // console.log('[RS Auth] Step 1: Getting challenge for appId:', this.appId);
     const { challenge } = await this.rsClient.auth.getChallenge({
       appId: this.appId,
     });
-    console.log(
-      '[RS Auth] Step 1 OK — challenge received (length:',
-      challenge.length,
-      ')',
-    );
+    // console.log('[RS Auth] Step 1 OK — challenge received (length:', challenge.length, ')');
 
-    console.log('[RS Auth] Step 2: Signing challenge...');
+    // console.log('[RS Auth] Step 2: Signing challenge...');
     const appSignature = this.crypto.signChallenge(challenge);
-    console.log(
-      '[RS Auth] Step 2 OK — signature:',
-      appSignature.slice(0, 20) + '...',
-    );
+    // console.log('[RS Auth] Step 2 OK — signature:', appSignature.slice(0, 20) + '...');
 
-    console.log(
-      '[RS Auth] Step 3: Calling googleLogin with id_token, challenge, app_signature',
-    );
+    // console.log('[RS Auth] Step 3: Calling googleLogin with id_token, challenge, app_signature');
     const rsAuthResult = await this.rsClient.auth.googleLogin(
       { id_token: token, challenge, app_signature: appSignature },
       { appId: this.appId },
     );
-    console.log('[RS Auth] Step 3 OK — roles:', rsAuthResult?.roles);
+    // console.log('[RS Auth] Step 3 OK — roles:', rsAuthResult?.roles);
 
     return rsAuthResult as ExtendedAuthResult;
   }

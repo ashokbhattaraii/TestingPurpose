@@ -35,7 +35,7 @@ export class LunchService {
   async lunchAttendance(userId: string, dto: LunchAttendanceDto) {
     this.checkAttendanceWindow();
     const today = this.getKathmanduDateOnly();
-    console.log('Checking attendance window...', dto);
+    // console.log('Checking attendance window...', dto);
     const attendance = await this.prisma.lunchAttendance.upsert({
       where: { userId_date: { userId, date: today } },
       create: {

@@ -75,7 +75,7 @@ export default function RequestDetailPage() {
   const params = useParams();
   const { data: adminUser, isLoading: isGetAdminLoading } = useGetAdminUser();
 
-  console.log("Admin User Data:", adminUser);
+  // console.log("Admin User Data:", adminUser);
   const id = params.id as string;
   const { data: requestById, isLoading } = useGetRequestByIdQuery(id);
 

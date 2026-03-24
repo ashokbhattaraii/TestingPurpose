@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
   // making server-side route protection fail in production.
   // We have fallback protection in the client-side AuthProvider (auth-context.tsx) which handles this gracefully.
   const token = request.cookies.get("access_token")?.value;
-  console.log(`Middleware path: ${path}, token present: ${!!token}`);
+  // console.log(`Middleware path: ${path}, token present: ${!!token}`);
 
 
   // Logic if user has a token

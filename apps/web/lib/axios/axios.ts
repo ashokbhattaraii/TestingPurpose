@@ -28,7 +28,7 @@ axiosInstance.interceptors.response.use(
       if (typeof window !== "undefined") {
         const publicRoutes = ["/", "/login"];
         if (!publicRoutes.includes(window.location.pathname)) {
-          console.log("Response 401. Session expired. Redirecting to login...");
+          // console.log("Response 401. Session expired. Redirecting to login...");
           // Clear the cookie just to be safe so the AuthContext interval catches it too
           document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
           window.location.href = "/login";

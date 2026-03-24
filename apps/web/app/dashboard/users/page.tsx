@@ -97,7 +97,7 @@ export default function UsersPage() {
         (u.department ?? "")
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        (u.position ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
+        (u.job_title ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [allEmployees, searchQuery]);
 
@@ -244,7 +244,7 @@ export default function UsersPage() {
                             {u.department || "No Dept"}
                           </span>
                           <span className="text-[10px] text-muted-foreground uppercase tracking-wide font-medium">
-                            {u.position || "Position unset"}
+                            {u.job_title || "Position unset"}
                           </span>
                         </div>
                       </TableCell>

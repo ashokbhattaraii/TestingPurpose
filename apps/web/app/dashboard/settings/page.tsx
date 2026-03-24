@@ -11,21 +11,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { useEffect, useState } from "react";
-import { Bell, Shield, Copy, Check } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from "react";
+import { Bell, Shield, Copy, Check, Fingerprint, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 const roleLabel: Record<string, string> = {
   EMPLOYEE: "Employee",
@@ -35,34 +28,10 @@ const roleLabel: Record<string, string> = {
 export default function SettingsPage() {
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
-  const [notificationPrefs, setNotificationPrefs] = useState({
-    emailNotifications:
-      user?.notificationPreferences?.emailNotifications ?? true,
-    announcements: user?.notificationPreferences?.announcements ?? true,
-    assignments: user?.notificationPreferences?.assignments ?? true,
-  });
-
-  useEffect(() => {
-    if (user?.notificationPreferences) {
-      setNotificationPrefs(user.notificationPreferences);
-    }
-  }, [user]);
-
-
-
-  const handleSaveNotifications = () => {
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      // Removed toast as per request
-    }, 1000);
-  };
-
-  const handleCopyEmail = () => {
-    if (user?.email) {
-      navigator.clipboard.writeText(user.email);
+  const handleCopyUid = () => {
+    if (user?.uid) {
+      navigator.clipboard.writeText(user.uid);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -72,66 +41,40 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-4xl flex flex-col gap-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
-        <p className="text-base font-medium text-muted-foreground mt-1">
-          Manage your account security, preferences, and privacy settings.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
+          <p className="text-base font-medium text-muted-foreground mt-1">
+            Account configuration, security identifiers, and preferences.
+          </p>
+        </div>
+        <Button variant="outline" asChild className="bg-transparent">
+          <Link href="/dashboard/profile" className="gap-2">
+            View Profile
+          </Link>
+        </Button>
       </div>
 
-      {/* Account Information */}
+      {/* Account & Security */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Account Information</CardTitle>
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <CardTitle className="text-lg">Account & Security</CardTitle>
+          </div>
           <CardDescription>
-            View your account details and basic information
+            Your account identifiers and security information
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium text-foreground">
-                Full Name
-              </Label>
-              <Input
-                type="text"
-                value={user.name}
-                disabled
-                className="bg-muted"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">
                 Email Address
               </Label>
-              <div className="flex gap-2">
-                <Input
-                  type="email"
-                  value={user.email}
-                  disabled
-                  className="bg-muted"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyEmail}
-                  className="px-2 bg-transparent"
-                >
-                  {copied ? (
-                    <Check className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">
-                Department
-              </Label>
               <Input
-                type="text"
-                value={user.department ?? "—"}
+                type="email"
+                value={user.email}
                 disabled
                 className="bg-muted"
               />
@@ -151,23 +94,26 @@ export default function SettingsPage() {
               <Label className="text-sm font-medium text-foreground">
                 UID
               </Label>
-              <Input
-                type="text"
-                value={user.uid}
-                disabled
-                className="bg-muted font-mono text-xs"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">
-                CUID
-              </Label>
-              <Input
-                type="text"
-                value={user.cuid ?? "—"}
-                disabled
-                className="bg-muted font-mono text-xs"
-              />
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={user.uid}
+                  disabled
+                  className="bg-muted font-mono text-xs"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyUid}
+                  className="px-2 bg-transparent"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -206,263 +152,105 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Personal Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Personal Details</CardTitle>
-          <CardDescription>
-            Your personal information as recorded in the system
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-6 sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">Gender</Label>
-            <Input
-              type="text"
-              value={user.gender === "M" ? "Male" : user.gender === "F" ? "Female" : user.gender ?? "—"}
-              disabled
-              className="bg-muted"
-            />
+      {/* Notification Preferences — Phase 2 */}
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-muted/40 backdrop-blur-[1px] z-10 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3 text-center px-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Bell className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Coming in Phase 2</h3>
+              <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                Notification preferences including email alerts, announcement updates, and task assignment notifications will be available in the next release.
+              </p>
+            </div>
+            <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider border-primary/30 text-primary">
+              Planned Feature
+            </Badge>
           </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">Home Phone</Label>
-            <Input
-              type="text"
-              value={user.phone_home ?? "—"}
-              disabled
-              className="bg-muted"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">Work Phone</Label>
-            <Input
-              type="text"
-              value={user.phone_work ?? "—"}
-              disabled
-              className="bg-muted"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">Recovery Phone</Label>
-            <Input
-              type="text"
-              value={user.phone_recovery ?? "—"}
-              disabled
-              className="bg-muted"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Professional Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Professional Information</CardTitle>
-          <CardDescription>
-            Your organization and employment details
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-6 sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">Organization Unit</Label>
-            <Input
-              type="text"
-              value={user.org_unit ?? "—"}
-              disabled
-              className="bg-muted"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">Department</Label>
-            <Input
-              type="text"
-              value={user.department ?? "—"}
-              disabled
-              className="bg-muted"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">Job Title</Label>
-            <Input
-              type="text"
-              value={user.job_title ?? "—"}
-              disabled
-              className="bg-muted"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">Employment Type</Label>
-            <Input
-              type="text"
-              value={user.employment_type ?? "—"}
-              disabled
-              className="bg-muted capitalize"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-
-
-      {/* Notification Preferences */}
-      <Card>
+        </div>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-primary" />
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-lg">
-                Notification Preferences
-              </CardTitle>
-              <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider h-5">
-                Upcoming
-              </Badge>
-            </div>
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <CardTitle className="text-lg text-muted-foreground">
+              Notification Preferences
+            </CardTitle>
           </div>
           <CardDescription className="ml-7">
             Choose how you want to receive notifications
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6">
+        <CardContent className="flex flex-col gap-6 opacity-40 pointer-events-none select-none">
           <div className="space-y-4">
             <div className="flex items-center justify-between p-3 border border-border rounded-lg">
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium text-foreground cursor-pointer">
-                  Email Notifications
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Receive email updates about your account
-                </p>
+                <Label className="text-sm font-medium text-foreground">Email Notifications</Label>
+                <p className="text-xs text-muted-foreground">Receive email updates about your account</p>
               </div>
-              <Switch
-                checked={notificationPrefs.emailNotifications}
-                onCheckedChange={(checked) =>
-                  setNotificationPrefs((prev) => ({
-                    ...prev,
-                    emailNotifications: checked,
-                  }))
-                }
-              />
+              <Switch checked={false} disabled />
             </div>
-
             <div className="flex items-center justify-between p-3 border border-border rounded-lg">
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium text-foreground cursor-pointer">
-                  Announcements
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Get notified about new office announcements
-                </p>
+                <Label className="text-sm font-medium text-foreground">Announcements</Label>
+                <p className="text-xs text-muted-foreground">Get notified about new office announcements</p>
               </div>
-              <Switch
-                checked={notificationPrefs.announcements}
-                onCheckedChange={(checked) =>
-                  setNotificationPrefs((prev) => ({
-                    ...prev,
-                    announcements: checked,
-                  }))
-                }
-              />
+              <Switch checked={false} disabled />
             </div>
-
             <div className="flex items-center justify-between p-3 border border-border rounded-lg">
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium text-foreground cursor-pointer">
-                  Task Assignments
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Get notified when you're assigned to tasks
-                </p>
+                <Label className="text-sm font-medium text-foreground">Task Assignments</Label>
+                <p className="text-xs text-muted-foreground">Get notified when you&apos;re assigned to tasks</p>
               </div>
-              <Switch
-                checked={notificationPrefs.assignments}
-                onCheckedChange={(checked) =>
-                  setNotificationPrefs((prev) => ({
-                    ...prev,
-                    assignments: checked,
-                  }))
-                }
-              />
+              <Switch checked={false} disabled />
             </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={handleSaveNotifications}
-              disabled={isSaving}
-              className="w-full sm:w-auto"
-            >
-              {isSaving ? "Saving..." : "Save Preferences"}
-            </Button>
-            <Badge variant="outline" className="hidden sm:flex text-[10px] font-semibold uppercase text-muted-foreground border-muted-foreground/20">
-              Coming Soon
-            </Badge>
           </div>
         </CardContent>
       </Card>
 
-      {/* Privacy Settings */}
-      <Card>
+      {/* Privacy Settings — Phase 2 */}
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-muted/40 backdrop-blur-[1px] z-10 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3 text-center px-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Shield className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Coming in Phase 2</h3>
+              <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                Privacy controls including profile visibility, login status display, and data sharing preferences will be available in the next release.
+              </p>
+            </div>
+            <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider border-primary/30 text-primary">
+              Planned Feature
+            </Badge>
+          </div>
+        </div>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-lg">Privacy Settings</CardTitle>
-              <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider h-5">
-                Upcoming
-              </Badge>
-            </div>
+            <Shield className="h-5 w-5 text-muted-foreground" />
+            <CardTitle className="text-lg text-muted-foreground">Privacy Settings</CardTitle>
           </div>
           <CardDescription className="ml-7">
             Control your privacy and visibility settings
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <p className="text-xs font-semibold text-amber-900 mb-2">
-              Privacy Notice
-            </p>
-            <p className="text-xs text-amber-800">
-              Your profile information is visible to other team members within
-              the organization. Contact your administrator to request additional
-              privacy restrictions.
-            </p>
-          </div>
-
-          <Separator />
-
+        <CardContent className="flex flex-col gap-4 opacity-40 pointer-events-none select-none">
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between p-3 border border-border rounded-lg">
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium text-foreground">
-                  Show Profile to Team
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Allow team members to view your profile
-                </p>
+                <Label className="text-sm font-medium text-foreground">Show Profile to Team</Label>
+                <p className="text-xs text-muted-foreground">Allow team members to view your profile</p>
               </div>
-              <Switch defaultChecked />
+              <Switch checked={false} disabled />
             </div>
-
             <div className="flex items-center justify-between p-3 border border-border rounded-lg">
               <div className="flex flex-col gap-1">
-                <Label className="text-sm font-medium text-foreground">
-                  Show Last Login Status
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Display when you last accessed the system
-                </p>
+                <Label className="text-sm font-medium text-foreground">Show Last Login Status</Label>
+                <p className="text-xs text-muted-foreground">Display when you last accessed the system</p>
               </div>
-              <Switch defaultChecked />
+              <Switch checked={false} disabled />
             </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button variant="outline" className="w-full sm:w-auto bg-transparent">
-              Save Privacy Settings
-            </Button>
-            <Badge variant="outline" className="hidden sm:flex text-[10px] font-semibold uppercase text-muted-foreground border-muted-foreground/20">
-              Coming Soon
-            </Badge>
           </div>
         </CardContent>
       </Card>

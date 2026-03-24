@@ -159,10 +159,10 @@ export default function RequestsPage() {
 
   const allRequests = requests ?? [];
 
-  console.log(" Dashboard - Loading:", isLoading);
-  console.log(" Dashboard - User:", user);
-  console.log(" Dashboard - Role:", user?.roles);
-  console.log(" Dashboard - All Requests:", allRequests);
+  // console.log("Dashboard - Loading:", isLoading);
+  // console.log("Dashboard - User:", user);
+  // console.log("Dashboard - Role:", user?.roles);
+  // console.log("Dashboard - All Requests:", allRequests);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");

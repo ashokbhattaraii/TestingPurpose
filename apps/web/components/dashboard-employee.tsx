@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 
 import { useAuth } from "@/lib/auth-context";
 import { useLunchTokens } from "@/hooks/lunch/useLunchTokens";
@@ -22,9 +21,7 @@ import {
   ArrowUp,
   ArrowRight,
   ArrowDown,
-  Search,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -74,7 +71,6 @@ export function EmployeeDashboard() {
 
   const { data: announcements, isLoading: annLoading } = useAnnouncements();
 
-  const [search, setSearch] = useState("");
 
   //  Show ONLY user's requests in "Your Recent Requests"
   const userRequests =
@@ -91,14 +87,7 @@ export function EmployeeDashboard() {
     userRequests.filter((r: any) => r.status === "REJECTED").length ?? 0;
   const total = userRequests.length ?? 0;
 
-  const recentRequests =
-    userRequests
-      ?.filter(
-        (r: any) =>
-          r.title.toLowerCase().includes(search.toLowerCase()) ||
-          r.id.toString().toLowerCase().includes(search.toLowerCase()),
-      )
-      .slice(0, 5) ?? [];
+  const recentRequests = userRequests.slice(0, 5);
 
   // Active requests for system-wide view (PENDING)
   const activeRequests =
@@ -133,20 +122,6 @@ export function EmployeeDashboard() {
         </Button>
       </div>
 
-      {/* ✅ Search Bar (Consistent UI) */}
-      <Card className="border-none shadow-sm bg-muted/20">
-        <CardContent className="p-4">
-          <div className="relative min-w-0 flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search your requests by title or ID..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-card/50 dark:bg-muted/50 focus:bg-card dark:focus:bg-muted transition-all border-none shadow-inner max-w-md"
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">

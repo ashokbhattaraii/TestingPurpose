@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (userData && userData.roles) {
         userData.roles = userData.roles.map((r: string) => r.toUpperCase());
       }
-      console.log("User loaded:", userData?.email);
+      // console.log("User loaded:", userData?.email);
       setUser(userData);
 
       // If user is logged in and on a public route, redirect to dashboard
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.push("/dashboard");
       }
     } catch (error) {
-      console.log("No user found");
+      // console.log("No user found");
       setUser(null);
 
       // If user is not logged in and on a protected route, redirect to login

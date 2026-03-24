@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useAnnouncements } from "@/hooks/announcement/useAnnouncements";
 import { useServiceRequests } from "@/hooks/request/useServiceRequests";
@@ -21,9 +20,7 @@ import {
   ArrowRight,
   ArrowDown,
   UserCheck,
-  Search,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { format } from "date-fns";
 import { useLunchAttendanceSummary } from "@/hooks/lunch/useLunchAttendance";
@@ -85,7 +82,6 @@ export function AdminDashboard() {
     allRequests?.filter((r: any) => r.status === "REJECTED").length ?? 0;
   const total = allRequests?.length ?? 0;
 
-  const [search, setSearch] = useState("");
 
   // Show ONLY user's requests for the new "Your Recent Requests" section
   const userRequests =
@@ -98,22 +94,14 @@ export function AdminDashboard() {
   const assignedToMe = allRequests?.filter((r: any) => r.approverId === user?.id) ?? [];
   const recentAssigned = assignedToMe.slice(0, 5);
 
-  // Active requests for system-wide view (PENDING)
-  const filteredRequests =
-    allRequests?.filter(
-      (r: any) =>
-        r.title.toLowerCase().includes(search.toLowerCase()) ||
-        r.id.toString().toLowerCase().includes(search.toLowerCase()),
-    ) ?? [];
-
   const activeRequests =
-    filteredRequests
+    allRequests
       ?.filter((r: any) => r.status === "PENDING")
       .sort(
         (a: any, b: any) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )
-      .slice(0, 6) ?? [];
+      .slice(0, 5) ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -143,20 +131,6 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      {/* ✅ Search Bar (Consistent UI) */}
-      <Card className="border-none shadow-sm bg-muted/20">
-        <CardContent className="p-4">
-          <div className="relative min-w-0 flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search requests by title or ID..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-card/50 dark:bg-muted/50 focus:bg-card dark:focus:bg-muted transition-all border-none shadow-inner max-w-md"
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Stats - All 6 cards in one row */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">

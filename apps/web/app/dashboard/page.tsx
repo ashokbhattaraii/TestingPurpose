@@ -9,7 +9,7 @@ export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const { data: lunchSummary } = useLunchAttendanceSummary();
 
-  console.log("Lunch Attendance Summary:", lunchSummary);
+  // console.log("Lunch Attendance Summary:", lunchSummary);
 
   if (isLoading) {
     return (
@@ -20,11 +20,11 @@ export default function DashboardPage() {
   }
 
   if (!user) {
-    console.log(" No user found, should redirect to login");
+    // console.log("No user found, should redirect to login");
     return null;
   }
 
-  console.log(" Rendering dashboard for role:", user?.roles.includes('EMPLOYEE'));
+  // console.log("Rendering dashboard for role:", user?.roles.includes('EMPLOYEE'));
 
   const isAdmin = user?.roles?.some((r) => r.includes("ADMIN"));
   if (isAdmin) {

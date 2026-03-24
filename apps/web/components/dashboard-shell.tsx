@@ -273,8 +273,8 @@ function NotificationPopover({ userId }: { userId: string }) {
                       <div className="flex-1 min-w-0">
                         <p
                           className={`${notif.isRead
-                              ? "text-muted-foreground"
-                              : "font-medium text-foreground"
+                            ? "text-muted-foreground"
+                            : "font-medium text-foreground"
                             }`}
                         >
                           {notif.title}
@@ -514,9 +514,9 @@ function MobileSidebarContent({
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-14 items-center gap-3 border-b border-sidebar-border px-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1">
+        <Link href="/dashboard" className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1 transition-opacity hover:opacity-90">
           <img src="/rumsan-logo-blk.png" alt="Rumsan Logo" className="h-full w-full object-contain" />
-        </div>
+        </Link>
         <div className="flex flex-col">
           <span className="text-sm font-bold text-sidebar-foreground tracking-tight">
             WorkOps
@@ -567,7 +567,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { totalTokens } = useLunchContext();
   // Hardcoded lunch token badge count
-  console.log("DashboardShell - totalTokens from context:", totalTokens);
+  // console.log("DashboardShell - totalTokens from context:", totalTokens);
   const badges: Record<string, number> = {
     lunchToken: totalTokens,
   };
@@ -601,9 +601,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           >
             {!sidebarCollapsed && (
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1">
+                <Link href="/dashboard" className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1 transition-opacity hover:opacity-90">
                   <img src="/rumsan-logo-blk.png" alt="Rumsan Logo" className="h-full w-full object-contain" />
-                </div>
+                </Link>
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-sidebar-foreground tracking-tight">
                     WorkOps

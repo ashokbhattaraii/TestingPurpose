@@ -11,7 +11,7 @@ export async function fetchWithAuth(
     body?: any;
   } = {},
 ) {
-  console.log("Calling:", `${API_URL}${endpoint}`);
+  // console.log("Calling:", `${API_URL}${endpoint}`);
 
   try {
     const response = await axiosInstance({
@@ -28,12 +28,12 @@ export async function fetchWithAuth(
         : undefined,
     });
 
-    console.log("Response status:", response.status);
+    // console.log("Response status:", response.status);
 
     return response.data;
   } catch (error: any) {
     const status = error.response?.status;
-    console.log(" Response status:", status);
+    // console.log("Response status:", status);
 
     if (status === 401) {
       console.warn("Unauthorized (Expected if not logged in)");

@@ -41,17 +41,17 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
     socketInstance.on("connect", () => {
       setIsConnected(true);
-      console.log("Socket connected:", socketInstance.id);
+      // console.log("Socket connected:", socketInstance.id);
       socketInstance.emit("join", user.id);
     });
 
     socketInstance.on("disconnect", () => {
       setIsConnected(false);
-      console.log("Socket disconnected");
+      // console.log("Socket disconnected");
     });
 
     socketInstance.on("notification", (notification) => {
-      console.log("New real-time notification received:", notification);
+      // console.log("New real-time notification received:", notification);
       // Directly invalidate the notifications query
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       

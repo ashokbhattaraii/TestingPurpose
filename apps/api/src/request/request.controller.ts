@@ -47,7 +47,7 @@ export class RequestController {
   @Get(':id')
   @UseGuards(AuthGuard)
   getRequestById(@CurrentUser() user: UserPayload, @Param('id') id: string) {
-    console.log('Fetching request with ID:', id);
+    // console.log('Fetching request with ID:', id);
     return this.requestService.getRequestById(id);
   }
 

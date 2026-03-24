@@ -18,7 +18,7 @@ export async function GET(request: Request) {
             path: '/',
             maxAge: 7 * 24 * 60 * 60, // 7 days
         });
-        console.log("Access token added")
+        // console.log("Access token added")
 
         // Once the cookie is securely stored in the user's browser for the FRONTEND domain,
         // we redirect them to the dashboard. The middleware.ts will now find this cookie instantly.
