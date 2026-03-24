@@ -126,7 +126,8 @@ const navItems: NavItem[] = [
 ];
 
 function getInitials(name: string) {
-  return name
+  const cleanName = name.replace(/\s*undefined/gi, "").trim();
+  return cleanName
     .split(" ")
     .map((n) => n[0])
     .join("")
@@ -219,7 +220,7 @@ function NotificationPopover({ userId }: { userId: string }) {
           <span className="sr-only">Notifications</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
+      <PopoverContent className="w-[calc(100vw-32px)] sm:w-80 p-0" align="end">
         <div className="flex h-12 items-center justify-between border-b border-border px-4">
           <h2 className="text-sm font-semibold text-foreground">
             Notifications
@@ -240,17 +241,21 @@ function NotificationPopover({ userId }: { userId: string }) {
             <Skeleton className="h-12" />
             <Skeleton className="h-12" />
           </div>
-        ) : !notifications || notifications.length === 0 ? (
+        ) : !notifications || notifications.filter((n: Notification) => !n.isRead).length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-8 px-4 text-center">
             <Bell className="h-5 w-5 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">
-              No notifications yet
+              No new notifications
             </p>
           </div>
         ) : (
-          <ScrollArea className="max-h-96">
+          <ScrollArea className="max-h-[480px]">
             <div className="flex flex-col">
-              {notifications.map((notif: Notification) => (
+              {notifications
+                .filter((n: Notification) => !n.isRead)
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .slice(0, 5)
+                .map((notif: Notification) => (
                 <div
                   key={notif.id}
                   onClick={() => handleNotificationClick(notif)}
@@ -657,7 +662,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   </TooltipTrigger>
                   {sidebarCollapsed && (
                     <TooltipContent side="right" className="text-xs">
-                      <p className="font-semibold">{user?.name}</p>
+                      <p className="font-semibold">{user?.name.replace(/\s*undefined/gi, "").trim()}</p>
                       <p className="text-muted-foreground">
                         {getRoleLabel(user?.roles?.[0] || "")}
                       </p>
@@ -668,7 +673,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               {!sidebarCollapsed && (
                 <div className="flex flex-col min-w-0">
                   <span className="text-xs font-semibold text-sidebar-foreground truncate">
-                    {user?.name}
+                    {user?.name.replace(/\s*undefined/gi, "").trim()}
                   </span>
                   <span className="text-[10px] text-sidebar-foreground/40 truncate">
                     {getRoleLabel(user?.roles?.[0] || "")}
@@ -747,14 +752,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                     )}
                   </Avatar>
                   <span className="hidden text-sm md:inline-block">
-                    {user.name}
+                    {user.name.replace(/\s*undefined/gi, "").trim()}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-1.5">
                   <p className="text-sm font-medium text-foreground">
-                    {user.name}
+                    {user.name.replace(/\s*undefined/gi, "").trim()}
                   </p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
