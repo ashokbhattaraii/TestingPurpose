@@ -78,7 +78,7 @@ export function EmployeeDashboard() {
 
   //  Show ONLY user's requests in "Your Recent Requests"
   const userRequests =
-    allRequests?.filter((r: any) => r.userId === user?.id) ?? [];
+    allRequests?.filter((r: any) => (r.userId || r.user?.id) === user?.id) ?? [];
 
   const pending =
     userRequests.filter((r: any) => r.status === "PENDING").length ?? 0;
@@ -142,7 +142,7 @@ export function EmployeeDashboard() {
               placeholder="Search your requests by title or ID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 bg-white/50 focus:bg-white transition-all border-none shadow-inner max-w-md"
+              className="pl-9 bg-card/50 dark:bg-muted/50 focus:bg-card dark:focus:bg-muted transition-all border-none shadow-inner max-w-md"
             />
           </div>
         </CardContent>
@@ -272,7 +272,7 @@ export function EmployeeDashboard() {
                   <Link
                     key={req?.id}
                     href={`/dashboard/requests/${req?.id}`}
-                    className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-white hover:border-border hover:shadow-md"
+                    className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-card hover:border-border hover:shadow-md"
                   >
                     <div className="flex items-start justify-between">
                       <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
@@ -320,30 +320,24 @@ export function EmployeeDashboard() {
                 No active requests.
               </p>
             ) : (
-              <div className="divide-y divide-border rounded-xl border border-border overflow-hidden bg-white">
+              <div className="space-y-3">
                 {activeRequests.map((req: any) => (
                   <Link
                     key={req.id}
                     href={`/dashboard/requests/${req.id}`}
-                    className="group flex items-center justify-between px-4 py-4 transition-all duration-200 hover:bg-slate-50"
+                    className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-card hover:border-border hover:shadow-md"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        <ClipboardList className="h-5 w-5" />
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                          {req.title}
-                        </span>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="font-medium text-slate-700 truncate max-w-[80px]">{req.user?.name}</span>
-                          <span>•</span>
-                          <span>{format(new Date(req.createdAt), "MMM d")}</span>
-                        </div>
-                      </div>
+                    <div className="flex items-start justify-between">
+                      <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                        {req.title}
+                      </span>
+                      <StatusBadge status={req.status} />
                     </div>
                     <div className="flex items-center gap-2">
-                      <StatusBadge status={req.status} />
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        {req.user?.name} • {format(new Date(req.createdAt), "MMM d, h:mm a")}
+                      </span>
                     </div>
                   </Link>
                 ))}
@@ -383,7 +377,7 @@ export function EmployeeDashboard() {
                 {pinnedAnnouncements.map((ann) => (
                   <div
                     key={ann.id}
-                    className="group flex items-start gap-4 rounded-xl border border-border p-4 transition-all duration-200 hover:bg-slate-50 hover:shadow-md"
+                    className="group flex items-start gap-4 rounded-xl border border-border p-4 transition-all duration-200 hover:bg-muted/50 hover:shadow-md"
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                       <Megaphone className="h-5 w-5" />

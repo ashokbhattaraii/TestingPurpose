@@ -735,7 +735,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* <ThemeToggle /> */}
+            <ThemeToggle />
             {user && <NotificationPopover userId={user.id} />}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

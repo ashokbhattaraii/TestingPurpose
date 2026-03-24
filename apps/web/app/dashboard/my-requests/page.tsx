@@ -266,7 +266,7 @@ export default function MyRequestsPage() {
                 placeholder="Search your requests..."
                 value={search}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="pl-9 bg-white/50 focus:bg-white transition-all border-none shadow-inner"
+                className="pl-9 bg-card/50 dark:bg-muted/50 focus:bg-card dark:focus:bg-muted transition-all border-none shadow-inner"
               />
             </div>
 
@@ -276,7 +276,7 @@ export default function MyRequestsPage() {
                   <Button
                     variant="outline"
                     className={cn(
-                      "group justify-start gap-2 text-left font-normal bg-white/50 hover:bg-white transition-all",
+                      "group justify-start gap-2 text-left font-normal bg-card/50 dark:bg-muted/50 hover:bg-card dark:hover:bg-muted transition-all",
                       !dateRange && "text-muted-foreground",
                     )}
                   >
@@ -320,7 +320,7 @@ export default function MyRequestsPage() {
               </Popover>
 
               <Select value={statusFilter} onValueChange={handleStatusFilter}>
-                <SelectTrigger className="w-[140px] bg-white/50 hover:bg-white">
+                <SelectTrigger className="w-[140px] bg-card/50 dark:bg-muted/50 hover:bg-card dark:hover:bg-muted">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -335,7 +335,7 @@ export default function MyRequestsPage() {
               </Select>
 
               <Select value={typeFilter} onValueChange={handleTypeFilter}>
-                <SelectTrigger className="w-[130px] bg-white/50 hover:bg-white">
+                <SelectTrigger className="w-[130px] bg-card/50 dark:bg-muted/50 hover:bg-card dark:hover:bg-muted">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -434,7 +434,7 @@ export default function MyRequestsPage() {
                               {isSupplies && req.suppliesDetails?.itemName && (
                                 <>
                                   <span className="text-muted-foreground/30">•</span>
-                                  <span className="font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-md tracking-tight">
+                                  <span className="font-medium text-foreground/80 bg-muted px-2.5 py-0.5 rounded-md tracking-tight">
                                     Item: {req.suppliesDetails.itemName}
                                   </span>
                                 </>
@@ -457,7 +457,7 @@ export default function MyRequestsPage() {
                             </div>
                           </div>
 
-                          <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 border border-border group-hover:bg-primary group-hover:text-white transition-all">
+                          <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-muted border border-border group-hover:bg-primary group-hover:text-white transition-all">
                             <ChevronRight className="h-5 w-5" />
                           </div>
                         </div>

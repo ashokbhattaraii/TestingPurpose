@@ -55,7 +55,7 @@ const roleConfig: Record<
 > = {
   EMPLOYEE: {
     label: "Employee",
-    className: "bg-slate-100 text-slate-700 border-slate-200",
+    className: "bg-muted text-muted-foreground border-border",
     icon: UserIcon,
   },
   ADMIN: {
@@ -355,11 +355,11 @@ export default function UsersPage() {
         </div>
       )}
 
-      <div className="flex flex-col gap-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <p className="text-xs font-semibold text-blue-900">
+      <div className="flex flex-col gap-2 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <p className="text-xs font-semibold text-blue-900 dark:text-blue-200">
           Note: User Directory
         </p>
-        <ul className="text-xs text-blue-800 space-y-1">
+        <ul className="text-xs text-blue-800 dark:text-blue-300 space-y-1">
           <li>• View all registered users in the system</li>
           <li>• Monitor user departments and roles</li>
           <li>• Admin has system access to view all requests and analytics</li>

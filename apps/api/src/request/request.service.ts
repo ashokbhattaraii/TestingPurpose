@@ -26,6 +26,7 @@ export class RequestService {
     
     if (result.user) {
       result.user = {
+        id: result.user.id,
         name: result.user.name,
         photoURL: result.user.photoURL,
         isAdmin: Array.isArray(result.user.roles) 

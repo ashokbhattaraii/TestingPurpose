@@ -209,7 +209,7 @@ export function SuperadminDashboard() {
                   <Link
                     key={req.id}
                     href={`/dashboard/requests/${req.id}`}
-                    className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-white hover:border-border hover:shadow-md"
+                    className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-card hover:border-border hover:shadow-md"
                   >
                     <div className="flex items-start justify-between">
                       <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
@@ -257,35 +257,27 @@ export function SuperadminDashboard() {
                 No requests in system.
               </p>
             ) : (
-              <div className="divide-y divide-border rounded-xl border border-border overflow-hidden bg-white">
+              <div className="space-y-3">
                 {allRequests?.slice(0, 5).map((req: RequestResponse) => (
                   <Link
                     key={req.id}
                     href={`/dashboard/requests/${req.id}`}
-                    className="group flex items-center justify-between px-4 py-4 transition-all duration-200 hover:bg-slate-50"
+                    className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-card hover:border-border hover:shadow-md"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                        <Users className="h-5 w-5" />
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                          {req.title}
-                        </span>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="font-medium text-slate-700">{req.user?.name}</span>
-                          <span>•</span>
-                          <span>{format(new Date(req.createdAt), "MMM d")}</span>
-                          <span>•</span>
-                          <span className="font-mono text-[10px] uppercase tracking-tighter opacity-70">{req.id.slice(0, 8)}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-start justify-between">
+                      <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                        {req.title}
+                      </span>
                       <StatusBadge status={req.status} />
-                      <div className="h-8 w-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-white border border-border shadow-sm">
-                        <BarChart3 className="h-4 w-4 text-primary" />
-                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        {req.user?.name} • {format(new Date(req.createdAt), "MMM d, h:mm a")}
+                      </span>
+                      <span className="font-mono text-[10px] uppercase tracking-tighter text-muted-foreground/60">
+                        {req.id.slice(0, 8)}
+                      </span>
                     </div>
                   </Link>
                 ))}

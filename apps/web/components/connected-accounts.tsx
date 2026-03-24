@@ -107,7 +107,7 @@ export function ConnectedAccounts({
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`p-2 rounded-md bg-white ${provider.textColor}`}
+                        className={`p-2 rounded-md bg-card ${provider.textColor}`}
                       >
                         {provider.icon}
                       </div>
@@ -242,11 +242,11 @@ export function ConnectedAccounts({
           </div>
         )}
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <p className="text-[10px] font-semibold text-blue-900 mb-1">
+        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+          <p className="text-[10px] font-semibold text-blue-900 dark:text-blue-200 mb-1">
             Why connect social accounts?
           </p>
-          <ul className="text-[10px] text-blue-800 space-y-0.5">
+          <ul className="text-[10px] text-blue-800 dark:text-blue-300 space-y-0.5">
             <li>• Faster and easier login</li>
             <li>• Automatically sync profile information</li>
             <li>• Enhanced security with multi-factor authentication</li>
