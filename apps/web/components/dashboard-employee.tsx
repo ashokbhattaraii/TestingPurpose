@@ -78,7 +78,7 @@ export function EmployeeDashboard() {
 
   //  Show ONLY user's requests in "Your Recent Requests"
   const userRequests =
-    allRequests?.filter((r: any) => r.user?.id === user?.id) ?? [];
+    allRequests?.filter((r: any) => r.userId === user?.id) ?? [];
 
   const pending =
     userRequests.filter((r: any) => r.status === "PENDING").length ?? 0;

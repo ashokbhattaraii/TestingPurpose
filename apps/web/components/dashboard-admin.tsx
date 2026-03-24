@@ -89,7 +89,7 @@ export function AdminDashboard() {
 
   // Show ONLY user's requests for the new "Your Recent Requests" section
   const userRequests =
-    allRequests?.filter((r: any) => r.user?.id === user?.id) ?? [];
+    allRequests?.filter((r: any) => r.userId === user?.id) ?? [];
 
   const recentUserRequests = userRequests.slice(0, 5);
 
