@@ -48,7 +48,7 @@ export default function ProfilePage() {
   const { user } = useAuth();
   const { data: requestsData } = useServiceRequests(user?.id ?? "");
   const [isEditingAvatar, setIsEditingAvatar] = useState(false);
-
+  //check
   if (!user) return null;
 
   const displayName = user.name ?? "User";
