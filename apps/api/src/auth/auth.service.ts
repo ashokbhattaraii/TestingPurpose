@@ -103,7 +103,7 @@ export class AuthService {
     };
 
 
-    // console.log('Processing Google login for:', googleUser.email);
+
 
     const supabaseClient = this.supabase.getClient();
 

@@ -17,8 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Loader } from "lucide-react";
+import { ArrowLeft, Loader, FileWarning, ShieldAlert } from "lucide-react";
 import Link from "next/link";
+import { NotFoundComponent } from "@/components/not-found";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -121,7 +122,7 @@ export default function EditRequestPage() {
   };
 
   // Check authorization
-  const isCreator = user?.id === request?.user.id;
+  const isCreator = user?.id === request?.userId;
   const isNotPending = request && request.status !== "PENDING";
 
   if (isLoading) {
@@ -135,38 +136,36 @@ export default function EditRequestPage() {
 
   if (!request) {
     return (
-      <div className="mx-auto max-w-xl text-center">
-        <p className="text-sm text-muted-foreground">Request not found.</p>
-        <Button asChild variant="ghost" className="mt-4">
-          <Link href="/dashboard/requests">Back to Requests</Link>
-        </Button>
-      </div>
+      <NotFoundComponent
+        title="Request Not Found"
+        description="The service request you are trying to edit doesn't exist or has been removed."
+        backLink="/dashboard/requests"
+        backText="Back to Requests"
+      />
     );
   }
 
   if (!isCreator) {
     return (
-      <div className="mx-auto max-w-xl text-center">
-        <p className="text-sm text-muted-foreground">
-          You can only edit your own requests.
-        </p>
-        <Button asChild variant="ghost" className="mt-4">
-          <Link href={`/dashboard/requests/${id}`}>Back to Request</Link>
-        </Button>
-      </div>
+      <NotFoundComponent
+        title="Unauthorized Access"
+        description="You can only edit your own requests."
+        icon={ShieldAlert}
+        backLink={`/dashboard/requests/${id}`}
+        backText="Back to Request"
+      />
     );
   }
 
   if (isNotPending) {
     return (
-      <div className="mx-auto max-w-xl text-center">
-        <p className="text-sm text-muted-foreground">
-          You can only edit requests with pending status.
-        </p>
-        <Button asChild variant="ghost" className="mt-4">
-          <Link href={`/dashboard/requests/${id}`}>Back to Request</Link>
-        </Button>
-      </div>
+      <NotFoundComponent
+        title="Editing Locked"
+        description="You can only edit requests that are still in pending status."
+        icon={FileWarning}
+        backLink={`/dashboard/requests/${id}`}
+        backText="Back to Request"
+      />
     );
   }
 

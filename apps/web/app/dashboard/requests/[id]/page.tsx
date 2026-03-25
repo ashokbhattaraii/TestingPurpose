@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { useGetRequestByIdQuery } from "@/hooks/request/useGetRequest";
+import { NotFoundComponent } from "@/components/not-found";
 
 import {
   Select,
@@ -201,12 +202,12 @@ export default function RequestDetailPage() {
 
   if (!request) {
     return (
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="text-sm text-muted-foreground">Request not found.</p>
-        <Button asChild variant="ghost" className="mt-4">
-          <Link href="/dashboard/requests">Back to Requests</Link>
-        </Button>
-      </div>
+      <NotFoundComponent
+        title="Request Not Found"
+        description="The service request you are looking for doesn't exist or you don't have permission to view it."
+        backLink="/dashboard/requests"
+        backText="Back to Requests"
+      />
     );
   }
 

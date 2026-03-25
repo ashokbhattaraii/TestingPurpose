@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Slack, Mail, Trash2, Plus, Check, Clock } from "lucide-react";
+import { Slack, Mail, Plus, Check, Clock } from "lucide-react";
 import type { SocialAccount, SocialProvider } from "@/lib/types";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -142,15 +142,6 @@ export function ConnectedAccounts({
                         <Check className="h-3 w-3 mr-1" />
                         Connected
                       </Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDisconnect(account.provider)}
-                        disabled={disconnecting === account.provider}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
                 );
