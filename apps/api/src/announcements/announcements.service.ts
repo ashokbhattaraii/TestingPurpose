@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationService } from '../notification/notification.service';
+import { NotificationGateway } from '../notification/notification.gateway';
 import { NotificationType } from '@prisma/client';
 
 @Injectable()
@@ -8,6 +9,7 @@ export class AnnouncementsService {
   constructor(
     private prisma: PrismaService,
     private notificationService: NotificationService,
+    private notificationGateway: NotificationGateway,
   ) { }
 
   async createAnnouncement(data: any, userId: string) {
@@ -31,6 +33,8 @@ export class AnnouncementsService {
       `/dashboard/announcements`,
     );
 
+    this.notificationGateway.broadcastAnnouncementUpdate();
+
     return announcement;
   }
 
@@ -49,9 +53,11 @@ export class AnnouncementsService {
   }
 
   async togglePin(id: string, pinned: boolean) {
-    return this.prisma.announcement.update({
+    const announcement = await this.prisma.announcement.update({
       where: { id },
       data: { pinned },
     });
+    this.notificationGateway.broadcastAnnouncementUpdate();
+    return announcement;
   }
 }

@@ -3,14 +3,17 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LunchAttendanceDto } from '../dto/lunch.dto';
 import { LunchType } from '@prisma/client';
 import { SlackService } from '../slack/slack.service';
+import { NotificationGateway } from '../notification/notification.gateway';
 import { time } from 'console';
 import { Cron } from '@nestjs/schedule';
+
 @Injectable()
 export class LunchService {
   private readonly logger = new Logger(LunchService.name);
   constructor(
     private prisma: PrismaService,
     private slackService: SlackService,
+    private notificationGateway: NotificationGateway,
   ) { }
 
   private getKathmanduDateOnly(): Date {
@@ -49,6 +52,8 @@ export class LunchService {
         preferredLunchOption: dto.preferredLunchOption,
       },
     });
+
+    this.notificationGateway.broadcastLunchSummaryUpdate();
 
     return {
       message: dto.isAttending

@@ -54,7 +54,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       // console.log("New real-time notification received:", notification);
       // Directly invalidate the notifications query
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      
+
       // Show a visual toast notification
       toast(notification.title, {
         description: notification.message,
@@ -67,6 +67,20 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
           }
         } : undefined,
       });
+    });
+
+    socketInstance.on("requestUpdate", () => {
+      queryClient.invalidateQueries({ queryKey: ["serviceRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["request"] });
+    });
+
+    socketInstance.on("lunchSummaryUpdate", () => {
+      queryClient.invalidateQueries({ queryKey: ["lunch-attendance-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["lunch-attendance"] });
+    });
+
+    socketInstance.on("announcementUpdate", () => {
+      queryClient.invalidateQueries({ queryKey: ["announcements"] });
     });
 
     setSocket(socketInstance);

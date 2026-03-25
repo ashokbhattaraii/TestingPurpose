@@ -17,7 +17,6 @@ export function useMyLunchAttendance() {
     staleTime: 0,
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
-    refetchInterval: 10 * 5 * 1000, // 5 minutes
     retry: true,
   });
 }
@@ -166,7 +165,6 @@ export function useLunchAttendanceSummary(enabled: boolean = true) {
     staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
-    refetchInterval: 10 * 1000,
     retry: true,
   });
 }
