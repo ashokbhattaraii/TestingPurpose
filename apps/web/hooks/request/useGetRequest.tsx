@@ -19,10 +19,6 @@ export function useGetRequestByIdQuery(requestId: string) {
       if (query.state.status === "error") return false;
       return 10 * 1000;
     },
-    retry: (failureCount, error: any) => {
-      // Don't retry on 404 errors
-      if (error?.response?.status === 404) return false;
-      return failureCount < 3;
-    },
+    retry: false
   });
 }
