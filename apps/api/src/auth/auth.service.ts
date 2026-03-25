@@ -156,7 +156,7 @@ export class AuthService {
       // console.log('Created new user in Supabase Auth:', supabaseUserId);
     }
 
-    // Now handle Prisma user record
+
 
     // Assign role from Rumsan result
     const finalRoles: string[] =
