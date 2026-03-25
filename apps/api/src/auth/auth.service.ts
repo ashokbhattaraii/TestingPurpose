@@ -158,7 +158,6 @@ export class AuthService {
 
 
 
-    // Assign role from Rumsan result
     const finalRoles: string[] =
       googleUser.roles && googleUser.roles.length > 0
         ? googleUser.roles
