@@ -10,13 +10,10 @@ import { Button } from "@/components/ui/button";
 import {
     ChevronLeft,
     Mail,
-    Phone,
     MapPin,
     Building2,
-    Calendar,
     Shield,
     User as UserIcon,
-    CircleCheck,
     CircleAlert,
     Clock
 } from "lucide-react";
@@ -108,10 +105,6 @@ export default function UserDetailPage() {
                     </div>
                 </div>
                 <div className="flex gap-3">
-
-                    <Button size="sm" className="h-9 px-4 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all active:scale-95">
-                        Send Message
-                    </Button>
                 </div>
             </div>
 
@@ -200,25 +193,8 @@ export default function UserDetailPage() {
                                         <p className="text-base font-medium text-slate-800">
                                             {user.createdAt ? format(parseISO(user.createdAt), "MMM d, yyyy") : "N/A"}
                                         </p>
-                                        <span className="text-[11px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full uppercase">
-                                            {formatDistanceToNow(user.createdAt)} Tenure
-                                        </span>
                                     </div>
                                 </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Biography Card */}
-                    <Card className="rounded-2xl border-border/50 shadow-none bg-white">
-                        <CardHeader className="pt-8 px-8">
-                            <CardTitle className="text-base font-bold text-slate-900 flex items-center gap-2 tracking-tight uppercase tracking-widest text-xs opacity-60">
-                                User Statement
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="px-8 pb-10">
-                            <div className="text-base leading-relaxed text-slate-600 max-w-none">
-                                {user.bio || "No professional biography has been provided by this user. This section typically outlines the individual's core competencies, project involvements, and professional background within the organization."}
                             </div>
                         </CardContent>
                     </Card>
@@ -257,33 +233,6 @@ export default function UserDetailPage() {
                             </div>
                         </CardContent>
                     </Card>
-
-                    {/* Quick Tools / Communication */}
-                    <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-lg shadow-slate-200">
-                        <h3 className="text-lg font-bold mb-2 tracking-tight">Organization Contact</h3>
-                        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-                            Official communication channels should be used for all professional outreach regarding organizational matters.
-                        </p>
-                        <div className="space-y-4">
-                            <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
-                                <Mail className="h-4 w-4 text-slate-300" />
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email</span>
-                                    <span className="text-xs font-medium text-slate-200 truncate max-w-[180px]">{user.email}</span>
-                                </div>
-                            </div>
-                            <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
-                                <Phone className="h-4 w-4 text-slate-300" />
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Extension</span>
-                                    <span className="text-xs font-medium text-slate-200">{user.phone || "+977 (Official Line)"}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <Button className="w-full mt-6 bg-white text-slate-900 hover:bg-slate-100 font-bold py-5 rounded-xl transition-all">
-                            Generate Report
-                        </Button>
-                    </div>
                 </div>
             </div>
         </div>

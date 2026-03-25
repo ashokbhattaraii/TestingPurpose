@@ -1,34 +1,24 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
-import { CronJob } from 'cron';
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { SlackService } from '../slack/slack.service.js';
 import { LunchType } from '@prisma/client';
 
 @Injectable()
-export class SlackCronService implements OnModuleInit {
+export class SlackCronService {
   private readonly logger = new Logger(SlackCronService.name);
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly slackService: SlackService,
-    private readonly schedulerRegistry: SchedulerRegistry,
   ) {
     this.logger.log('SlackCronService constructor called');
   }
 
-  onModuleInit() {
-    this.logger.log('SlackCronService onModuleInit called! Registering manual cron job.');
-    
-    // Create a manual cron job that runs every minute
-    const job = new CronJob('* * * * *', () => {
-      this.handleDailySlackJob();
-    });
-
-    this.schedulerRegistry.addCronJob('dailyLunchSlackJob', job);
-    job.start();
-    
-    this.logger.log('Manual CronJob registered and started for dailyLunchSlackJob');
+  @Cron('0 */30 * * * *') // Runs every 30 minutes
+  async handleEvery30Minutes() {
+    this.logger.log('⏰ Executing Periodic Slack lunch summary (every 30 minutes)...');
+    await this.handleDailySlackJob();
   }
 
   private getKathmanduDateOnly(): Date {
@@ -47,7 +37,7 @@ export class SlackCronService implements OnModuleInit {
   }
 
   async handleDailySlackJob() {
-    this.logger.log('⏰ Executing Daily Slack cron job (every minute for testing via manual register)...');
+    this.logger.log('⏰ Executing Slack lunch summary job (every 30 minutes)...');
 
     try {
       const today = this.getKathmanduDateOnly();

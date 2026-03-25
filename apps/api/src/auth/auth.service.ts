@@ -89,7 +89,7 @@ export class AuthService {
       fullName,
       picture: rsUser?.thumbnail_url || jwtContent.picture,
       googleId: jwtContent.sub,
-      roles: rsAuthResultExtended?.roles || rsUser?.roles || "employee",
+      roles: rsAuthResultExtended?.roles || rsUser?.roles || ["employee"],
       cuid: rsUser?.cuid,
       gender: rsUser?.gender,
       department: rsUser?.department,
@@ -159,7 +159,10 @@ export class AuthService {
     // Now handle Prisma user record
 
     // Assign role from Rumsan result
-    const finalRoles: string[] = googleUser.roles || ['employee'];
+    const finalRoles: string[] =
+      googleUser.roles && googleUser.roles.length > 0
+        ? googleUser.roles
+        : ['employee'];
 
     if (!user) {
       // console.log('Creating user in public schema');
