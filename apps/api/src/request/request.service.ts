@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import {
@@ -241,7 +241,7 @@ export class RequestService {
       },
     });
     if (!request) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     return this.removeNullish({
       message: 'Request fetched successfully',
@@ -255,7 +255,7 @@ export class RequestService {
       include: { issueDetails: true, suppliesDetails: true },
     });
     if (!existing) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     if (existing.userId !== userId) {
       throw new BadRequestException('Not authorized to update this request');
@@ -357,7 +357,7 @@ export class RequestService {
   ) {
     const existing = await this.prisma.request.findUnique({ where: { id } });
     if (!existing) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     if (existing.userId === adminId) {
       throw new BadRequestException(
@@ -415,7 +415,7 @@ export class RequestService {
   async assignRequest(id: string, adminId: string, dto: AssignRequestDto) {
     const existing = await this.prisma.request.findUnique({ where: { id } });
     if (!existing) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     if (existing.userId === adminId) {
       throw new BadRequestException('You cannot assign your own request');
@@ -506,7 +506,7 @@ export class RequestService {
       where: { id: id },
     });
     if (!existingRequest) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     const request = await this.prisma.request.update({
       where: { id: id },

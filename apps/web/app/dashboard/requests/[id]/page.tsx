@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useReopenRequest } from "@/hooks/request/useReopenRequest";
 import { useAssignRequest } from "@/hooks/request/useAssignRequest";
 import { useUpdateRequestStatus } from "@/hooks/request/useUpdateRequestStatus";
+import { NotFoundPage } from "@/components/not-found-page";
 
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { useGetRequestByIdQuery } from "@/hooks/request/useGetRequest";
-import { NotFoundComponent } from "@/components/not-found";
 
 import {
   Select,
@@ -78,7 +78,7 @@ export default function RequestDetailPage() {
 
   // console.log("Admin User Data:", adminUser);
   const id = params.id as string;
-  const { data: requestById, isLoading } = useGetRequestByIdQuery(id);
+  const { data: requestById, isLoading, isError } = useGetRequestByIdQuery(id);
 
   const updateStatus = useUpdateRequestStatus();
   const assignRequest = useAssignRequest();
@@ -200,13 +200,13 @@ export default function RequestDetailPage() {
     );
   }
 
-  if (!request) {
+  if (!request || isError) {
     return (
-      <NotFoundComponent
+      <NotFoundPage
         title="Request Not Found"
-        description="The service request you are looking for doesn't exist or you don't have permission to view it."
-        backLink="/dashboard/requests"
-        backText="Back to Requests"
+        description="The request you're looking for doesn't exist or may have been removed."
+        backLabel="Back to Requests"
+        backHref="/dashboard/requests"
       />
     );
   }

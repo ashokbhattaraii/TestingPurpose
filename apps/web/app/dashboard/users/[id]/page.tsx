@@ -15,10 +15,8 @@ import {
     Shield,
     User as UserIcon,
     CircleAlert,
-    Clock,
-    UserCircle
+    Clock
 } from "lucide-react";
-import { NotFoundComponent } from "@/components/not-found";
 import { format, parseISO, isValid } from "date-fns";
 
 function getInitials(name: string) {
@@ -74,11 +72,14 @@ export default function UserDetailPage() {
 
     if (!user) {
         return (
-            <NotFoundComponent
-                title="Personnel Not Found"
-                description="The professional profile you are looking for does not exist or has been removed from the system."
-                icon={UserCircle}
-            />
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+                <CircleAlert className="h-12 w-12 text-muted-foreground mb-4" />
+                <h2 className="text-2xl font-bold">User Not Found</h2>
+                <p className="text-muted-foreground mt-2">The user you are looking for does not exist or has been removed.</p>
+                <Button variant="outline" className="mt-6" onClick={() => router.back()}>
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Go Back
+                </Button>
+            </div>
         );
     }
 

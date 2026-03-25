@@ -14,7 +14,15 @@ export function useGetRequestByIdQuery(requestId: string) {
     staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
-    refetchInterval: 10 * 1000,
-    retry: true,
+    refetchInterval: (query) => {
+      // Stop refetching if the query has errored (e.g. 404)
+      if (query.state.status === "error") return false;
+      return 10 * 1000;
+    },
+    retry: (failureCount, error: any) => {
+      // Don't retry on 404 errors
+      if (error?.response?.status === 404) return false;
+      return failureCount < 3;
+    },
   });
 }
