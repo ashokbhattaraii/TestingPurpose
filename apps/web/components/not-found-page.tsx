@@ -8,7 +8,7 @@ interface NotFoundPageProps {
   backLabel?: string;
   backHref?: string;
 }
-//page not found
+
 export function NotFoundPage({
   title = "Page Not Found",
   description = "The page you're looking for doesn't exist or has been moved.",
