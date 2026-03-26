@@ -118,54 +118,6 @@ export default function LunchTokenPage() {
         </p>
       </div>
 
-      {/* ── Today's Lunch Overview ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-
-        {/* Total Attending */}
-        <Card className="relative overflow-hidden">
-          <CardContent className="flex flex-col items-center justify-center p-4">
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
-              <Users className="h-5 w-5 text-purple-600" />
-            </div>
-            <p className="text-3xl font-bold text-foreground">
-              {totalAttending}
-            </p>
-            <p className="text-xs font-medium text-muted-foreground">
-              Attending
-            </p>
-          </CardContent>
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-purple-500" />
-        </Card>
-
-        {/* Vegetarian */}
-        <Card className="relative overflow-hidden">
-          <CardContent className="flex flex-col items-center justify-center p-4">
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-              <Leaf className="h-5 w-5 text-green-600" />
-            </div>
-            <p className="text-3xl font-bold text-green-600">
-              {totalVegetarian}
-            </p>
-            <p className="text-xs font-medium text-muted-foreground">Veg</p>
-          </CardContent>
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-green-500" />
-        </Card>
-
-        {/* Non-Vegetarian */}
-        <Card className="relative overflow-hidden">
-          <CardContent className="flex flex-col items-center justify-center p-4">
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-              <Drumstick className="h-5 w-5 text-orange-600" />
-            </div>
-            <p className="text-3xl font-bold text-orange-600">
-              {totalNonVegetarian}
-            </p>
-            <p className="text-xs font-medium text-muted-foreground">Non-Veg</p>
-          </CardContent>
-          <div className="absolute inset-x-0 bottom-0 h-1 bg-orange-500" />
-        </Card>
-      </div>
-
       {/* Status banner */}
       <Card>
         <CardContent className="flex items-center gap-4 p-4">
@@ -303,6 +255,54 @@ export default function LunchTokenPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* ── Today's Lunch Overview ── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+
+        {/* Total Attending */}
+        <Card className="relative overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center p-4">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
+              <Users className="h-5 w-5 text-purple-600" />
+            </div>
+            <p className="text-3xl font-bold text-foreground">
+              {totalAttending}
+            </p>
+            <p className="text-xs font-medium text-muted-foreground">
+              Attending
+            </p>
+          </CardContent>
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-purple-500" />
+        </Card>
+
+        {/* Vegetarian */}
+        <Card className="relative overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center p-4">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+              <Leaf className="h-5 w-5 text-green-600" />
+            </div>
+            <p className="text-3xl font-bold text-green-600">
+              {totalVegetarian}
+            </p>
+            <p className="text-xs font-medium text-muted-foreground">Veg</p>
+          </CardContent>
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-green-500" />
+        </Card>
+
+        {/* Non-Vegetarian */}
+        <Card className="relative overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center p-4">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
+              <Drumstick className="h-5 w-5 text-orange-600" />
+            </div>
+            <p className="text-3xl font-bold text-orange-600">
+              {totalNonVegetarian}
+            </p>
+            <p className="text-xs font-medium text-muted-foreground">Non-Veg</p>
+          </CardContent>
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-orange-500" />
+        </Card>
+      </div>
 
 
     </div>
