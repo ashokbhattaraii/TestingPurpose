@@ -74,28 +74,28 @@ const navItems: NavItem[] = [
   },
   {
     label: "Service Requests",
-    href: "/dashboard/requests",
+    href: "/requests",
     icon: <ClipboardList className="h-4 w-4" />,
     roles: ["EMPLOYEE", "ADMIN"],
     section: "General",
   },
   {
     label: "My Requests",
-    href: "/dashboard/my-requests",
+    href: "/my-requests",
     icon: <ClipboardList className="h-4 w-4" />,
     roles: ["EMPLOYEE", "ADMIN"],
     section: "General",
   },
   {
     label: "Assigned to Me",
-    href: "/dashboard/assigned-requests",
+    href: "/assigned-requests",
     icon: <UserCheck className="h-4 w-4" />,
     roles: ["ADMIN"],
     section: "General",
   },
   {
     label: "Lunch Token",
-    href: "/dashboard/lunch",
+    href: "/lunch",
     icon: <UtensilsCrossed className="h-4 w-4" />,
     roles: ["EMPLOYEE", "ADMIN"],
     badgeKey: "lunchToken",
@@ -103,21 +103,21 @@ const navItems: NavItem[] = [
   },
   {
     label: "Announcements",
-    href: "/dashboard/announcements",
+    href: "/announcements",
     icon: <Megaphone className="h-4 w-4" />,
     roles: ["EMPLOYEE", "ADMIN"],
     section: "General",
   },
   {
     label: "Analytics",
-    href: "/dashboard/analytics",
+    href: "/analytics",
     icon: <BarChart3 className="h-4 w-4" />,
     roles: ["ADMIN"],
     section: "Administration",
   },
   {
     label: "Users",
-    href: "/dashboard/users",
+    href: "/users",
     icon: <Users className="h-4 w-4" />,
     roles: ["ADMIN"],
     section: "Administration",
@@ -293,7 +293,7 @@ function NotificationPopover({ userId }: { userId: string }) {
         )}
         <div className="flex border-t border-border">
           <Link
-            href="/dashboard/notifications"
+            href="/notifications"
             onClick={() => setOpen(false)}
             className="flex-1 flex items-center justify-center gap-1 py-2 px-4 text-xs font-medium text-primary hover:bg-muted transition-colors"
           >
@@ -333,7 +333,7 @@ function SidebarNav({
     sectionMap.get(sec)!.push(item);
   }
 
-  const isSettingsActive = pathname === "/dashboard/settings";
+  const isSettingsActive = pathname === "/settings";
 
   if (collapsed) {
     return (
@@ -384,7 +384,7 @@ function SidebarNav({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="/dashboard/settings"
+                  href="/settings"
                   onClick={onLinkClick}
                   className={cn(
                     "flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200 mx-auto",
@@ -472,7 +472,7 @@ function SidebarNav({
       <div className="px-3 pb-3">
         <div className="border-t border-sidebar-border pt-3">
           <Link
-            href="/dashboard/settings"
+            href="/settings"
             onClick={onLinkClick}
             className={cn(
               "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
@@ -762,7 +762,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/profile" className="cursor-pointer">
+                  <Link href="/profile" className="cursor-pointer">
                     <User className="mr-2 h-4 w-4" />
                     <div className="flex flex-col gap-0.5">
                       <span>My Profile</span>
@@ -773,7 +773,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard/settings" className="cursor-pointer">
+                  <Link href="/settings" className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
                     <div className="flex flex-col gap-0.5">
                       <span>Settings</span>

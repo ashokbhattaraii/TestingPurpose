@@ -161,7 +161,7 @@ export class RequestService {
       NotificationType.REQUEST_UPDATE,
       'New Request Created',
       `New request created by ${request.user.name}`,
-      `/dashboard/requests/${request.id}`,
+      `/requests/${request.id}`,
     );
 
     this.notificationGateway.broadcastRequestUpdate();
@@ -409,7 +409,7 @@ export class RequestService {
       NotificationType.REQUEST_UPDATE,
       'Request Status Updated',
       `Your request "${request.title}" status has been changed to ${request.status}.`,
-      `/dashboard/requests/${request.id}`,
+      `/requests/${request.id}`,
     );
 
     this.notificationGateway.broadcastRequestUpdate();
@@ -460,7 +460,7 @@ export class RequestService {
       NotificationType.REQUEST_UPDATE,
       'New Request Assigned',
       `You have been assigned to the request: "${request.title}"`,
-      `/dashboard/requests/${request.id}`,
+      `/requests/${request.id}`,
     );
 
     // Note: Removed general admin notification and requester notification here
@@ -502,7 +502,7 @@ export class RequestService {
       NotificationType.REQUEST_UPDATE,
       'Request Reopened',
       `Your request "${request.title}" has been reopened and is back in PENDING status.`,
-      `/dashboard/requests/${request.id}`,
+      `/requests/${request.id}`,
     );
 
     this.notificationGateway.broadcastRequestUpdate();

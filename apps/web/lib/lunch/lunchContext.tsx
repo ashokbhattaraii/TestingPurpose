@@ -21,7 +21,7 @@ export const LunchProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
   // Only fetch attendance-summary on pages that actually use it
-  const lunchRoutes = ["/dashboard", "/dashboard/lunch"];
+  const lunchRoutes = ["/dashboard", "/lunch"];
   const needsLunchData = lunchRoutes.includes(pathname);
 
   // Only run the query if a user is logged in AND we are on a lunch-relevant route

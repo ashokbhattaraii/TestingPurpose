@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useGetRequestByIdQuery } from "@/hooks/request/useGetRequest";
-import { useUpdateRequestMutation } from "@/hooks/request/useUpdateRequest";
-import { useRouter, useParams } from "next/navigation";
+
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useCreateRequestMutation from "@/hooks/request/useCreateRequest";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -17,7 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Loader } from "lucide-react";
+import {
+  ArrowLeft,
+} from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -40,60 +42,23 @@ import {
   SUPPLIES_CATEGORY_LABELS,
   ISSUE_PRIORITY_LABELS,
 } from "@/schemas";
-import { Skeleton } from "@/components/ui/skeleton";
+import { CreateRequestPayload } from "@/lib/type/requestType"; // fix import path
 
-export default function EditRequestPage() {
-  const { user } = useAuth();
+export default function NewRequestPage() {
   const router = useRouter();
-  const params = useParams();
-  const id = params.id as string;
-  const { data: requestById, isLoading } = useGetRequestByIdQuery(id);
-  const request = requestById?.request;
-  const updateRequest = useUpdateRequestMutation();
-
-  const getDefaultValues = React.useCallback((): RequestFormValues => {
-    if (!request) {
-      return {
-        type: "ISSUE",
-        title: "",
-        description: "",
-        issuePriority: "MEDIUM",
-        issueCategory: "TECHNICAL",
-        location: "",
-      };
-    }
-    if (request.type === "ISSUE") {
-      return {
-        type: "ISSUE",
-        title: request.title,
-        description: request.description || "",
-        issuePriority: request.issueDetails?.priority || "MEDIUM",
-        issueCategory: request.issueDetails?.category || "TECHNICAL",
-        otherCategoryDetails: request.issueDetails?.otherCategoryDetails || "",
-        location: request.issueDetails?.location || "",
-      };
-    }
-    return {
-      type: "SUPPLIES",
-      title: request.title,
-      description: request.description || "",
-      suppliesCategory: request?.suppliesDetails?.category || "OFFICE_SUPPLIES",
-      otherCategoryDetails: request?.suppliesDetails?.otherCategoryDetails || "",
-      itemName: request.suppliesDetails?.itemName || "",
-    };
-  }, [request]);
+  const { mutate, isPending } = useCreateRequestMutation();
 
   const form = useForm<RequestFormValues>({
     resolver: zodResolver(requestSchema),
-    defaultValues: getDefaultValues(),
+    defaultValues: {
+      type: "ISSUE",
+      title: "",
+      description: "",
+      issuePriority: "MEDIUM",
+      issueCategory: "TECHNICAL",
+      location: "",
+    },
   });
-
-  // Update form when request data loads
-  React.useEffect(() => {
-    if (request) {
-      form.reset(getDefaultValues());
-    }
-  }, [request, form, getDefaultValues]);
 
   const requestType = form.watch("type");
   const issueCategory = form.watch("issueCategory");
@@ -120,78 +85,45 @@ export default function EditRequestPage() {
     }
   };
 
-  // Check authorization
-  const isCreator = user?.id === request?.user.id;
-  const isNotPending = request && request.status !== "PENDING";
+  const handleSubmit = async (data: RequestFormValues) => {
+    const apiType = data.type === "ISSUE" ? "ISSUE" : "SUPPLIES"; // ensure correct type for API
 
-  if (isLoading) {
-    return (
-      <div className="mx-auto max-w-xl">
-        <Skeleton className="mb-4 h-8 w-32" />
-        <Skeleton className="h-96" />
-      </div>
-    );
-  }
+    const payload: CreateRequestPayload = {
+      type: apiType as RequestFormValues["type"],
+      title: data.title,
+      description: data.description?.trim() || undefined,
+      ...(data.type === "ISSUE"
+        ? {
+          issueDetails: {
+            priority: data.issuePriority!,
+            category: data.issueCategory!,
+            otherCategoryDetails: data.issueCategory === "OTHER" ? data.otherCategoryDetails : undefined,
+            location: data.location?.trim() || undefined,
+          },
+        }
+        : {
+          suppliesDetails: {
+            category: data.suppliesCategory!,
+            otherCategoryDetails: data.suppliesCategory === "OTHER" ? data.otherCategoryDetails : undefined,
+            itemName: data.itemName!,
+          },
+        }),
+    };
 
-  if (!request) {
-    return (
-      <div className="mx-auto max-w-xl text-center">
-        <p className="text-sm text-muted-foreground">Request not found.</p>
-        <Button asChild variant="ghost" className="mt-4">
-          <Link href="/dashboard/requests">Back to Requests</Link>
-        </Button>
-      </div>
-    );
-  }
-
-  if (!isCreator) {
-    return (
-      <div className="mx-auto max-w-xl text-center">
-        <p className="text-sm text-muted-foreground">
-          You can only edit your own requests.
-        </p>
-        <Button asChild variant="ghost" className="mt-4">
-          <Link href={`/dashboard/requests/${id}`}>Back to Request</Link>
-        </Button>
-      </div>
-    );
-  }
-
-  if (isNotPending) {
-    return (
-      <div className="mx-auto max-w-xl text-center">
-        <p className="text-sm text-muted-foreground">
-          You can only edit requests with pending status.
-        </p>
-        <Button asChild variant="ghost" className="mt-4">
-          <Link href={`/dashboard/requests/${id}`}>Back to Request</Link>
-        </Button>
-      </div>
-    );
-  }
-
-  const handleSubmit = (values: RequestFormValues) => {
-    updateRequest.mutate(
-      {
-        id: request.id,
-        ...values,
-        itemName: values.type === "SUPPLIES" ? values.itemName : "",
+    mutate(payload, {
+      onSuccess: () => {
+        router.push("/requests");
       },
-      {
-        onSuccess: () => {
-          router.push(`/dashboard/requests/${request.id}`);
-        },
-      },
-    );
+    });
   };
 
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/dashboard/requests/${id}`}>
+          <Link href="/requests">
             <ArrowLeft className="mr-1 h-4 w-4" />
-            Back to Request
+            Back to Requests
           </Link>
         </Button>
       </div>
@@ -199,7 +131,7 @@ export default function EditRequestPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-foreground">
-            Edit Service Request
+            New Service Request
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -225,22 +157,19 @@ export default function EditRequestPage() {
                         className="flex gap-4"
                       >
                         <label
-                          htmlFor="edit-type-issue"
+                          htmlFor="type-issue"
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
-                          <RadioGroupItem value="ISSUE" id="edit-type-issue" />
+                          <RadioGroupItem value="ISSUE" id="type-issue" />
                           <span className="font-medium text-foreground">
                             Issue
                           </span>
                         </label>
                         <label
-                          htmlFor="edit-type-Supplies"
+                          htmlFor="type-supplies"
                           className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm transition-colors has-[*[data-state=checked]]:border-primary has-[*[data-state=checked]]:bg-primary/5"
                         >
-                          <RadioGroupItem
-                            value="SUPPLIES"
-                            id="edit-type-Supplies"
-                          />
+                          <RadioGroupItem value="SUPPLIES" id="type-supplies" />
                           <span className="font-medium text-foreground">
                             Supplies Request
                           </span>
@@ -458,21 +387,11 @@ export default function EditRequestPage() {
                 </>
               )}
 
-              <div className="flex gap-2 pt-2">
-                <Button type="submit" disabled={updateRequest.isPending}>
-                  {updateRequest.isPending ? (
-                    <>
-                      <Loader className="mr-2 h-4 w-4 animate-spin" />
-                      Updating...
-                    </>
-                  ) : (
-                    "Update Request"
-                  )}
-                </Button>
-                <Button type="button" variant="outline" asChild>
-                  <Link href={`/dashboard/requests/${id}`}>Cancel</Link>
-                </Button>
-              </div>
+              {/* Submit Button */}
+
+              <Button type="submit" className="mt-2" disabled={isPending}>
+                {isPending ? "Creating Request..." : "Create Request"}
+              </Button>
             </form>
           </Form>
         </CardContent>

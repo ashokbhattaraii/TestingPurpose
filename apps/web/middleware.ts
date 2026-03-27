@@ -8,8 +8,8 @@ export function middleware(request: NextRequest) {
   const publicRoutes = ["/", "/login"];
   const isPublicRoute = publicRoutes.includes(path);
 
-  // Define protected routes pattern (everything else, or specific like /dashboard)
-  const isProtectedRoute = path.startsWith("/dashboard");
+  // All non-public routes are protected
+  const isProtectedRoute = !isPublicRoute;
 
   // Read cookie from request headers.
   // CRITICAL NOTE FOR CROSS-DOMAIN (Vercel):

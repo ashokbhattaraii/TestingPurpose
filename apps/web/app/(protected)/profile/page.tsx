@@ -99,7 +99,7 @@ export default function ProfilePage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/settings" className="gap-2">
+          <Link href="/settings" className="gap-2">
             <Edit3 className="h-4 w-4" />
             Settings
           </Link>
@@ -256,7 +256,7 @@ export default function ProfilePage() {
           <CardTitle className="text-lg">Recent Service Requests</CardTitle>
           <Button variant="ghost" size="sm" asChild>
             <Link
-              href="/dashboard/requests"
+              href="/requests"
               className="text-xs text-muted-foreground"
             >
               View all
@@ -279,7 +279,7 @@ export default function ProfilePage() {
               {recentRequests.map((req: any) => (
                 <Link
                   key={req.id}
-                  href={`/dashboard/requests/${req.id}`}
+                  href={`/requests/${req.id}`}
                   className="flex items-center justify-between rounded-md border border-border p-3 transition-colors hover:bg-muted/50"
                 >
                   <div className="flex flex-col gap-0.5 min-w-0">

@@ -30,7 +30,7 @@ export class AnnouncementsService {
       NotificationType.ANNOUNCEMENT,
       `📣 New Announcement: ${announcement.title}`,
       announcement.content.substring(0, 100) + (announcement.content.length > 100 ? '...' : ''),
-      `/dashboard/announcements`,
+      `/announcements`,
     );
 
     this.notificationGateway.broadcastAnnouncementUpdate();

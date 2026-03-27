@@ -206,7 +206,7 @@ export default function RequestDetailPage() {
         title="Request Not Found"
         description="The request you're looking for doesn't exist or may have been removed."
         backLabel="Back to Requests"
-        backHref="/dashboard/requests"
+        backHref="/requests"
       />
     );
   }
@@ -215,7 +215,7 @@ export default function RequestDetailPage() {
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/requests">
+          <Link href="/requests">
             <ArrowLeft className="mr-1 h-4 w-4" />
             Back to Requests
           </Link>
@@ -238,7 +238,7 @@ export default function RequestDetailPage() {
               {isCreator && request.status === "PENDING" && (
                 <>
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/requests/edit/${request.id}`}>
+                    <Link href={`/requests/edit/${request.id}`}>
                       <Edit2 className="mr-1 h-4 w-4" />
                       Edit
                     </Link>

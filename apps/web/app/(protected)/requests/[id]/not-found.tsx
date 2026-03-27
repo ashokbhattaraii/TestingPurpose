@@ -6,7 +6,7 @@ export default function RequestNotFound() {
       title="Request Not Found"
       description="The request you're looking for doesn't exist or may have been removed."
       backLabel="Back to Requests"
-      backHref="/dashboard/requests"
+      backHref="/requests"
     />
   );
 }

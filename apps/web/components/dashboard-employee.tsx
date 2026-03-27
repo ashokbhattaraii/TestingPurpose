@@ -115,7 +115,7 @@ export function EmployeeDashboard() {
           </p>
         </div>
         <Button asChild size="sm">
-          <Link href="/dashboard/requests/new">
+          <Link href="/requests/new">
             <Plus className="mr-1 h-4 w-4" />
             New Request
           </Link>
@@ -223,7 +223,7 @@ export function EmployeeDashboard() {
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link
-                href="/dashboard/my-requests"
+                href="/my-requests"
                 className="text-xs text-muted-foreground"
               >
                 View all
@@ -246,7 +246,7 @@ export function EmployeeDashboard() {
                 {recentRequests.map((req: any) => (
                   <Link
                     key={req?.id}
-                    href={`/dashboard/requests/${req?.id}`}
+                    href={`/requests/${req?.id}`}
                     className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-card hover:border-border hover:shadow-md"
                   >
                     <div className="flex items-start justify-between">
@@ -276,7 +276,7 @@ export function EmployeeDashboard() {
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link
-                href="/dashboard/requests"
+                href="/requests"
                 className="text-xs text-muted-foreground"
               >
                 View all
@@ -299,7 +299,7 @@ export function EmployeeDashboard() {
                 {activeRequests.map((req: any) => (
                   <Link
                     key={req.id}
-                    href={`/dashboard/requests/${req.id}`}
+                    href={`/requests/${req.id}`}
                     className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-card hover:border-border hover:shadow-md"
                   >
                     <div className="flex items-start justify-between">
@@ -329,7 +329,7 @@ export function EmployeeDashboard() {
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link
-                href="/dashboard/announcements"
+                href="/announcements"
                 className="text-xs text-muted-foreground"
               >
                 View all
