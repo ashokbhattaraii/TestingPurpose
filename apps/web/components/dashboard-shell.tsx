@@ -310,10 +310,12 @@ function SidebarNav({
   onLinkClick,
   collapsed,
   badges,
+  onLogout,
 }: {
   onLinkClick?: () => void;
   collapsed?: boolean;
   badges?: Record<string, number>;
+  onLogout?: () => void;
 }) {
   const { user } = useAuth();
   const pathname = usePathname();
@@ -400,6 +402,22 @@ function SidebarNav({
                 Settings
               </TooltipContent>
             </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onLogout}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-200 mx-auto text-destructive hover:bg-destructive/10 hover:text-destructive mt-1"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">
+                Sign out
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </TooltipProvider>
@@ -468,14 +486,14 @@ function SidebarNav({
 
       <div className="flex-1" />
 
-      {/* Settings pinned to bottom */}
+      {/* Settings & Logout pinned to bottom */}
       <div className="px-3 pb-3">
-        <div className="border-t border-sidebar-border pt-3">
+        <div className="flex flex-col gap-1 rounded-xl bg-sidebar-accent/40 p-1.5 border border-sidebar-border/50">
           <Link
             href="/settings"
             onClick={onLinkClick}
             className={cn(
-              "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+              "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
               isSettingsActive
                 ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md"
                 : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -496,6 +514,17 @@ function SidebarNav({
               <ChevronRight className="ml-auto h-4 w-4 opacity-60" />
             )}
           </Link>
+
+          <Button
+            variant="ghost"
+            onClick={onLogout}
+            className="group flex w-full h-auto items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <span className="flex h-5 w-5 items-center justify-center flex-shrink-0">
+              <LogOut className="h-4 w-4" />
+            </span>
+            <span className="flex-1 truncate text-left">Logout</span>
+          </Button>
         </div>
       </div>
     </div>
@@ -505,9 +534,11 @@ function SidebarNav({
 function MobileSidebarContent({
   onLinkClick,
   badges,
+  onLogout,
 }: {
   onLinkClick?: () => void;
   badges?: Record<string, number>;
+  onLogout?: () => void;
 }) {
   const { user } = useAuth();
   return (
@@ -525,28 +556,7 @@ function MobileSidebarContent({
           </span>
         </div>
       </div>
-      <SidebarNav onLinkClick={onLinkClick} badges={badges} />
-      <div className="border-t border-sidebar-border p-3">
-        <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent/50 px-3 py-2.5">
-          <Avatar className="h-8 w-8">
-            {user?.thumbnail_url ? (
-              <img src={user.thumbnail_url} alt={user.name} className="h-full w-full object-cover rounded-full" />
-            ) : (
-              <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
-                {getInitials(user?.name || "U")}
-              </AvatarFallback>
-            )}
-          </Avatar>
-          <div className="flex flex-col min-w-0">
-            <span className="text-xs font-semibold text-sidebar-foreground truncate">
-              {user?.name}
-            </span>
-            <span className="text-[10px] text-sidebar-foreground/40 truncate">
-              {getRoleLabel(user?.roles?.[0] || "")}
-            </span>
-          </div>
-        </div>
-      </div>
+      <SidebarNav onLinkClick={onLinkClick} badges={badges} onLogout={onLogout} />
     </div>
   );
 }
@@ -627,58 +637,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
 
           {/* Sidebar Nav */}
-          <SidebarNav collapsed={sidebarCollapsed} badges={badges} />
+          <SidebarNav collapsed={sidebarCollapsed} badges={badges} onLogout={handleLogOut} />
 
-          {/* Footer */}
-          <div
-            className={cn(
-              "border-t border-sidebar-border",
-              sidebarCollapsed ? "p-2" : "p-3",
-            )}
-          >
-            <div
-              className={cn(
-                "flex items-center rounded-lg transition-colors",
-                sidebarCollapsed
-                  ? "justify-center py-1"
-                  : "gap-3 bg-sidebar-accent/50 px-3 py-2.5",
-              )}
-            >
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                      {user?.thumbnail_url ? (
-                        <img src={user.thumbnail_url} alt={user.name} className="h-full w-full object-cover rounded-full" />
-                      ) : (
-                        <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
-                          {getInitials(user?.name || "U")}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                  </TooltipTrigger>
-                  {sidebarCollapsed && (
-                    <TooltipContent side="right" className="text-xs">
-                      <p className="font-semibold">{user?.name.replace(/\s*undefined/gi, "").trim()}</p>
-                      <p className="text-muted-foreground">
-                        {getRoleLabel(user?.roles?.[0] || "")}
-                      </p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-              {!sidebarCollapsed && (
-                <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-semibold text-sidebar-foreground truncate">
-                    {user?.name.replace(/\s*undefined/gi, "").trim()}
-                  </span>
-                  <span className="text-[10px] text-sidebar-foreground/40 truncate">
-                    {getRoleLabel(user?.roles?.[0] || "")}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </aside>
 
@@ -705,6 +665,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 <MobileSidebarContent
                   onLinkClick={() => setMobileOpen(false)}
                   badges={badges}
+                  onLogout={handleLogOut}
                 />
               </SheetContent>
             </Sheet>
@@ -736,63 +697,30 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             {user && <NotificationPopover userId={user.id} />}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2 text-foreground">
-                  <Avatar className="h-7 w-7">
-                    {user.thumbnail_url ? (
-                      <img src={user.thumbnail_url} alt={user.name} className="h-full w-full object-cover rounded-full" />
-                    ) : (
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-                        {getInitials(user.name)}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  <span className="hidden text-sm md:inline-block">
+            <Link
+              href="/profile"
+              className="group flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all duration-300 bg-muted/20 hover:bg-primary/10 border border-transparent hover:border-primary/20 shadow-sm"
+            >
+              <div className="hidden md:flex items-center gap-2.5">
+                <div className="flex flex-col items-end leading-none gap-1">
+                  <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
                     {user.name.replace(/\s*undefined/gi, "").trim()}
                   </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium text-foreground">
-                    {user.name.replace(/\s*undefined/gi, "").trim()}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                  <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest px-1.5 py-0.5 rounded-md bg-muted group-hover:bg-primary/20 group-hover:text-primary transition-all">
+                    {getRoleLabel(user.roles?.[0] || "")}
+                  </span>
                 </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    <div className="flex flex-col gap-0.5">
-                      <span>My Profile</span>
-                      <span className="text-xs text-muted-foreground">
-                        View and manage profile
-                      </span>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/settings" className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <div className="flex flex-col gap-0.5">
-                      <span>Settings</span>
-                      <span className="text-xs text-muted-foreground">
-                        Account & preferredLunchOptions
-                      </span>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive cursor-pointer"
-                  onSelect={() => handleLogOut()} // 'onSelect' is better for Shadcn/Radix dropdowns
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </div>
+              <Avatar className="h-8 w-8 ring-2 ring-transparent group-hover:ring-primary/30 transition-all shadow-md">
+                {user.thumbnail_url ? (
+                  <img src={user.thumbnail_url} alt={user.name} className="h-full w-full object-cover rounded-full" />
+                ) : (
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                    {getInitials(user.name)}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </Link>
           </div>
         </header>
 
