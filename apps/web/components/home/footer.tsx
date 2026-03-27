@@ -11,7 +11,7 @@ interface FooterProps {
   footerLinks?: FooterLink[];
   copyright?: string;
 }
-
+//check
 export function Footer({
   footerLinks = [
     { label: "Privacy", href: "#" },
