@@ -39,6 +39,7 @@ export class RequestService {
 
     if (result.approver) {
       result.approver = {
+        id: result.approver.id,
         name: result.approver.name,
         photoURL: result.approver.photoURL,
         isAdmin: Array.isArray(result.approver.roles)

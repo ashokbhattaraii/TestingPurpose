@@ -23,7 +23,7 @@ import {
   ArrowDown,
 } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
@@ -357,13 +357,17 @@ export function EmployeeDashboard() {
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
                       <Megaphone className="h-5 w-5" />
                     </div>
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col flex-1 gap-1">
                       <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                         {ann.title}
                       </span>
                       <span className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                         {ann.content}
                       </span>
+                      <div className="mt-1 flex items-center justify-between text-[10px] font-medium text-muted-foreground">
+                        <span>{ann.createdBy?.name || "Admin"}</span>
+                        <span>{formatDistanceToNow(new Date(ann.createdAt), { addSuffix: true })}</span>
+                      </div>
                     </div>
                   </div>
                 ))}

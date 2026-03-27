@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 import { useLogin } from "@/hooks/use-login";
@@ -31,9 +31,9 @@ export function LoginPage() {
         <div className="mb-8 text-center sm:text-left">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors mb-4"
+            className="group inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary font-medium transition-all mb-5 hover:underline decoration-primary/30 underline-offset-4"
           >
-            <ArrowRight className="h-4 w-4 rotate-180" />
+            <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Back to home
           </Link>
         </div>
@@ -101,18 +101,6 @@ export function LoginPage() {
                 )}
               </div>
 
-              {/* Footer */}
-              <div className="mt-6 text-center">
-                <p className="text-xs text-muted-foreground">
-                  Don't have an account?{" "}
-                  <Link
-                    href="/"
-                    className="text-primary hover:text-primary/80 font-medium transition-colors"
-                  >
-                    Go to HomePage
-                  </Link>
-                </p>
-              </div>
             </div>
           </CardContent>
         </Card>

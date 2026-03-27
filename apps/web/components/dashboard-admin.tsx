@@ -22,7 +22,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { useLunchAttendanceSummary } from "@/hooks/lunch/useLunchAttendance";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
 
@@ -432,8 +432,9 @@ export function AdminDashboard() {
                   <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
                     {ann.content || ann.description}
                   </p>
-                  <div className="mt-3 text-[10px] font-medium text-muted-foreground">
-                    {format(new Date(ann.createdAt), "MMM d, yyyy")}
+                  <div className="mt-3 flex items-center justify-between text-[10px] font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                    <span>{ann.createdBy?.name || "Admin"}</span>
+                    <span>{formatDistanceToNow(new Date(ann.createdAt), { addSuffix: true })}</span>
                   </div>
                 </div>
               ))}
