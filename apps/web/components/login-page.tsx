@@ -14,7 +14,7 @@ import Link from "next/link";
 import { useLogin } from "@/hooks/use-login";
 import { toast } from "sonner";
 import { GoogleLogin } from "@react-oauth/google";
-
+//login page
 export function LoginPage() {
   const { isGoogleLoginPending, loginWithGoogleAsync } = useLogin();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
