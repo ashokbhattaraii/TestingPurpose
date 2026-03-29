@@ -2,7 +2,6 @@ import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { PrismaService } from '../prisma/prisma.service';
-import { SupabaseService } from '../supabase/supabase.service';
 import type {
   RsOfficeClient,
   AuthResult,
@@ -43,7 +42,6 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private supabase: SupabaseService,
     @Inject(RS_OFFICE_CLIENT) private readonly rsClient: RsOfficeClient,
     private readonly crypto: CryptoService,
   ) {
@@ -105,60 +103,15 @@ export class AuthService {
 
 
 
-    const supabaseClient = this.supabase.getClient();
-
-    let supabaseUserId: string;
+    // We no longer use Supabase. The 'uid' field in Prisma expects a unique string,
+    // so we'll use the googleId (which represents the Firebase/Google Auth UID).
+    const providerUid = googleUser.googleId;
     let isNewUser = false;
 
     // First, check if user exists in Prisma by email
     let user = await this.prisma.user.findUnique({
       where: { email: googleUser.email },
-    });
-
-    if (user && user.uid) {
-      // User exists with Supabase UID
-      supabaseUserId = user.uid;
-      // console.log('Found existing user with Supabase UID:', supabaseUserId);
-
-      // Update Supabase Auth user metadata
-      await supabaseClient.auth.admin.updateUserById(supabaseUserId, {
-        user_metadata: {
-          full_name: googleUser.fullName,
-          avatar_url: googleUser.picture,
-          provider: 'google',
-          google_id: googleUser.googleId,
-          last_login: new Date().toISOString(),
-        },
-      });
-      // console.log('Updated Supabase Auth user metadata');
-    } else {
-      // Create new Supabase Auth user
-      const { data: authData, error: authError } =
-        await supabaseClient.auth.admin.createUser({
-          email: googleUser.email,
-          email_confirm: true,
-          user_metadata: {
-            full_name: googleUser.fullName,
-            avatar_url: googleUser.picture,
-            provider: 'google',
-            google_id: googleUser.googleId,
-          },
-        });
-
-      if (authError) {
-        throw new Error(
-          `Failed to create Supabase Auth user: ${authError.message}`,
-        );
-      }
-
-      supabaseUserId = authData.user.id;
-      isNewUser = true;
-      // console.log('Created new user in Supabase Auth:', supabaseUserId);
-    }
-
-
-
-    const finalRoles: string[] =
+    });    const finalRoles: string[] =
       googleUser.roles && googleUser.roles.length > 0
         ? googleUser.roles
         : ['employee'];
@@ -168,7 +121,7 @@ export class AuthService {
 
       user = await this.prisma.user.create({
         data: {
-          uid: supabaseUserId,
+          uid: providerUid,
           cuid: googleUser.cuid,
           email: googleUser.email,
           name: googleUser.fullName,
@@ -194,7 +147,7 @@ export class AuthService {
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
-          uid: supabaseUserId,
+          uid: providerUid,
           cuid: googleUser.cuid,
           name: googleUser.fullName,
           photoURL: googleUser.picture,

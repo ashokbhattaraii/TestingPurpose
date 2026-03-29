@@ -41,8 +41,8 @@ export function LoginPage() {
         {/* Main Login Card */}
         <Card className="border-primary/20 shadow-2xl overflow-hidden min-h-[460px] flex flex-col">
           <CardHeader className="text-center bg-gradient-to-b from-card to-primary/5 rounded-t-lg pt-12 pb-8">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-white p-3 shadow-xl ring-1 ring-black/5 dark:bg-zinc-900 dark:ring-white/10">
-              <img src="/rumsan-logo-blk.png" alt="Rumsan Logo" className="h-full w-full object-contain dark:invert" />
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-white p-3 shadow-xl ring-1 ring-black/5 dark:ring-white/10">
+              <img src="/rumsan-logo-blk.png" alt="Rumsan Logo" className="h-full w-full object-contain" />
             </div>
             <CardTitle className="text-4xl font-extrabold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent tracking-tight">
               WorkOps

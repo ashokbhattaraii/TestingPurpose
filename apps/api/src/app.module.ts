@@ -4,8 +4,6 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { SupabaseService } from './supabase/supabase.service';
-import { SupabaseModule } from './supabase/supabase.module';
 import { RequestModule } from './request/request.module';
 import { UserModule } from './user/user.module';
 import { LunchModule } from './lunch/lunch.module';
@@ -24,7 +22,6 @@ import { AnalyticsModule } from './analytics/analytics.module';
     AnalyticsModule,
     ScheduleModule.forRoot(),
     AuthModule,
-    SupabaseModule,
     SlackModule,
     RequestModule,
     UserModule,
@@ -35,7 +32,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     AnalyticsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SupabaseService, AnalyticsService],
-  exports: [AuthModule, SupabaseModule],
+  providers: [AppService, AnalyticsService],
+  exports: [AuthModule],
 })
 export class AppModule {}

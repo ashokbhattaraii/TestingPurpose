@@ -31,8 +31,8 @@ export function Navigation({
       <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white p-1.5 shadow-md ring-1 ring-black/5 dark:bg-zinc-900 dark:ring-white/10 transition-transform group-hover:scale-105">
-            <img src="/rumsan-logo-blk.png" alt="Rumsan Logo" className="h-full w-full object-contain dark:invert" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white p-1.5 shadow-md ring-1 ring-black/5 dark:ring-white/10 transition-transform group-hover:scale-105">
+            <img src="/rumsan-logo-blk.png" alt="Rumsan Logo" className="h-full w-full object-contain" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent hidden sm:inline">
             WorkOps

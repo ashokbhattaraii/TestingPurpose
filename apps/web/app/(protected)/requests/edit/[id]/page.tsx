@@ -121,7 +121,7 @@ export default function EditRequestPage() {
   };
 
   // Check authorization
-  const isCreator = user?.id === request?.user.id;
+  const isCreator = user?.id === request?.user?.id;
   const isNotPending = request && request.status !== "PENDING";
 
   if (isLoading) {
