@@ -14,7 +14,7 @@ export class SlackCronService {
   ) {
     this.logger.log('SlackCronService constructor called');
   }
-
+  //corn
   @Cron('0 */30 * * * *') // Runs every 30 minutes
   async handleEvery30Minutes() {
     this.logger.log('⏰ Executing Periodic Slack lunch summary (every 30 minutes)...');
