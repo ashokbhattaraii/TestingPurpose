@@ -69,6 +69,7 @@ export const requestSchema = z.discriminatedUnion("type", [
       .string()
       .min(3, "Title must be at least 3 characters")
       .max(100, "Title must be less than 100 characters"),
+    isAnonymous: z.boolean().default(false).optional(),
     description: z
       .string()
       .min(1, "Description is required")
@@ -99,6 +100,7 @@ export const requestSchema = z.discriminatedUnion("type", [
       .string()
       .min(3, "Title must be at least 3 characters")
       .max(100, "Title must be less than 100 characters"),
+    isAnonymous: z.boolean().default(false).optional(),
     description: z
       .string()
       .max(500, "Description must be less than 500 characters")

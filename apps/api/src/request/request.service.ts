@@ -26,10 +26,23 @@ export class RequestService {
     if (!request) return request;
     const result = { ...request };
 
-    if (result.user) {
+    if (result.isAnonymous) {
+      result.user = {
+        id: 'anonymous',
+        name: 'Anonymous',
+        email: 'anonymous',
+        roles: [],
+        department: null,
+        photoURL: null,
+        isAdmin: false,
+      };
+    } else if (result.user) {
       result.user = {
         id: result.user.id,
         name: result.user.name,
+        email: result.user.email,
+        roles: result.user.roles,
+        department: result.user.department,
         photoURL: result.user.photoURL,
         isAdmin: Array.isArray(result.user.roles)
           ? result.user.roles.some((r: string) => r.toLowerCase().includes('admin'))
@@ -103,6 +116,7 @@ export class RequestService {
         type: dto.type,
         title: dto.title,
         description: dto.description ?? '',
+        isAnonymous: dto.isAnonymous ?? false,
         status: 'PENDING' as RequestStatus,
         issueDetails:
           dto.type === RequestType.ISSUE
@@ -141,6 +155,7 @@ export class RequestService {
         adminNotes: true,
         createdAt: true, // keep
         updatedAt: true, // keep
+        isAnonymous: true,
         // updatedAt: false (simply omitted)
         user: {
           select: {
@@ -176,7 +191,7 @@ export class RequestService {
 
   async getRequests(options?: { userId?: string; roles?: string[]; currentUserId?: string }) {
     const roles = options?.roles ?? [];
-    const isAdmin = roles.includes('ADMIN') || roles.includes('SUPERADMIN');
+    const isAdmin = roles.includes('ADMIN');
 
     const requestedUserId = options?.userId;
     let effectiveUserId: string | undefined;
@@ -280,6 +295,7 @@ export class RequestService {
           dto.description !== undefined
             ? dto.description
             : existing.description,
+        isAnonymous: dto.isAnonymous ?? existing.isAnonymous,
         type: newType,
         issueDetails:
           newType === RequestType.ISSUE
