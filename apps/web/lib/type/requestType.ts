@@ -8,6 +8,7 @@ type ApiRequestPayload = {
   type: "ISSUE" | "SUPPLIES";
   title: string;
   description?: string;
+  isAnonymous?: boolean;
   issueDetails?: {
     priority: IssuePriority;
     category: IssueCategory;
@@ -29,6 +30,7 @@ export type RequestResponse = {
   type: AppRequestType;
   title: string;
   description: string;
+  isAnonymous?: boolean;
   issueDetails?: {
     priority: IssuePriority;
     category: IssueCategory;

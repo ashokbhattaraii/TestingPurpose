@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useCreateRequestMutation from "@/hooks/request/useCreateRequest";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -54,6 +55,7 @@ export default function NewRequestPage() {
       type: "ISSUE",
       title: "",
       description: "",
+      isAnonymous: false,
       issuePriority: "MEDIUM",
       issueCategory: "TECHNICAL",
       location: "",
@@ -65,11 +67,13 @@ export default function NewRequestPage() {
   const suppliesCategory = form.watch("suppliesCategory");
 
   const handleTypeChange = (newType: "ISSUE" | "SUPPLIES") => {
+    const isAnonymous = form.getValues("isAnonymous");
     if (newType === "ISSUE") {
       form.reset({
         type: "ISSUE",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
+        isAnonymous,
         issuePriority: "MEDIUM",
         issueCategory: "TECHNICAL",
         location: "",
@@ -79,6 +83,7 @@ export default function NewRequestPage() {
         type: "SUPPLIES",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
+        isAnonymous,
         suppliesCategory: "OFFICE_SUPPLIES",
         itemName: "",
       });
@@ -92,6 +97,7 @@ export default function NewRequestPage() {
       type: apiType as RequestFormValues["type"],
       title: data.title,
       description: data.description?.trim() || undefined,
+      isAnonymous: data.isAnonymous,
       ...(data.type === "ISSUE"
         ? {
           issueDetails: {
@@ -215,6 +221,27 @@ export default function NewRequestPage() {
                       />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isAnonymous"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 bg-muted/20">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Submit Anonymously</FormLabel>
+                      <p className="text-sm text-muted-foreground pt-1">
+                        Your identity will be hidden from other users, including App Admins.
+                      </p>
+                    </div>
                   </FormItem>
                 )}
               />
