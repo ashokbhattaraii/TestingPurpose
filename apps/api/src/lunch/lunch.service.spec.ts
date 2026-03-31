@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LunchService } from './lunch.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { SlackService } from '../slack/slack.service';
+import { NotificationGateway } from '../notification/notification.gateway';
 
 describe('LunchService', () => {
   let service: LunchService;
@@ -11,11 +12,20 @@ describe('LunchService', () => {
       findMany: jest.fn().mockResolvedValue([]),
       create: jest.fn().mockResolvedValue({}),
       update: jest.fn().mockResolvedValue({}),
+      findUnique: jest.fn().mockResolvedValue({}),
+      delete: jest.fn().mockResolvedValue({}),
     },
   };
 
   const mockSlackService = {
-    send: jest.fn().mockResolvedValue({}),
+    sendDirectMessage: jest.fn().mockResolvedValue({}),
+  };
+
+  const mockNotificationGateway = {
+    broadcastLunchUpdate: jest.fn(),
+    server: {
+      emit: jest.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -29,6 +39,10 @@ describe('LunchService', () => {
         {
           provide: SlackService,
           useValue: mockSlackService,
+        },
+        {
+          provide: NotificationGateway,
+          useValue: mockNotificationGateway,
         },
       ],
     }).compile();

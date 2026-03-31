@@ -4,10 +4,6 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-<<<<<<< HEAD
-import { SupabaseService } from './supabase/supabase.service';
-=======
->>>>>>> origin/dev
 import { RequestModule } from './request/request.module';
 import { UserModule } from './user/user.module';
 import { LunchModule } from './lunch/lunch.module';
@@ -36,11 +32,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     AnalyticsModule,
   ],
   controllers: [AppController],
-<<<<<<< HEAD
-  providers: [AppService, SupabaseService, AnalyticsService],
-=======
   providers: [AppService, AnalyticsService],
->>>>>>> origin/dev
   exports: [AuthModule],
 })
 export class AppModule {}

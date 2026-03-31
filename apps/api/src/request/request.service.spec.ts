@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RequestService } from './request.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationService } from '../notification/notification.service';
+import { NotificationGateway } from '../notification/notification.gateway';
 
 describe('RequestService', () => {
   let service: RequestService;
@@ -17,6 +18,16 @@ describe('RequestService', () => {
 
   const mockNotificationService = {
     send: jest.fn().mockResolvedValue({}),
+    notifyAdmins: jest.fn().mockResolvedValue({}),
+    createNotification: jest.fn().mockResolvedValue({}),
+  };
+
+  // NotificationGateway को लागि Mock
+  const mockNotificationGateway = {
+    broadcastRequestUpdate: jest.fn(),
+    server: {
+      emit: jest.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -30,6 +41,10 @@ describe('RequestService', () => {
         {
           provide: NotificationService,
           useValue: mockNotificationService,
+        },
+        {
+          provide: NotificationGateway,
+          useValue: mockNotificationGateway,
         },
       ],
     }).compile();

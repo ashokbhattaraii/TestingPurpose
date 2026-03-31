@@ -1,11 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-
 import { PrismaService } from '../prisma/prisma.service';
-<<<<<<< HEAD
-// SupabaseService import yahan bata hataisakeko chha
-=======
->>>>>>> origin/dev
 import type {
   RsOfficeClient,
   AuthResult,
@@ -53,7 +48,6 @@ export class AuthService {
   }
 
   async googleLogin(id_token: string) {
-    // Authenticate with Rumsan Office Client
     const rsAuthResult = await this.loginWithGoogle(id_token).catch((e) => {
       console.error(
         'Rumsan login failed:',
@@ -68,7 +62,6 @@ export class AuthService {
 
     const rsAuthResultExtended = rsAuthResult as ExtendedAuthResult;
 
-    // Decode ID token to get profile info
     const jwtContent = JSON.parse(
       Buffer.from(id_token.split('.')[1], 'base64').toString(),
     );
@@ -98,42 +91,22 @@ export class AuthService {
       phoneRecovery: rsUser?.phone_recovery,
     };
 
-<<<<<<< HEAD
-    // Supabase hatauna 'uid' ko thau ma Google ID wa CUID prayog gareko
-    const identifier = googleUser.cuid || googleUser.googleId;
-=======
+    // We no longer use Supabase. Using CUID or Google ID as provider UID.
+    const providerUid = googleUser.cuid || googleUser.googleId;
 
-
-
-    // We no longer use Supabase. The 'uid' field in Prisma expects a unique string,
-    // so we'll use the googleId (which represents the Firebase/Google Auth UID).
-    const providerUid = googleUser.googleId;
-    let isNewUser = false;
->>>>>>> origin/dev
-
-    // First, check if user exists in Prisma by email
     let user = await this.prisma.user.findUnique({
       where: { email: googleUser.email },
-<<<<<<< HEAD
     });
 
     const finalRoles: string[] =
-=======
-    });    const finalRoles: string[] =
->>>>>>> origin/dev
       googleUser.roles && googleUser.roles.length > 0
         ? googleUser.roles
         : ['employee'];
 
     if (!user) {
-      // Create new user in our Database via Prisma
       user = await this.prisma.user.create({
         data: {
-<<<<<<< HEAD
-          uid: identifier,
-=======
           uid: providerUid,
->>>>>>> origin/dev
           cuid: googleUser.cuid,
           email: googleUser.email,
           name: googleUser.fullName,
@@ -151,38 +124,11 @@ export class AuthService {
           lastLoginAt: new Date(),
         },
       });
-<<<<<<< HEAD
-=======
-      // console.log('User created in public schema:', user.id);
-    } else if (!user.uid) {
-      // User exists but doesn't have UID - link it
-      // console.log('Linking existing user to Supabase Auth');
-
-      user = await this.prisma.user.update({
-        where: { id: user.id },
-        data: {
-          uid: providerUid,
-          cuid: googleUser.cuid,
-          name: googleUser.fullName,
-          photoURL: googleUser.picture,
-          gender: googleUser.gender,
-          roles: finalRoles,
-          org_unit: googleUser.orgUnit,
-          department: googleUser.department,
-          job_title: googleUser.jobTitle,
-          employment_type: googleUser.employmentType,
-          phone_home: googleUser.phoneHome,
-          phone_work: googleUser.phoneWork,
-          phone_recovery: googleUser.phoneRecovery,
-          lastLoginAt: new Date(),
-        },
-      });
->>>>>>> origin/dev
     } else {
-      // Update existing user
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
+          uid: user.uid || providerUid, // Ensure UID exists
           lastLoginAt: new Date(),
           roles: finalRoles,
           cuid: googleUser.cuid,
