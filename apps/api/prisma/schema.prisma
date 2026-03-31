@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
- 
 }
 
 enum RequestStatus {
@@ -20,8 +19,6 @@ enum RequestType {
   ISSUE // Report problems, complaints, or concerns
   SUPPLIES // Request office Supplies, equipment, or materials
 }
-
-
 
 enum LunchType {
   VEG
@@ -105,7 +102,6 @@ model User {
 
   @@index([uid])
   @@index([email])
-
 }
 
 model ConnectedAccount {
@@ -134,6 +130,7 @@ model Request {
   // Common fields
   title       String
   description String?
+  isAnonymous Boolean       @default(false)
 
   // Approval
   approverId      String?
@@ -182,10 +179,10 @@ model RequestSuppliesDetails {
 }
 
 model Announcement {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
   title    String
   content  String
-  priority String @default("normal") // low, normal, high, urgent
+  priority String  @default("normal") // low, normal, high, urgent
   pinned   Boolean @default(false)
 
   // Targeting
@@ -235,10 +232,10 @@ model Notification {
 }
 
 model LunchAttendance {
-  id                   String      @id @default(cuid())
+  id                   String     @id @default(cuid())
   userId               String
-  date                 DateTime    @db.Date // Only date, no time
-  isAttending          Boolean     @default(true)
+  date                 DateTime   @db.Date // Only date, no time
+  isAttending          Boolean    @default(true)
   preferredLunchOption LunchType?
   // Timestamps
 
@@ -277,4 +274,3 @@ model Analytics {
   @@index([date])
   @@index([period])
 }
-
