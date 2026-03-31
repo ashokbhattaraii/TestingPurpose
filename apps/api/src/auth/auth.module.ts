@@ -5,6 +5,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
+// import { GoogleStrategy } from './strategies/google.strategy';
 import { UserModule } from '../user/user.module';
 import { RS_OFFICE_CLIENT } from 'src/rsoffice/rsoffice.module';
 import { RsOfficeClient } from '@rumsan/user';
@@ -16,6 +17,7 @@ import { AuthGuard } from './auth.guard';
 @Module({
   imports: [
     PrismaModule,
+
     UserModule,
     RsOfficeModule,
     JwtModule.register({
