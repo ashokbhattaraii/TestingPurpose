@@ -39,4 +39,19 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
     this.server.to(userId).emit('notification', notification);
     this.logger.log(`Notification emitted to room ${userId}`);
   }
+
+  broadcastRequestUpdate() {
+    this.server.emit('requestUpdate');
+    this.logger.log(`Request update broadcasted to all clients`);
+  }
+
+  broadcastLunchSummaryUpdate() {
+    this.server.emit('lunchSummaryUpdate');
+    this.logger.log(`Lunch summary update broadcasted to all clients`);
+  }
+
+  broadcastAnnouncementUpdate() {
+    this.server.emit('announcementUpdate');
+    this.logger.log(`Announcement update broadcasted to all clients`);
+  }
 }

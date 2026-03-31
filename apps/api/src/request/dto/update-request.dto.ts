@@ -59,6 +59,9 @@ export class UpdateRequestDto {
   @IsOptional()
   description?: string;
 
+  @IsOptional()
+  isAnonymous?: boolean;
+
   // ISSUE-specific fields
   @ValidateNested()
   @Type(() => UpdateIssueDetailsDto)

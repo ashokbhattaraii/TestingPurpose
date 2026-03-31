@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import {
@@ -12,6 +12,7 @@ import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AssignRequestDto } from './dto/assign-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { NotificationService } from '../notification/notification.service';
+import { NotificationGateway } from '../notification/notification.gateway';
 import { NotificationType } from '@prisma/client';
 
 @Injectable()
@@ -19,27 +20,42 @@ export class RequestService {
   constructor(
     private prisma: PrismaService,
     private notificationService: NotificationService,
+    private notificationGateway: NotificationGateway,
   ) { }
   private formatRequestDetails(request: any) {
     if (!request) return request;
     const result = { ...request };
-    
-    if (result.user) {
+
+    if (result.isAnonymous) {
+      result.user = {
+        id: 'anonymous',
+        name: 'Anonymous',
+        email: 'anonymous',
+        roles: [],
+        department: null,
+        photoURL: null,
+        isAdmin: false,
+      };
+    } else if (result.user) {
       result.user = {
         id: result.user.id,
         name: result.user.name,
+        email: result.user.email,
+        roles: result.user.roles,
+        department: result.user.department,
         photoURL: result.user.photoURL,
-        isAdmin: Array.isArray(result.user.roles) 
+        isAdmin: Array.isArray(result.user.roles)
           ? result.user.roles.some((r: string) => r.toLowerCase().includes('admin'))
           : false,
       };
     }
-    
+
     if (result.approver) {
       result.approver = {
+        id: result.approver.id,
         name: result.approver.name,
         photoURL: result.approver.photoURL,
-        isAdmin: Array.isArray(result.approver.roles) 
+        isAdmin: Array.isArray(result.approver.roles)
           ? result.approver.roles.some((r: string) => r.toLowerCase().includes('admin'))
           : false,
       };
@@ -100,6 +116,7 @@ export class RequestService {
         type: dto.type,
         title: dto.title,
         description: dto.description ?? '',
+        isAnonymous: dto.isAnonymous ?? false,
         status: 'PENDING' as RequestStatus,
         issueDetails:
           dto.type === RequestType.ISSUE
@@ -138,6 +155,7 @@ export class RequestService {
         adminNotes: true,
         createdAt: true, // keep
         updatedAt: true, // keep
+        isAnonymous: true,
         // updatedAt: false (simply omitted)
         user: {
           select: {
@@ -159,8 +177,10 @@ export class RequestService {
       NotificationType.REQUEST_UPDATE,
       'New Request Created',
       `New request created by ${request.user.name}`,
-      `/dashboard/requests/${request.id}`,
+      `/requests/${request.id}`,
     );
+
+    this.notificationGateway.broadcastRequestUpdate();
 
     const returnMsg = {
       message: 'Request created successfully',
@@ -171,7 +191,7 @@ export class RequestService {
 
   async getRequests(options?: { userId?: string; roles?: string[]; currentUserId?: string }) {
     const roles = options?.roles ?? [];
-    const isAdmin = roles.includes('ADMIN') || roles.includes('SUPERADMIN');
+    const isAdmin = roles.includes('ADMIN');
 
     const requestedUserId = options?.userId;
     let effectiveUserId: string | undefined;
@@ -241,7 +261,7 @@ export class RequestService {
       },
     });
     if (!request) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     return this.removeNullish({
       message: 'Request fetched successfully',
@@ -255,7 +275,7 @@ export class RequestService {
       include: { issueDetails: true, suppliesDetails: true },
     });
     if (!existing) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     if (existing.userId !== userId) {
       throw new BadRequestException('Not authorized to update this request');
@@ -275,6 +295,7 @@ export class RequestService {
           dto.description !== undefined
             ? dto.description
             : existing.description,
+        isAnonymous: dto.isAnonymous ?? existing.isAnonymous,
         type: newType,
         issueDetails:
           newType === RequestType.ISSUE
@@ -344,6 +365,8 @@ export class RequestService {
       },
     });
 
+    this.notificationGateway.broadcastRequestUpdate();
+
     return this.removeNullish({
       message: 'Request updated successfully',
       request: this.formatRequestDetails(request),
@@ -357,7 +380,7 @@ export class RequestService {
   ) {
     const existing = await this.prisma.request.findUnique({ where: { id } });
     if (!existing) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     if (existing.userId === adminId) {
       throw new BadRequestException(
@@ -403,8 +426,10 @@ export class RequestService {
       NotificationType.REQUEST_UPDATE,
       'Request Status Updated',
       `Your request "${request.title}" status has been changed to ${request.status}.`,
-      `/dashboard/requests/${request.id}`,
+      `/requests/${request.id}`,
     );
+
+    this.notificationGateway.broadcastRequestUpdate();
 
     return {
       message: 'Status updated successfully',
@@ -415,7 +440,7 @@ export class RequestService {
   async assignRequest(id: string, adminId: string, dto: AssignRequestDto) {
     const existing = await this.prisma.request.findUnique({ where: { id } });
     if (!existing) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     if (existing.userId === adminId) {
       throw new BadRequestException('You cannot assign your own request');
@@ -452,11 +477,13 @@ export class RequestService {
       NotificationType.REQUEST_UPDATE,
       'New Request Assigned',
       `You have been assigned to the request: "${request.title}"`,
-      `/dashboard/requests/${request.id}`,
+      `/requests/${request.id}`,
     );
 
     // Note: Removed general admin notification and requester notification here
     // to strictly follow the 'only notify respective admin' instruction.
+
+    this.notificationGateway.broadcastRequestUpdate();
 
     return {
       message: 'Request assigned successfully',
@@ -492,8 +519,10 @@ export class RequestService {
       NotificationType.REQUEST_UPDATE,
       'Request Reopened',
       `Your request "${request.title}" has been reopened and is back in PENDING status.`,
-      `/dashboard/requests/${request.id}`,
+      `/requests/${request.id}`,
     );
+
+    this.notificationGateway.broadcastRequestUpdate();
 
     return {
       message: 'Request reopened successfully',
@@ -506,7 +535,7 @@ export class RequestService {
       where: { id: id },
     });
     if (!existingRequest) {
-      throw new BadRequestException('Request not found');
+      throw new NotFoundException('Request not found');
     }
     const request = await this.prisma.request.update({
       where: { id: id },
@@ -537,6 +566,8 @@ export class RequestService {
       `The request "${request.title}" has been cancelled.`,
       `/requests/${request.id}`,
     );
+
+    this.notificationGateway.broadcastRequestUpdate();
 
     return {
       message: 'Request cancelled successfully',

@@ -60,6 +60,9 @@ export class CreateRequestDto {
   @IsOptional()
   description?: string;
 
+  @IsOptional()
+  isAnonymous?: boolean;
+
   // ISSUE-specific fields
   @ValidateNested()
   @Type(() => IssueDetailsDto)

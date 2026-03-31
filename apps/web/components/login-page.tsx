@@ -8,13 +8,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building2, ArrowRight, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
-
+//test
 import { useLogin } from "@/hooks/use-login";
 import { toast } from "sonner";
 import { GoogleLogin } from "@react-oauth/google";
-
+//login page
 export function LoginPage() {
   const { isGoogleLoginPending, loginWithGoogleAsync } = useLogin();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -31,9 +31,9 @@ export function LoginPage() {
         <div className="mb-8 text-center sm:text-left">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors mb-4"
+            className="group inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary font-medium transition-all mb-5 hover:underline decoration-primary/30 underline-offset-4"
           >
-            <ArrowRight className="h-4 w-4 rotate-180" />
+            <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Back to home
           </Link>
         </div>
@@ -41,8 +41,8 @@ export function LoginPage() {
         {/* Main Login Card */}
         <Card className="border-primary/20 shadow-2xl overflow-hidden min-h-[460px] flex flex-col">
           <CardHeader className="text-center bg-gradient-to-b from-card to-primary/5 rounded-t-lg pt-12 pb-8">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-xl">
-              <Building2 className="h-8 w-8" />
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-white p-3 shadow-xl ring-1 ring-black/5 dark:ring-white/10">
+              <img src="./rumsan-logo-blk.png" alt="Rumsan Logo" className="h-full w-full object-contain" />
             </div>
             <CardTitle className="text-4xl font-extrabold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent tracking-tight">
               WorkOps
@@ -101,18 +101,6 @@ export function LoginPage() {
                 )}
               </div>
 
-              {/* Footer */}
-              <div className="mt-6 text-center">
-                <p className="text-xs text-muted-foreground">
-                  Don't have an account?{" "}
-                  <Link
-                    href="/"
-                    className="text-primary hover:text-primary/80 font-medium transition-colors"
-                  >
-                    Go to HomePage
-                  </Link>
-                </p>
-              </div>
             </div>
           </CardContent>
         </Card>

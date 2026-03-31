@@ -12,7 +12,6 @@ export function useAnnouncements() {
     staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
-    refetchInterval: 5 * 1000,
     retry: true,
   });
 }

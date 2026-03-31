@@ -4,7 +4,10 @@ import { AuthController } from './auth.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+<<<<<<< HEAD
 //import { SupabaseModule } from '../supabase/supabase.module';
+=======
+>>>>>>> origin/dev
 import { JwtStrategy } from './strategies/jwt.strategy';
 // import { GoogleStrategy } from './strategies/google.strategy';
 import { UserModule } from '../user/user.module';
@@ -18,7 +21,10 @@ import { AuthGuard } from './auth.guard';
 @Module({
   imports: [
     PrismaModule,
+<<<<<<< HEAD
     //SupabaseModule,
+=======
+>>>>>>> origin/dev
 
     UserModule,
     RsOfficeModule,

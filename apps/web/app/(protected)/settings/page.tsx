@@ -49,7 +49,7 @@ export default function SettingsPage() {
           </p>
         </div>
         <Button variant="outline" asChild className="bg-transparent">
-          <Link href="/dashboard/profile" className="gap-2">
+          <Link href="/profile" className="gap-2">
             View Profile
           </Link>
         </Button>

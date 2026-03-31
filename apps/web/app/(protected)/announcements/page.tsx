@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { Megaphone, Pin, X, ChevronLeft, ChevronRight, Search, CalendarIcon } from "lucide-react"
-import { format, isWithinInterval, startOfDay, endOfDay, isSameDay } from "date-fns"
+import { format, isWithinInterval, startOfDay, endOfDay, isSameDay, formatDistanceToNow } from "date-fns"
 import { useState } from "react"
 import {
   Popover,
@@ -39,6 +39,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+const PRIORITY_STYLES: Record<string, string> = {
+  low: "bg-slate-50 text-slate-600 border-slate-200",
+  normal: "bg-blue-50 text-blue-600 border-blue-200",
+  high: "bg-amber-50 text-amber-600 border-amber-200",
+  urgent: "bg-red-50 text-red-600 border-red-200",
+};
 
 export default function AnnouncementsPage() {
   const { user } = useAuth()
@@ -48,6 +54,7 @@ export default function AnnouncementsPage() {
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
+  const [priority, setPriority] = useState("normal")
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [search, setSearch] = useState("")
@@ -116,13 +123,13 @@ export default function AnnouncementsPage() {
         {
           title,
           content,
-          authorId: user.id,
-          authorName: user.name,
+          priority,
         },
         {
           onSuccess: () => {
             setTitle("")
             setContent("")
+            setPriority("normal")
             setOpen(false)
           },
         }
@@ -183,6 +190,22 @@ export default function AnnouncementsPage() {
                     onChange={(e) => setContent(e.target.value)}
                     className="min-h-24"
                   />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="priority" className="text-sm font-medium">
+                    Priority
+                  </Label>
+                  <Select value={priority} onValueChange={setPriority}>
+                    <SelectTrigger id="priority">
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button
@@ -308,50 +331,77 @@ export default function AnnouncementsPage() {
                 key={ann.id}
                 className={ann.pinned ? "border-primary/30 bg-primary/[0.02]" : ""}
               >
-                <CardContent className="flex flex-col gap-2 p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Megaphone className="h-4 w-4 flex-shrink-0 text-primary" />
-                      <h3 className="text-sm font-medium text-foreground">
-                        {ann.title}
-                      </h3>
-                      {ann.pinned && (
-                        <Badge
-                          variant="outline"
-                          className="border-primary/30 text-primary text-xs gap-1"
-                        >
-                          <Pin className="h-3 w-3" />
-                          Pinned
-                        </Badge>
-                      )}
+                <CardContent className="p-0">
+                  <div className="flex items-start gap-4 p-5">
+                    {/* Left Icon Area */}
+                    <div className={cn(
+                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300 shadow-sm border",
+                      ann.pinned ? "bg-primary/10 border-primary/20 text-primary" : "bg-muted/30 border-border text-muted-foreground"
+                    )}>
+                      <Megaphone className={cn("h-6 w-6", ann.pinned && "animate-pulse")} />
                     </div>
-                    {canCreate && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-auto px-2 py-1 text-xs"
-                        onClick={() => handleTogglePin(ann.id, ann.pinned)}
-                        disabled={pinAnnouncement.isPending}
-                        title={ann.pinned ? "Unpin announcement" : "Pin announcement"}
-                      >
-                        <Pin
-                          className={`h-3.5 w-3.5 ${ann.pinned
-                              ? "fill-primary text-primary"
-                              : "text-muted-foreground"
-                            }`}
-                        />
-                      </Button>
-                    )}
-                  </div>
-                  <p className="text-sm leading-relaxed text-foreground/80">
-                    {ann.content}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{ann.authorName}</span>
-                    <span>-</span>
-                    <span>
-                      {format(new Date(ann.createdAt), "MMM d, yyyy")}
-                    </span>
+
+                    {/* Middle Content Area */}
+                    <div className="flex-1 space-y-2 py-0.5">
+                      <div className="flex items-center flex-wrap gap-2">
+                        <h3 className="text-base font-semibold text-foreground leading-none">
+                          {ann.title}
+                        </h3>
+                        <div className="flex items-center gap-1.5 ml-1">
+                          {ann.pinned && (
+                            <Badge
+                              variant="outline"
+                              className="bg-primary/5 border-primary/20 text-primary text-[10px] h-4.5 px-1.5 py-0 font-bold uppercase tracking-wider"
+                            >
+                              Pinned
+                            </Badge>
+                          )}
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-[10px] capitalize px-1.5 py-0 h-4.5 font-bold uppercase tracking-wider border",
+                              PRIORITY_STYLES[ann.priority?.toLowerCase() || "normal"]
+                            )}
+                          >
+                            {ann.priority || "Normal"}
+                          </Badge>
+                        </div>
+                      </div>
+                      <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3">
+                        {ann.content}
+                      </p>
+                    </div>
+
+                    {/* Right Action/Meta Area */}
+                    <div className="flex flex-col items-end justify-between self-stretch pt-0.5 pb-0.5 min-w-[120px]">
+                      {canCreate ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={cn(
+                            "h-8 w-8 rounded-full transition-all duration-300",
+                            ann.pinned ? "text-primary bg-primary/5 hover:bg-primary/10" : "text-muted-foreground hover:bg-muted"
+                          )}
+                          onClick={() => handleTogglePin(ann.id, ann.pinned)}
+                          disabled={pinAnnouncement.isPending}
+                        >
+                          <Pin className={cn("h-4 w-4", ann.pinned && "fill-current")} />
+                        </Button>
+                      ) : (
+                        <div className="h-8" />
+                      )}
+
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-xs font-semibold text-primary/70">
+                          {ann.createdBy?.name || "System Admin"}
+                        </span>
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full border border-border/50">
+                          <span title={format(new Date(ann.createdAt), "PPP p")}>
+                            {formatDistanceToNow(new Date(ann.createdAt), { addSuffix: true })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

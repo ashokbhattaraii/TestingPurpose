@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useReopenRequest } from "@/hooks/request/useReopenRequest";
 import { useAssignRequest } from "@/hooks/request/useAssignRequest";
 import { useUpdateRequestStatus } from "@/hooks/request/useUpdateRequestStatus";
+import { NotFoundPage } from "@/components/not-found-page";
 
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,7 +78,7 @@ export default function RequestDetailPage() {
 
   // console.log("Admin User Data:", adminUser);
   const id = params.id as string;
-  const { data: requestById, isLoading } = useGetRequestByIdQuery(id);
+  const { data: requestById, isLoading, isError } = useGetRequestByIdQuery(id);
 
   const updateStatus = useUpdateRequestStatus();
   const assignRequest = useAssignRequest();
@@ -199,14 +200,14 @@ export default function RequestDetailPage() {
     );
   }
 
-  if (!request) {
+  if (!request || isError) {
     return (
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="text-sm text-muted-foreground">Request not found.</p>
-        <Button asChild variant="ghost" className="mt-4">
-          <Link href="/dashboard/requests">Back to Requests</Link>
-        </Button>
-      </div>
+      <NotFoundPage
+        title="Request Not Found"
+        description="The request you're looking for doesn't exist or may have been removed."
+        backLabel="Back to Requests"
+        backHref="/requests"
+      />
     );
   }
 
@@ -214,7 +215,7 @@ export default function RequestDetailPage() {
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/requests">
+          <Link href="/requests">
             <ArrowLeft className="mr-1 h-4 w-4" />
             Back to Requests
           </Link>
@@ -237,7 +238,7 @@ export default function RequestDetailPage() {
               {isCreator && request.status === "PENDING" && (
                 <>
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/requests/edit/${request.id}`}>
+                    <Link href={`/requests/edit/${request.id}`}>
                       <Edit2 className="mr-1 h-4 w-4" />
                       Edit
                     </Link>

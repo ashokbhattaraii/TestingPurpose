@@ -267,7 +267,7 @@ export default function UsersPage() {
                             size="icon"
                             className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
                             onClick={() =>
-                              router.push(`/dashboard/users/${u.id}`)
+                              router.push(`/users/${u.id}`)
                             }
                             title="View user details"
                           >

@@ -7,15 +7,16 @@ export function useCreateAnnouncement() {
     mutationFn: async ({
       title,
       content,
+      priority,
     }: {
       title: string;
       content: string;
-      authorId: string;
-      authorName: string;
+      priority: string;
     }) => {
       const response = await axiosInstance.post("/announcements", {
         title,
         content,
+        priority,
       });
       return response.data;
     },

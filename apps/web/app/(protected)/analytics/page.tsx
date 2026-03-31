@@ -904,7 +904,7 @@ export default function AnalyticsPage() {
                     key={req.id}
                     onClick={() => {
                       setDrillDown(null);
-                      router.push(`/dashboard/requests/${req.id}`);
+                      router.push(`/requests/${req.id}`);
                     }}
                     className="flex flex-col gap-1.5 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 sm:flex-row sm:items-center sm:justify-between"
                   >

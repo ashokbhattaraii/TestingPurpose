@@ -61,13 +61,13 @@ export function SuperadminDashboard() {
         </div>
         <div className="flex gap-2">
           <Button asChild size="sm" variant="outline">
-            <Link href="/dashboard/analytics">
+            <Link href="/analytics">
               <BarChart3 className="mr-1 h-4 w-4" />
               Full Analytics
             </Link>
           </Button>
           <Button asChild size="sm" variant="outline">
-            <Link href="/dashboard/users">
+            <Link href="/users">
               <Users className="mr-1 h-4 w-4" />
               Manage Users
             </Link>
@@ -151,7 +151,7 @@ export function SuperadminDashboard() {
               </CardContent>
             </Card>
 
-            <Link href="/dashboard/lunch" className="block h-32">
+            <Link href="/lunch" className="block h-32">
               <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 h-full">
                 <CardContent className="flex flex-col justify-between p-6 h-full">
                   <div className="flex items-center justify-between">
@@ -185,7 +185,7 @@ export function SuperadminDashboard() {
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link
-                href="/dashboard/my-requests"
+                href="/my-requests"
                 className="text-xs text-muted-foreground"
               >
                 View all
@@ -208,7 +208,7 @@ export function SuperadminDashboard() {
                 {recentUserRequests?.map((req: RequestResponse) => (
                   <Link
                     key={req.id}
-                    href={`/dashboard/requests/${req.id}`}
+                    href={`/requests/${req.id}`}
                     className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-card hover:border-border hover:shadow-md"
                   >
                     <div className="flex items-start justify-between">
@@ -238,7 +238,7 @@ export function SuperadminDashboard() {
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link
-                href="/dashboard/requests"
+                href="/requests"
                 className="text-xs text-muted-foreground"
               >
                 View all
@@ -261,7 +261,7 @@ export function SuperadminDashboard() {
                 {allRequests?.slice(0, 5).map((req: RequestResponse) => (
                   <Link
                     key={req.id}
-                    href={`/dashboard/requests/${req.id}`}
+                    href={`/requests/${req.id}`}
                     className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-card hover:border-border hover:shadow-md"
                   >
                     <div className="flex items-start justify-between">

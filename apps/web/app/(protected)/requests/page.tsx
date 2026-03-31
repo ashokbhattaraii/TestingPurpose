@@ -267,7 +267,7 @@ export default function RequestsPage() {
         </div>
 
         <Button asChild size="sm">
-          <Link href="/dashboard/requests/new">
+          <Link href="/requests/new">
             <Plus className="mr-1 h-4 w-4" />
             New Request
           </Link>
@@ -411,7 +411,7 @@ export default function RequestsPage() {
               const isSupplies = req.type === "SUPPLIES";
 
               return (
-                <Link key={req.id} href={`/dashboard/requests/${req.id}`}>
+                <Link key={req.id} href={`/requests/${req.id}`}>
                   <Card className="group transition-all duration-300 hover:shadow-lg hover:border-primary/30 overflow-hidden">
                     <CardContent className="flex flex-col sm:flex-row p-0 h-full">
                       <div className={cn(

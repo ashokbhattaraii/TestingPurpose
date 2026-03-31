@@ -14,7 +14,6 @@ export function useGetRequestByIdQuery(requestId: string) {
     staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
-    refetchInterval: 10 * 1000,
-    retry: true,
+    retry: false
   });
 }

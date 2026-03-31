@@ -66,8 +66,8 @@ export default function ProfilePage() {
   const joinedAt = user.created_at
     ? new Date(user.created_at)
     : (user as any).joinedAt
-    ? new Date((user as any).joinedAt)
-    : null;
+      ? new Date((user as any).joinedAt)
+      : null;
   const updatedAt = user.updated_at ? new Date(user.updated_at) : null;
   const lastLogin = (user as any).lastLogin
     ? new Date((user as any).lastLogin)
@@ -99,7 +99,7 @@ export default function ProfilePage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/dashboard/settings" className="gap-2">
+          <Link href="/settings" className="gap-2">
             <Edit3 className="h-4 w-4" />
             Settings
           </Link>
@@ -146,42 +146,6 @@ export default function ProfilePage() {
               </Badge>
             </div>
 
-            <Separator className="my-2 w-full" />
-
-            <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Department
-                </span>
-                <span className="text-sm font-semibold text-foreground">
-                  {displayDepartment}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Joined
-                </span>
-                <span className="text-sm font-semibold text-foreground">
-                  {joinedAt ? format(joinedAt, "MMM yyyy") : "N/A"}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Job Title
-                </span>
-                <span className="text-sm font-semibold text-foreground">
-                  {displayJobTitle}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Employment
-                </span>
-                <span className="text-sm font-semibold capitalize text-foreground">
-                  {displayEmploymentType}
-                </span>
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -292,7 +256,7 @@ export default function ProfilePage() {
           <CardTitle className="text-lg">Recent Service Requests</CardTitle>
           <Button variant="ghost" size="sm" asChild>
             <Link
-              href="/dashboard/requests"
+              href="/requests"
               className="text-xs text-muted-foreground"
             >
               View all
@@ -315,7 +279,7 @@ export default function ProfilePage() {
               {recentRequests.map((req: any) => (
                 <Link
                   key={req.id}
-                  href={`/dashboard/requests/${req.id}`}
+                  href={`/requests/${req.id}`}
                   className="flex items-center justify-between rounded-md border border-border p-3 transition-colors hover:bg-muted/50"
                 >
                   <div className="flex flex-col gap-0.5 min-w-0">
@@ -335,30 +299,6 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Button
-          asChild
-          variant="outline"
-          className="justify-center bg-transparent"
-        >
-          <Link href="/dashboard/requests">View All Requests</Link>
-        </Button>
-        <Button
-          asChild
-          variant="outline"
-          className="justify-center bg-transparent"
-        >
-          <Link href="/dashboard/settings">Account Settings</Link>
-        </Button>
-        <Button
-          asChild
-          variant="outline"
-          className="justify-center bg-transparent"
-        >
-          <Link href="/dashboard">Back to Dashboard</Link>
-        </Button>
-      </div>
     </div>
   );
 }

@@ -34,7 +34,6 @@
     "@nestjs/websockets": "^11.1.16",
     "@prisma/adapter-pg": "6.19.2",
     "@rumsan/user": "0.4.100",
-    "@supabase/supabase-js": "^2.96.0",
     "cookie-parser": "^1.4.7",
     "cron": "^4.4.0",
     "dotenv": "^17.3.1",

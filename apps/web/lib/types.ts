@@ -90,10 +90,13 @@ export interface Announcement {
   id: string;
   title: string;
   content: string;
-  author: string;
-  authorName: string;
+  createdById: string;
+  createdBy: {
+    name: string;
+  };
   createdAt: string;
   pinned: boolean;
+  priority: string;
 }
 
 export type MealPreference = "VEG" | "NON_VEG";

@@ -8,6 +8,7 @@ type ApiRequestPayload = {
   type: "ISSUE" | "SUPPLIES";
   title: string;
   description?: string;
+  isAnonymous?: boolean;
   issueDetails?: {
     priority: IssuePriority;
     category: IssueCategory;
@@ -29,6 +30,7 @@ export type RequestResponse = {
   type: AppRequestType;
   title: string;
   description: string;
+  isAnonymous?: boolean;
   issueDetails?: {
     priority: IssuePriority;
     category: IssueCategory;
@@ -43,6 +45,7 @@ export type RequestResponse = {
   status: RequestStatus;
   approverId?: string;
   approver?: {
+    id: string;
     name: string;
     photoURL?: string;
     isAdmin: boolean;
@@ -50,6 +53,7 @@ export type RequestResponse = {
   createdAt: string;
   updatedAt: string;
   user: {
+    id: string;
     name: string;
     photoURL?: string;
     isAdmin: boolean;

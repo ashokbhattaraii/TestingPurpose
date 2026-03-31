@@ -17,7 +17,6 @@ export function useGetUser() {
     staleTime: 0,
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
-    refetchInterval: 10 * 5 * 1000, // 5 minutes
     retry: true,
   });
 }
@@ -43,7 +42,6 @@ export function useGetAdminUser() {
     staleTime: 0,
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
-    refetchInterval: 10 * 5 * 1000, // 5 minutes
     retry: true,
   });
 }
@@ -63,7 +61,6 @@ export function useGetUserById(userId: string) {
     staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
-    refetchInterval: 30 * 1000,
     retry: true,
   });
 }

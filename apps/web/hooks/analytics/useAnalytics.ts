@@ -12,7 +12,6 @@ export function useAnalytics() {
     staleTime: 0,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
-    refetchInterval: 30 * 1000,
     retry: true,
   });
 }

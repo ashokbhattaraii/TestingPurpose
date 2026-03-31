@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -57,6 +58,7 @@ export default function EditRequestPage() {
         type: "ISSUE",
         title: "",
         description: "",
+        isAnonymous: false,
         issuePriority: "MEDIUM",
         issueCategory: "TECHNICAL",
         location: "",
@@ -67,6 +69,7 @@ export default function EditRequestPage() {
         type: "ISSUE",
         title: request.title,
         description: request.description || "",
+        isAnonymous: request.isAnonymous || false,
         issuePriority: request.issueDetails?.priority || "MEDIUM",
         issueCategory: request.issueDetails?.category || "TECHNICAL",
         otherCategoryDetails: request.issueDetails?.otherCategoryDetails || "",
@@ -77,6 +80,7 @@ export default function EditRequestPage() {
       type: "SUPPLIES",
       title: request.title,
       description: request.description || "",
+      isAnonymous: request.isAnonymous || false,
       suppliesCategory: request?.suppliesDetails?.category || "OFFICE_SUPPLIES",
       otherCategoryDetails: request?.suppliesDetails?.otherCategoryDetails || "",
       itemName: request.suppliesDetails?.itemName || "",
@@ -100,11 +104,13 @@ export default function EditRequestPage() {
   const suppliesCategory = form.watch("suppliesCategory");
 
   const handleTypeChange = (newType: "ISSUE" | "SUPPLIES") => {
+    const isAnonymous = form.getValues("isAnonymous");
     if (newType === "ISSUE") {
       form.reset({
         type: "ISSUE",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
+        isAnonymous,
         issuePriority: "MEDIUM",
         issueCategory: "TECHNICAL",
         location: "",
@@ -114,6 +120,7 @@ export default function EditRequestPage() {
         type: "SUPPLIES",
         title: form.getValues("title"),
         description: form.getValues("description") || "",
+        isAnonymous,
         suppliesCategory: "OFFICE_SUPPLIES",
         itemName: "",
       });
@@ -121,7 +128,7 @@ export default function EditRequestPage() {
   };
 
   // Check authorization
-  const isCreator = user?.id === request?.user.id;
+  const isCreator = user?.id === request?.user?.id;
   const isNotPending = request && request.status !== "PENDING";
 
   if (isLoading) {
@@ -138,7 +145,7 @@ export default function EditRequestPage() {
       <div className="mx-auto max-w-xl text-center">
         <p className="text-sm text-muted-foreground">Request not found.</p>
         <Button asChild variant="ghost" className="mt-4">
-          <Link href="/dashboard/requests">Back to Requests</Link>
+          <Link href="/requests">Back to Requests</Link>
         </Button>
       </div>
     );
@@ -151,7 +158,7 @@ export default function EditRequestPage() {
           You can only edit your own requests.
         </p>
         <Button asChild variant="ghost" className="mt-4">
-          <Link href={`/dashboard/requests/${id}`}>Back to Request</Link>
+          <Link href={`/requests/${id}`}>Back to Request</Link>
         </Button>
       </div>
     );
@@ -164,7 +171,7 @@ export default function EditRequestPage() {
           You can only edit requests with pending status.
         </p>
         <Button asChild variant="ghost" className="mt-4">
-          <Link href={`/dashboard/requests/${id}`}>Back to Request</Link>
+          <Link href={`/requests/${id}`}>Back to Request</Link>
         </Button>
       </div>
     );
@@ -179,7 +186,7 @@ export default function EditRequestPage() {
       },
       {
         onSuccess: () => {
-          router.push(`/dashboard/requests/${request.id}`);
+          router.push(`/requests/${request.id}`);
         },
       },
     );
@@ -189,7 +196,7 @@ export default function EditRequestPage() {
     <div className="mx-auto max-w-xl">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
-          <Link href={`/dashboard/requests/${id}`}>
+          <Link href={`/requests/${id}`}>
             <ArrowLeft className="mr-1 h-4 w-4" />
             Back to Request
           </Link>
@@ -286,6 +293,27 @@ export default function EditRequestPage() {
                       />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isAnonymous"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 bg-muted/20">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Submit Anonymously</FormLabel>
+                      <p className="text-sm text-muted-foreground pt-1">
+                        Your identity will be hidden from other users, including App Admins.
+                      </p>
+                    </div>
                   </FormItem>
                 )}
               />
@@ -470,7 +498,7 @@ export default function EditRequestPage() {
                   )}
                 </Button>
                 <Button type="button" variant="outline" asChild>
-                  <Link href={`/dashboard/requests/${id}`}>Cancel</Link>
+                  <Link href={`/requests/${id}`}>Cancel</Link>
                 </Button>
               </div>
             </form>
