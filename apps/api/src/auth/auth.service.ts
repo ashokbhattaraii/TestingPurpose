@@ -1,11 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-
 import { PrismaService } from '../prisma/prisma.service';
 import type {
   RsOfficeClient,
   AuthResult,
-  User as RsUser,
 } from '@rumsan/user';
 
 import { RS_OFFICE_CLIENT } from '../rsoffice/rsoffice.module';
@@ -34,7 +32,6 @@ interface ExtendedAuthResult extends AuthResult {
   employmentType?: string;
 }
 
-
 @Injectable()
 export class AuthService {
   private readonly appId: string;
@@ -49,9 +46,8 @@ export class AuthService {
     if (!appId) throw new Error('APP_ID env var is required');
     this.appId = appId;
   }
-  //test
+
   async googleLogin(id_token: string) {
-    // Authenticate with Rumsan Office Client to get the user's cross-app role and ID
     const rsAuthResult = await this.loginWithGoogle(id_token).catch((e) => {
       console.error(
         'Rumsan login failed:',
@@ -64,16 +60,11 @@ export class AuthService {
       return null;
     });
 
-    // console.log('Rumsan login result:', rsAuthResult);
-
     const rsAuthResultExtended = rsAuthResult as ExtendedAuthResult;
 
-
-    // Decode ID token to get profile info
     const jwtContent = JSON.parse(
       Buffer.from(id_token.split('.')[1], 'base64').toString(),
     );
-    // console.log('Decoded JWT content:', jwtContent);
 
     const rsUser = rsAuthResultExtended?.user;
     const firstName = (rsUser?.name?.split(' ')[0] || jwtContent.given_name || '').trim();
@@ -100,25 +91,19 @@ export class AuthService {
       phoneRecovery: rsUser?.phone_recovery,
     };
 
+    // We no longer use Supabase. Using CUID or Google ID as provider UID.
+    const providerUid = googleUser.cuid || googleUser.googleId;
 
-
-
-    // We no longer use Supabase. The 'uid' field in Prisma expects a unique string,
-    // so we'll use the googleId (which represents the Firebase/Google Auth UID).
-    const providerUid = googleUser.googleId;
-    let isNewUser = false;
-
-    // First, check if user exists in Prisma by email
     let user = await this.prisma.user.findUnique({
       where: { email: googleUser.email },
-    });    const finalRoles: string[] =
+    });
+
+    const finalRoles: string[] =
       googleUser.roles && googleUser.roles.length > 0
         ? googleUser.roles
         : ['employee'];
 
     if (!user) {
-      // console.log('Creating user in public schema');
-
       user = await this.prisma.user.create({
         data: {
           uid: providerUid,
@@ -139,37 +124,11 @@ export class AuthService {
           lastLoginAt: new Date(),
         },
       });
-      // console.log('User created in public schema:', user.id);
-    } else if (!user.uid) {
-      // User exists but doesn't have UID - link it
-      // console.log('Linking existing user to Supabase Auth');
-
-      user = await this.prisma.user.update({
-        where: { id: user.id },
-        data: {
-          uid: providerUid,
-          cuid: googleUser.cuid,
-          name: googleUser.fullName,
-          photoURL: googleUser.picture,
-          gender: googleUser.gender,
-          roles: finalRoles,
-          org_unit: googleUser.orgUnit,
-          department: googleUser.department,
-          job_title: googleUser.jobTitle,
-          employment_type: googleUser.employmentType,
-          phone_home: googleUser.phoneHome,
-          phone_work: googleUser.phoneWork,
-          phone_recovery: googleUser.phoneRecovery,
-          lastLoginAt: new Date(),
-        },
-      });
     } else {
-      // User exists with UID - just update
-      // console.log('Updating existing user in public schema');
-
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
+          uid: user.uid || providerUid, // Ensure UID exists
           lastLoginAt: new Date(),
           roles: finalRoles,
           cuid: googleUser.cuid,
@@ -185,10 +144,7 @@ export class AuthService {
           phone_recovery: googleUser.phoneRecovery,
         },
       });
-      // console.log('User updated in public schema');
     }
-
-    // console.log('Generating JWT token');
 
     const payload = {
       sub: user.id,
@@ -216,32 +172,17 @@ export class AuthService {
     };
   }
 
-  /**
-   * Authenticate a user via Google ID token using the three‑step app auth flow
-   * provided by `@rumsan/user`.
-   *
-   * 1. GET  /auth/challenge?app_id=<APP_ID>   → short‑lived challenge JWT
-   * 2. Sign the challenge with the app's secp256k1 private key
-   * 3. POST /auth/google (X‑App‑Id, id_token, challenge, app_signature)
-   *    → user JWT
-   */
   async loginWithGoogle(token: string): Promise<ExtendedAuthResult> {
-    // console.log('[RS Auth] Step 1: Getting challenge for appId:', this.appId);
     const { challenge } = await this.rsClient.auth.getChallenge({
       appId: this.appId,
     });
-    // console.log('[RS Auth] Step 1 OK — challenge received (length:', challenge.length, ')');
 
-    // console.log('[RS Auth] Step 2: Signing challenge...');
     const appSignature = this.crypto.signChallenge(challenge);
-    // console.log('[RS Auth] Step 2 OK — signature:', appSignature.slice(0, 20) + '...');
 
-    // console.log('[RS Auth] Step 3: Calling googleLogin with id_token, challenge, app_signature');
     const rsAuthResult = await this.rsClient.auth.googleLogin(
       { id_token: token, challenge, app_signature: appSignature },
       { appId: this.appId },
     );
-    // console.log('[RS Auth] Step 3 OK — roles:', rsAuthResult?.roles);
 
     return rsAuthResult as ExtendedAuthResult;
   }
