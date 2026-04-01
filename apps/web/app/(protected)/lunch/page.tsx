@@ -72,7 +72,10 @@ export default function LunchTokenPage() {
     };
   }, [allTokensToday]);
 
-  const { mutate: handleAttendance, isPending } = useMarkLunchAttendance();
+  const { mutate: handleAttendance, isPending, variables } = useMarkLunchAttendance();
+  const isCollecting = isPending && variables?.isAttending === true;
+  const isCancelling = isPending && variables?.isAttending === false;
+
   const { mutate: notifyReady, isPending: isNotifying } = useNotifyLunchReady();
 
   const handleCollect = () => {
@@ -194,7 +197,7 @@ export default function LunchTokenPage() {
                 disabled={isPending}
                 className="w-full"
               >
-                {isPending ? "Cancelling..." : "Cancel Token Collection"}
+                {isCancelling ? "Cancelling..." : "Cancel Token Collection"}
               </Button>
             )}
           </CardContent>
@@ -246,7 +249,7 @@ export default function LunchTokenPage() {
               disabled={!preferredLunchOption || !canCollect || isPending}
               className="w-full"
             >
-              {isPending
+              {isCollecting
                 ? "Collecting..."
                 : isWeekend
                   ? "Collection Closed (Weekend)"
