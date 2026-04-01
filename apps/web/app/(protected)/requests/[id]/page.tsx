@@ -210,7 +210,7 @@ export default function RequestDetailPage() {
       />
     );
   }
-
+  //
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
@@ -377,22 +377,22 @@ export default function RequestDetailPage() {
           </div>
 
           {/* Rejection Reason Display */}
-{/* Rejection Reason Display - यसलाई "Request Rejected" सेक्सनमा रिप्लेस गर्नुहोस् */}
-{request.status === "REJECTED" && (
-  <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 mt-2">
-    <div className="flex items-start gap-2">
-      <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-destructive">
-          Reason for Rejection:
-        </p>
-        <p className="mt-1 text-sm leading-relaxed text-foreground italic border-l-2 border-destructive/20 pl-3">
-          {(request as any).rejectionReason || "No specific reason provided by the admin."}
-        </p>
-      </div>
-    </div>
-  </div>
-)}
+          {/* Rejection Reason Display - यसलाई "Request Rejected" सेक्सनमा रिप्लेस गर्नुहोस् */}
+          {request.status === "REJECTED" && (
+            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 mt-2">
+              <div className="flex items-start gap-2">
+                <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-destructive">
+                    Reason for Rejection:
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-foreground italic border-l-2 border-destructive/20 pl-3">
+                    {(request as any).rejectionReason || "No specific reason provided by the admin."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Reopen Button for creator when rejected */}
           {isCreator && request.status === "REJECTED" && (
