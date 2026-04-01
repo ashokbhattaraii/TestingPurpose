@@ -205,8 +205,8 @@ export default function RequestDetailPage() {
       <NotFoundPage
         title="Request Not Found"
         description="The request you're looking for doesn't exist or may have been removed."
-        backLabel="Back to Requests"
-        backHref="/requests"
+        backLabel={user?.roles?.includes("ADMIN") ? "Back to Requests" : "Back to My Requests"}
+        backHref={user?.roles?.includes("ADMIN") ? "/requests" : "/my-requests"}
       />
     );
   }
@@ -215,9 +215,9 @@ export default function RequestDetailPage() {
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/requests">
+          <Link href={user?.roles?.includes("ADMIN") ? "/requests" : "/my-requests"}>
             <ArrowLeft className="mr-1 h-4 w-4" />
-            Back to Requests
+            {user?.roles?.includes("ADMIN") ? "Back to Requests" : "Back to My Requests"}
           </Link>
         </Button>
       </div>

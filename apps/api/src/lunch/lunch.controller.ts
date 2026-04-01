@@ -23,4 +23,10 @@ export class LunchController {
   async getMyAttendance(@CurrentUser() user) {
     return this.lunchService.myAttendance(user.id);
   }
+
+  @Post('notify-ready')
+  @UseGuards(AuthGuard)
+  async notifyLunchReady() {
+    return this.lunchService.notifyLunchReady();
+  }
 }

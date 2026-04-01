@@ -4,8 +4,7 @@ import { LunchAttendanceDto } from '../dto/lunch.dto';
 import { LunchType } from '@prisma/client';
 import { SlackService } from '../slack/slack.service';
 import { NotificationGateway } from '../notification/notification.gateway';
-import { time } from 'console';
-import { Cron } from '@nestjs/schedule';
+
 
 @Injectable()
 export class LunchService {
@@ -113,5 +112,35 @@ export class LunchService {
       attendance,
     };
     return returnMsg;
+  }
+
+  async notifyLunchReady() {
+    const today = this.getKathmanduDateOnly();
+
+    // Get all attendees who are attending today
+    const records = await this.prisma.lunchAttendance.findMany({
+      where: { date: today, isAttending: true },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    if (records.length === 0) {
+      return { message: 'No attendees to notify today.', sent: 0, failed: 0 };
+    }
+
+    const attendees = records.map((r) => ({
+      email: r.user.email,
+      name: r.user.name,
+      preferredLunchOption: r.preferredLunchOption ?? 'VEG',
+    }));
+
+    const result =
+      await this.slackService.sendLunchReadyNotifications(attendees);
+
+    return {
+      message: `Lunch ready notifications sent! ${result.sent} delivered, ${result.failed} failed.`,
+      ...result,
+    };
   }
 }

@@ -256,7 +256,7 @@ export default function ProfilePage() {
           <CardTitle className="text-lg">Recent Service Requests</CardTitle>
           <Button variant="ghost" size="sm" asChild>
             <Link
-              href="/requests"
+              href={user?.roles?.includes("ADMIN") ? "/requests" : "/my-requests"}
               className="text-xs text-muted-foreground"
             >
               View all

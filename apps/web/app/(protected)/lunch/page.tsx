@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   useMarkLunchAttendance,
   useMyLunchAttendance,
+  useNotifyLunchReady,
 } from "@/hooks/lunch/useLunchAttendance";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
 import {
@@ -20,6 +21,7 @@ import {
   XCircle,
   Ticket,
   Users,
+  Send,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useState, useMemo } from "react";
@@ -71,6 +73,7 @@ export default function LunchTokenPage() {
   }, [allTokensToday]);
 
   const { mutate: handleAttendance, isPending } = useMarkLunchAttendance();
+  const { mutate: notifyReady, isPending: isNotifying } = useNotifyLunchReady();
 
   const handleCollect = () => {
     if (!preferredLunchOption) {
@@ -251,7 +254,6 @@ export default function LunchTokenPage() {
                     ? "Collection Closed (After 11 AM)"
                     : "Collect Lunch Token"}
             </Button>
-            {/* Removed time restriction notice for testing */}
           </CardContent>
         </Card>
       )}
@@ -304,6 +306,24 @@ export default function LunchTokenPage() {
         </Card>
       </div>
 
+      {/* Ready For Lunch - Admin Only */}
+      {isAdmin && (
+        <Card>
+          <CardContent className="p-4">
+            <Button
+              onClick={() => notifyReady()}
+              disabled={isNotifying || totalAttending === 0}
+              className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white"
+              size="lg"
+            >
+              <Send className="h-4 w-4" />
+              {isNotifying
+                ? "Sending Notifications..."
+                : `Ready For Lunch (Notify ${totalAttending} attendees via Slack)`}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
     </div>
   );

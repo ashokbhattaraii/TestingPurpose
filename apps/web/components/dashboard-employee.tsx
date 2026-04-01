@@ -21,9 +21,14 @@ import {
   ArrowUp,
   ArrowRight,
   ArrowDown,
+  User,
+  Zap,
+  ExternalLink,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { format, formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const PRIORITY_CONFIG = {
   HIGH: { label: "High", icon: ArrowUp, className: "text-red-600 bg-red-50" },
@@ -89,18 +94,46 @@ export function EmployeeDashboard() {
 
   const recentRequests = userRequests.slice(0, 5);
 
-  // Active requests for system-wide view (PENDING)
-  const activeRequests =
-    allRequests
-      ?.filter((r: any) => r.status === "PENDING")
-      .sort(
-        (a: any, b: any) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-      .slice(0, 5) ?? [];
-
   const pinnedAnnouncements =
     announcements?.filter((a) => a.pinned).slice(0, 5) ?? [];
+
+  const quickLinks = [
+    {
+      label: "New Request",
+      href: "/requests/new",
+      icon: <Plus className="h-4 w-4 text-blue-600" />,
+      description: "Submit a new service request",
+      color: "bg-blue-50",
+    },
+    {
+      label: "Lunch Token",
+      href: "/lunch",
+      icon: <UtensilsCrossed className="h-4 w-4 text-orange-600" />,
+      description: "Manage your daily lunch",
+      color: "bg-orange-50",
+    },
+    {
+      label: "My Requests",
+      href: "/my-requests",
+      icon: <ClipboardList className="h-4 w-4 text-emerald-600" />,
+      description: "Track your active requests",
+      color: "bg-emerald-50",
+    },
+    {
+      label: "Profile",
+      href: "/profile",
+      icon: <User className="h-4 w-4 text-purple-600" />,
+      description: "View your account details",
+      color: "bg-purple-50",
+    },
+    {
+      label: "Settings",
+      href: "/settings",
+      icon: <Settings className="h-4 w-4 text-slate-600" />,
+      description: "System preferences",
+      color: "bg-slate-50",
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -124,9 +157,9 @@ export function EmployeeDashboard() {
 
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
         {requestsLoading ? (
-          Array.from({ length: 5 }).map((_, i) => (
+          Array.from({ length: 6 }).map((_, i) => (
             <Card key={i} className="h-32">
               <CardContent className="flex items-center justify-center p-4">
                 <Skeleton className="h-16 w-full" />
@@ -209,6 +242,23 @@ export function EmployeeDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            <Link href="/lunch" className="block h-32">
+              <Card className="group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-orange-200 h-full">
+                <CardContent className="flex flex-col justify-between p-5 h-full">
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 group-hover:bg-orange-100 transition-colors">
+                      <UtensilsCrossed className="h-5 w-5 text-orange-600" />
+                    </div>
+                    <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">Lunch</span>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground tracking-tight">{totalTokens}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Tokens</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </>
         )}
       </div>
@@ -268,56 +318,40 @@ export function EmployeeDashboard() {
           </CardContent>
         </Card>
 
-        {/* Active Requests (System-wide) */}
+        {/* Quick Links */}
         <Card className="lg:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-sm font-medium text-foreground">
-              Active Requests
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              Quick Links
             </CardTitle>
-            <Button variant="ghost" size="sm" asChild>
-              <Link
-                href="/requests"
-                className="text-xs text-muted-foreground"
-              >
-                View all
-              </Link>
-            </Button>
           </CardHeader>
           <CardContent>
-            {requestsLoading ? (
-              <div className="flex flex-col gap-3">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="h-14" />
-                ))}
-              </div>
-            ) : activeRequests.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                No active requests.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {activeRequests.map((req: any) => (
-                  <Link
-                    key={req.id}
-                    href={`/requests/${req.id}`}
-                    className="group flex flex-col gap-2 rounded-xl border border-transparent bg-muted/30 p-4 transition-all duration-200 hover:bg-card hover:border-border hover:shadow-md"
-                  >
-                    <div className="flex items-start justify-between">
-                      <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                        {req.title}
-                      </span>
-                      <StatusBadge status={req.status} />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-[11px] font-medium text-muted-foreground">
-                        {req.user?.name} • {format(new Date(req.createdAt), "MMM d, h:mm a")}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+            <div className="flex flex-col gap-2">
+              {quickLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="group flex items-center gap-3 rounded-xl border border-transparent p-3 transition-all duration-200 hover:bg-muted/50 hover:border-border hover:shadow-sm"
+                >
+                  <div className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-lg transition-transform group-hover:scale-110",
+                    link.color
+                  )}>
+                    {link.icon}
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {link.label}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground truncate">
+                      {link.description}
+                    </span>
+                  </div>
+                  <ExternalLink className="ml-auto h-3 w-3 opacity-0 group-hover:opacity-40 transition-opacity" />
+                </Link>
+              ))}
+            </div>
           </CardContent>
         </Card>
 

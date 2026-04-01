@@ -34,6 +34,8 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
   format,
   isWithinInterval,
@@ -41,7 +43,6 @@ import {
   endOfDay,
   isSameDay,
 } from "date-fns";
-import { useState } from "react";
 import type { RequestStatus } from "@/lib/types";
 import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
@@ -153,7 +154,17 @@ const normalizePriority = (
 
 export default function RequestsPage() {
   const { user } = useAuth();
-  const isEmployee = user?.roles?.includes("EMPLOYEE");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user && !user.roles?.includes("ADMIN")) {
+      router.push("/my-requests");
+    }
+  }, [user, router]);
+
+  if (!user || !user.roles?.includes("ADMIN")) {
+    return null;
+  }
 
   const { data: requests, isLoading } = useServiceRequests();
 
@@ -260,9 +271,7 @@ export default function RequestsPage() {
             Service Requests
           </h1>
           <p className="text-base font-medium text-muted-foreground mt-1">
-            {isEmployee
-              ? "Your submitted service requests."
-              : "All service requests across the organization."}
+            All service requests across the organization.
           </p>
         </div>
 

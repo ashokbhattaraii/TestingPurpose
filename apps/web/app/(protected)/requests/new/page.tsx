@@ -46,6 +46,7 @@ import {
 import { CreateRequestPayload } from "@/lib/type/requestType"; // fix import path
 
 export default function NewRequestPage() {
+  const { user } = useAuth();
   const router = useRouter();
   const { mutate, isPending } = useCreateRequestMutation();
 
@@ -118,7 +119,7 @@ export default function NewRequestPage() {
 
     mutate(payload, {
       onSuccess: () => {
-        router.push("/requests");
+        router.push(user?.roles?.includes("ADMIN") ? "/requests" : "/my-requests");
       },
     });
   };
@@ -127,9 +128,9 @@ export default function NewRequestPage() {
     <div className="mx-auto max-w-xl">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/requests">
+          <Link href={user?.roles?.includes("ADMIN") ? "/requests" : "/my-requests"}>
             <ArrowLeft className="mr-1 h-4 w-4" />
-            Back to Requests
+            {user?.roles?.includes("ADMIN") ? "Back to Requests" : "Back to My Requests"}
           </Link>
         </Button>
       </div>

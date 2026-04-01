@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { PrismaService } from '../prisma/prisma.service.js';
-import { SlackService } from '../slack/slack.service.js';
+import { PrismaService } from '../prisma/prisma.service';
+import { SlackService } from '../slack/slack.service';
 import { LunchType } from '@prisma/client';
 
 @Injectable()
@@ -15,9 +15,9 @@ export class SlackCronService {
     this.logger.log('SlackCronService constructor called');
   }
   //corn
-  @Cron('0 */30 * * * *') // Runs every 30 minutes
+  @Cron('0 */1 * * * *') // Runs every 30 minutes
   async handleEvery30Minutes() {
-    this.logger.log('⏰ Executing Periodic Slack lunch summary (every 30 minutes)...');
+    this.logger.log('⏰ Executing Periodic Slack lunch summary (every minute)...');
     await this.handleDailySlackJob();
   }
 

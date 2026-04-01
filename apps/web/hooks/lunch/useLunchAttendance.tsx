@@ -168,3 +168,21 @@ export function useLunchAttendanceSummary(enabled: boolean = true) {
     retry: true,
   });
 }
+
+export function useNotifyLunchReady() {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await axiosInstance.post("/lunch/notify-ready");
+      return response.data as { message: string; sent: number; failed: number };
+    },
+    onSuccess: (data) => {
+      toast.success(data.message);
+    },
+    onError: (error: any) => {
+      toast.error(
+        `Error: ${error?.response?.data?.message || "Failed to send notifications"}`,
+      );
+    },
+  });
+}
+

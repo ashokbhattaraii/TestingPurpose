@@ -145,7 +145,9 @@ export default function EditRequestPage() {
       <div className="mx-auto max-w-xl text-center">
         <p className="text-sm text-muted-foreground">Request not found.</p>
         <Button asChild variant="ghost" className="mt-4">
-          <Link href="/requests">Back to Requests</Link>
+          <Link href={user?.roles?.includes("ADMIN") ? "/requests" : "/my-requests"}>
+            {user?.roles?.includes("ADMIN") ? "Back to Requests" : "Back to My Requests"}
+          </Link>
         </Button>
       </div>
     );

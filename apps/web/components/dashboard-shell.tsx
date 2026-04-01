@@ -76,8 +76,8 @@ const navItems: NavItem[] = [
     label: "Service Requests",
     href: "/requests",
     icon: <ClipboardList className="h-4 w-4" />,
-    roles: ["EMPLOYEE", "ADMIN"],
-    section: "General",
+    roles: ["ADMIN"],
+    section: "Administration",
   },
   {
     label: "My Requests",
