@@ -6,7 +6,7 @@ import { fetchWithAuth } from "../../lib/api";
 
 async function startGoogleLogin(idToken: string): Promise<any> {
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4001/api/v1";
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
   if (!baseUrl) {
     throw new Error("NEXT_PUBLIC_API_URL is not set");
   }

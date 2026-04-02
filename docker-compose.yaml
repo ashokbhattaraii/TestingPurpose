@@ -1,0 +1,24 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: workops-api
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env.api
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: workops-web
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.web
+    depends_on:
+      - api
+    restart: unless-stopped

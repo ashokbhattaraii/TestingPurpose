@@ -32,7 +32,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
     const socketUrl = apiUrl.replace("/api/v1", "");
 
     const socketInstance = io(socketUrl, {
