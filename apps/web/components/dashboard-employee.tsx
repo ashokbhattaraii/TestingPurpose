@@ -1,9 +1,9 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useLunchTokens } from "@/hooks/lunch/useLunchTokens";
-import { useAnnouncements } from "@/hooks/announcement/useAnnouncements";
-import { useServiceRequests } from "@/hooks/request/useServiceRequests";
+import { useLunchTokens } from "@/queries/lunch/useLunchTokens";
+import { useAnnouncements } from "@/queries/announcement/useAnnouncements";
+import { useServiceRequests } from "@/queries/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { EmployeeDashboard } from "@/components/dashboard-employee";
 import { AdminDashboard } from "@/components/dashboard-admin";
-import { useLunchAttendanceSummary } from "@/hooks/lunch/useLunchAttendance";
+import { useLunchAttendanceSummary } from "@/queries/lunch/useLunchAttendance";
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();

@@ -1,6 +1,6 @@
 "use client";
 import { useContext, createContext, useMemo, useEffect } from "react";
-import { useLunchAttendanceSummary } from "@/hooks/lunch/useLunchAttendance";
+import { useLunchAttendanceSummary } from "@/queries/lunch/useLunchAttendance";
 
 export interface LunchContextType {
   totalAttending: number;

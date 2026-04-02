@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useGetUser } from "@/hooks/users/useGetUser";
+import { useGetUser } from "@/queries/users/useGetUser";
 import {
   Select,
   SelectContent,

@@ -39,7 +39,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
-import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/notification/useNotifications";
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/queries/notification/useNotifications";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import {

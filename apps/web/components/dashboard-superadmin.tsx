@@ -1,12 +1,12 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useUsers } from "@/hooks/users/useUsers";
-import { useAnalytics } from "@/hooks/analytics/useAnalytics";
+import { useUsers } from "@/queries/users/useUsers";
+import { useAnalytics } from "@/queries/analytics/useAnalytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetUser } from "@/hooks/users/useGetUser";
+import { useGetUser } from "@/queries/users/useGetUser";
 import {
   ClipboardList,
   Users,
@@ -24,7 +24,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useServiceRequests } from "@/hooks/request/useServiceRequests";
+import { useServiceRequests } from "@/queries/request/useServiceRequests";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
 import { RequestResponse } from "@/lib/type/requestType";
 import { format } from "date-fns";

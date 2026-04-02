@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 
-import { fetchWithAuth } from "../lib/api";
+import { fetchWithAuth } from "../../lib/api";
 
 async function startGoogleLogin(idToken: string): Promise<any> {
   const baseUrl =

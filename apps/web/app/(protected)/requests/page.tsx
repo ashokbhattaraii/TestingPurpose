@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useServiceRequests } from "@/hooks/request/useServiceRequests";
+import { useServiceRequests } from "@/queries/request/useServiceRequests";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,7 +52,7 @@ import {
   ISSUE_PRIORITY_LABELS,
   SUPPLIES_CATEGORY_LABELS,
 } from "@/schemas";
-import useCreateRequestMutation from "@/hooks/request/useCreateRequest";
+import useCreateRequestMutation from "@/queries/request/useCreateRequest";
 
 
 

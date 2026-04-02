@@ -2,8 +2,8 @@
 
 import React from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useGetRequestByIdQuery } from "@/hooks/request/useGetRequest";
-import { useUpdateRequestMutation } from "@/hooks/request/useUpdateRequest";
+import { useGetRequestByIdQuery } from "@/queries/request/useGetRequest";
+import { useUpdateRequestMutation } from "@/queries/request/useUpdateRequest";
 import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -1,8 +1,8 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useAnnouncements } from "@/hooks/announcement/useAnnouncements";
-import { useServiceRequests } from "@/hooks/request/useServiceRequests";
+import { useAnnouncements } from "@/queries/announcement/useAnnouncements";
+import { useServiceRequests } from "@/queries/request/useServiceRequests";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format, formatDistanceToNow } from "date-fns";
-import { useLunchAttendanceSummary } from "@/hooks/lunch/useLunchAttendance";
+import { useLunchAttendanceSummary } from "@/queries/lunch/useLunchAttendance";
 import { useLunchContext } from "@/lib/lunch/lunchContext";
 
 const PRIORITY_CONFIG = {

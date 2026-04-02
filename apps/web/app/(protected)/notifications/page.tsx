@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/notification/useNotifications";
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/queries/notification/useNotifications";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Bell, BellOff } from "lucide-react";

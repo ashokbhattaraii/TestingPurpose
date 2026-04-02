@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useServiceRequests } from "@/hooks/request/useServiceRequests";
+import { useServiceRequests } from "@/queries/request/useServiceRequests";
 import { useAuth } from "@/lib/auth-context";
 import { StatusBadge } from "@/components/status-badge";
 import { format } from "date-fns";

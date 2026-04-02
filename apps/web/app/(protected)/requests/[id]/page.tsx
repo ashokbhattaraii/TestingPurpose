@@ -1,9 +1,9 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { useReopenRequest } from "@/hooks/request/useReopenRequest";
-import { useAssignRequest } from "@/hooks/request/useAssignRequest";
-import { useUpdateRequestStatus } from "@/hooks/request/useUpdateRequestStatus";
+import { useReopenRequest } from "@/queries/request/useReopenRequest";
+import { useAssignRequest } from "@/queries/request/useAssignRequest";
+import { useUpdateRequestStatus } from "@/queries/request/useUpdateRequestStatus";
 import { NotFoundPage } from "@/components/not-found-page";
 
 import { useParams, useRouter } from "next/navigation";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
-import { useGetRequestByIdQuery } from "@/hooks/request/useGetRequest";
+import { useGetRequestByIdQuery } from "@/queries/request/useGetRequest";
 
 import {
   Select,
@@ -59,8 +59,8 @@ import {
   ISSUE_PRIORITY_LABELS,
   SUPPLIES_CATEGORY_LABELS,
 } from "@/schemas";
-import { useGetAdminUser } from "@/hooks/users/useGetUser";
-import { useCancelRequest } from "@/hooks/request/useCancelRequest";
+import { useGetAdminUser } from "@/queries/users/useGetUser";
+import { useCancelRequest } from "@/queries/request/useCancelRequest";
 import { title } from "process";
 const priorityConfig = {
   LOW: { label: "Low", className: "bg-muted text-muted-foreground" },
