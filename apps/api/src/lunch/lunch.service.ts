@@ -31,7 +31,23 @@ export class LunchService {
     return new Date(`${year}-${month}-${day}T00:00:00.000Z`);
   }
   private checkAttendanceWindow(): void {
-    this.logger.log('Attendance window check bypassed for testing');
+    const now = new Date();
+    const kathmanduTime = new Date(
+      now.toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' }),
+    );
+    const hours = kathmanduTime.getHours();
+    const minutes = kathmanduTime.getMinutes();
+    const totalMinutes = hours * 60 + minutes;
+
+    // Allow collection between 9:45 AM and 11:00 AM NPT
+    const startMinutes = 9 * 60 + 45; // 9:45
+    const endMinutes = 11 * 60; // 11:00
+
+    if (totalMinutes < startMinutes || totalMinutes >= endMinutes) {
+      throw new BadRequestException(
+        'Lunch token collection is only available between 9:45 AM and 11:00 AM.',
+      );
+    }
   }
 
   async lunchAttendance(userId: string, dto: LunchAttendanceDto) {

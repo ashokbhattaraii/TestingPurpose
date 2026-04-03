@@ -14,10 +14,10 @@ export class SlackCronService {
   ) {
     this.logger.log('SlackCronService constructor called');
   }
-  //corn
-  @Cron('0 */1 * * * *') // Runs every 30 minutes
-  async handleEvery30Minutes() {
-    this.logger.log('⏰ Executing Periodic Slack lunch summary (every minute)...');
+  // Runs at 11:01 AM NPT (05:16 UTC) on weekdays (Mon-Fri)
+  @Cron('0 16 5 * * 1-5')
+  async handleDailyLunchSummary() {
+    this.logger.log('⏰ Executing daily Slack lunch summary at 11:01 AM NPT...');
     await this.handleDailySlackJob();
   }
 

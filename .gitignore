@@ -18,6 +18,8 @@ out/
 
 # Environment files
 .env
+.env.api
+.env.web
 .env.local
 .env.*.local
 

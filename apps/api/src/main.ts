@@ -11,7 +11,6 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'http://localhost:3001',
       'https://testing-purpose-web.vercel.app',
     ],
     credentials: true,
@@ -23,7 +22,7 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 4000;
   await app.listen(port);
   console.log(` Backend running on port ${port}`);
 }

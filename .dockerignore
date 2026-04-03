@@ -1,0 +1,16 @@
+node_modules
+.pnpm-store
+.git
+.gitignore
+.env
+.env.*
+.next
+dist
+build
+coverage
+.turbo
+turbo
+**/node_modules
+**/.next
+**/dist
+**/build
