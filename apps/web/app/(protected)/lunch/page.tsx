@@ -69,7 +69,7 @@ export default function LunchTokenPage() {
   const collectedPreference = myAttendance?.attendance?.preferredLunchOption as
     | MealPreference
     | undefined;
-
+//
   const isAdmin = user?.roles?.some((r) => r.includes("ADMIN"));
 
   const stats = useMemo(() => {
