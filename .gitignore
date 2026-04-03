@@ -17,7 +17,9 @@ build/
 out/
 
 # Environment files
+
 .env
+.env.*
 .env.api
 .env.web
 .env.local
