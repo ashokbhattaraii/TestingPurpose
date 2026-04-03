@@ -40,6 +40,12 @@ function isWithinCollectionWindow() {
   return totalMinutes >= 9 * 60 + 45 && totalMinutes < 11 * 60;
 }
 
+function isBeforeCollectionWindow() {
+  const now = new Date();
+  const totalMinutes = now.getHours() * 60 + now.getMinutes();
+  return totalMinutes < 9 * 60 + 45;
+}
+
 export default function LunchTokenPage() {
   const { user } = useAuth();
   const { data: myAttendance, isLoading: attendanceLoading } =
@@ -56,6 +62,7 @@ export default function LunchTokenPage() {
 
   const isWeekend = new Date().getDay() === 0 || new Date().getDay() === 6;
   const canCollect = !isWeekend && isWithinCollectionWindow();
+  const isBefore = isBeforeCollectionWindow();
 
   // Read from myAttendance.attendance — matches the actual API response shape
   const alreadyCollected = myAttendance?.attendance?.isAttending === true;
@@ -145,13 +152,17 @@ export default function LunchTokenPage() {
                   ? 'text-yellow-600' 
                   : canCollect 
                     ? 'text-green-600' 
-                    : 'text-red-600'
+                    : isBefore
+                      ? 'text-orange-600'
+                      : 'text-red-600'
               }`}>
                 {isWeekend
                   ? "Collection closed on weekends"
                   : canCollect
                     ? "Token collection is open (9:45 AM - 11:00 AM)"
-                    : "Collection window closed (9:45 AM - 11:00 AM)"}
+                    : isBefore
+                      ? "Collection opens at 9:45 AM (9:45 AM - 11:00 AM)"
+                      : "Collection closed for today (was 9:45 AM - 11:00 AM)"}
               </span>
             </div>
           </div>
@@ -266,7 +277,9 @@ export default function LunchTokenPage() {
                 : isWeekend
                   ? "Collection Closed (Weekend)"
                   : !canCollect
-                    ? "Collection Closed (After 11 AM)"
+                    ? isBefore
+                      ? "Opens at 9:45 AM"
+                      : "Collection Closed (After 11 AM)"
                     : "Collect Lunch Token"}
             </Button>
           </CardContent>
