@@ -32,8 +32,12 @@ function getToday() {
   return new Date().toISOString().split("T")[0];
 }
 
-function isBefore11AM() {
-  return true;
+function isWithinCollectionWindow() {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const totalMinutes = hours * 60 + minutes;
+  return totalMinutes >= 9 * 60 + 45 && totalMinutes < 11 * 60;
 }
 
 export default function LunchTokenPage() {
@@ -51,7 +55,7 @@ export default function LunchTokenPage() {
     useLunchContext();
 
   const isWeekend = new Date().getDay() === 0 || new Date().getDay() === 6;
-  const canCollect = !isWeekend && isBefore11AM();
+  const canCollect = !isWeekend && isWithinCollectionWindow();
 
   // Read from myAttendance.attendance — matches the actual API response shape
   const alreadyCollected = myAttendance?.attendance?.isAttending === true;
@@ -136,10 +140,18 @@ export default function LunchTokenPage() {
             </p>
             <div className="flex items-center gap-2 mt-1">
               <Clock className="h-3 w-3 text-muted-foreground" />
-              <span className={`text-xs font-medium ${isWeekend ? 'text-yellow-600' : 'text-green-600'}`}>
+              <span className={`text-xs font-medium ${
+                isWeekend 
+                  ? 'text-yellow-600' 
+                  : canCollect 
+                    ? 'text-green-600' 
+                    : 'text-red-600'
+              }`}>
                 {isWeekend
                   ? "Collection closed on weekends"
-                  : "Token collection is open (Testing: No Time Restriction)"}
+                  : canCollect
+                    ? "Token collection is open (9:45 AM - 11:00 AM)"
+                    : "Collection window closed (9:45 AM - 11:00 AM)"}
               </span>
             </div>
           </div>
