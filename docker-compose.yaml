@@ -5,20 +5,28 @@ services:
       dockerfile: apps/api/Dockerfile
     container_name: workops-api
     ports:
-      - "4000:4000"
-    env_file:
-      - .env.api
+      - "${API_PORT:-4000}:4000"
+    env_file: .env.api
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/v1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:?NEXT_PUBLIC_GOOGLE_CLIENT_ID is required}
     container_name: workops-web
     ports:
-      - "3000:3000"
-    env_file:
-      - .env.web
+      - "${WEB_PORT:-3000}:3000"
+    env_file: .env.web
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     restart: unless-stopped

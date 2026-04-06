@@ -16,6 +16,7 @@ export class SlackCronService {
   }
   // Runs at 11:01 AM NPT (05:16 UTC) on weekdays (Mon-Fri)
   @Cron('0 16 5 * * 1-5')
+  // @Cron('* * * * *')
   async handleDailyLunchSummary() {
     this.logger.log('⏰ Executing daily Slack lunch summary at 11:01 AM NPT...');
     await this.handleDailySlackJob();

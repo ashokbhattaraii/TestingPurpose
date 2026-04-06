@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ValidateNested,
   IsEnum,
@@ -25,10 +25,12 @@ export class IssueDetailsDto {
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
   otherCategoryDetails?: string | null;
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
   location?: string | null;
 }
 
@@ -39,10 +41,12 @@ export class SuppliesDetailsDto {
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
   otherCategoryDetails?: string | null;
 
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
   itemName: string;
 }
 
@@ -54,10 +58,12 @@ export class CreateRequestDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
   title: string;
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
   description?: string;
 
   @IsOptional()

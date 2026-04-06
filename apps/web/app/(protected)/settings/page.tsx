@@ -16,8 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
-import { Bell, Shield, Copy, Check, Fingerprint, ShieldCheck } from "lucide-react";
+import { Bell, Shield, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 const roleLabel: Record<string, string> = {
@@ -27,20 +26,10 @@ const roleLabel: Record<string, string> = {
 
 export default function SettingsPage() {
   const { user } = useAuth();
-  const [copied, setCopied] = useState(false);
-
-  const handleCopyUid = () => {
-    if (user?.uid) {
-      navigator.clipboard.writeText(user.uid);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
   if (!user) return null;
 
   return (
-    <div className="mx-auto max-w-4xl flex flex-col gap-8">
+    <div className="mx-auto max-w-[88rem] flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings</h1>
@@ -89,31 +78,6 @@ export default function SettingsPage() {
                 disabled
                 className="bg-muted"
               />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">
-                UID
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  type="text"
-                  value={user.uid}
-                  disabled
-                  className="bg-muted font-mono text-xs"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyUid}
-                  className="px-2 bg-transparent"
-                >
-                  {copied ? (
-                    <Check className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
             </div>
           </div>
 

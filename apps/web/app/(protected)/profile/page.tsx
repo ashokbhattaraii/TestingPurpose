@@ -21,7 +21,6 @@ import {
   User as UserIcon,
   Briefcase,
   Globe,
-  Fingerprint,
   ShieldCheck,
   AlertCircle,
 } from "lucide-react";
@@ -90,7 +89,7 @@ export default function ProfilePage() {
   const recentRequests = requestsArray.slice(0, 5);
 
   return (
-    <div className="mx-auto max-w-4xl flex flex-col gap-6">
+    <div className="mx-auto max-w-[88rem] flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">My Profile</h1>

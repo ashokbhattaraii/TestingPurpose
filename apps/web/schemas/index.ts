@@ -67,13 +67,13 @@ export const requestSchema = z.discriminatedUnion("type", [
     type: z.literal("ISSUE"),
     title: z
       .string()
-      .min(3, "Title must be at least 3 characters")
-      .max(100, "Title must be less than 100 characters"),
+      .transform((v) => v.trim())
+      .pipe(z.string().min(3, "Title must be at least 3 characters").max(100, "Title must be less than 100 characters")),
     isAnonymous: z.boolean().default(false).optional(),
     description: z
       .string()
-      .min(1, "Description is required")
-      .max(500, "Description must be less than 500 characters"),
+      .transform((v) => v.trim())
+      .pipe(z.string().min(1, "Description is required").max(500, "Description must be less than 500 characters")),
     issuePriority: z.enum(ISSUE_PRIORITIES, {
       errorMap: () => ({ message: "Please select a priority" }),
     }),
@@ -82,15 +82,17 @@ export const requestSchema = z.discriminatedUnion("type", [
     }),
     otherCategoryDetails: z
       .string()
-      .max(200, "Details must be less than 200 characters")
+      .transform((v) => v.trim())
+      .pipe(z.string().max(200, "Details must be less than 200 characters"))
       .refine(
-        (val) => !val || val.trim().split(/\s+/).filter(Boolean).length <= 15,
+        (val) => !val || val.split(/\s+/).filter(Boolean).length <= 15,
         "Maximum 15 words allowed"
       )
       .optional(),
     location: z
       .string()
-      .max(200, "Location must be less than 200 characters")
+      .transform((v) => v.trim())
+      .pipe(z.string().max(200, "Location must be less than 200 characters"))
       .optional(),
   }),
   // Supplies type
@@ -98,28 +100,30 @@ export const requestSchema = z.discriminatedUnion("type", [
     type: z.literal("SUPPLIES"),
     title: z
       .string()
-      .min(3, "Title must be at least 3 characters")
-      .max(100, "Title must be less than 100 characters"),
+      .transform((v) => v.trim())
+      .pipe(z.string().min(3, "Title must be at least 3 characters").max(100, "Title must be less than 100 characters")),
     isAnonymous: z.boolean().default(false).optional(),
     description: z
       .string()
-      .max(500, "Description must be less than 500 characters")
+      .transform((v) => v.trim())
+      .pipe(z.string().max(500, "Description must be less than 500 characters"))
       .optional(),
     suppliesCategory: z.enum(SUPPLIES_CATEGORIES, {
       errorMap: () => ({ message: "Please select a supplies category" }),
     }),
     otherCategoryDetails: z
       .string()
-      .max(200, "Details must be less than 200 characters")
+      .transform((v) => v.trim())
+      .pipe(z.string().max(200, "Details must be less than 200 characters"))
       .refine(
-        (val) => !val || val.trim().split(/\s+/).filter(Boolean).length <= 15,
+        (val) => !val || val.split(/\s+/).filter(Boolean).length <= 15,
         "Maximum 15 words allowed"
       )
       .optional(),
     itemName: z
       .string()
-      .min(2, "Item name must be at least 2 characters")
-      .max(100, "Item name must be less than 100 characters"),
+      .transform((v) => v.trim())
+      .pipe(z.string().min(2, "Item name must be at least 2 characters").max(100, "Item name must be less than 100 characters")),
   }),
 ]);
 

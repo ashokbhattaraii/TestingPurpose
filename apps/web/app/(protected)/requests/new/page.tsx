@@ -97,7 +97,7 @@ export default function NewRequestPage() {
     const payload: CreateRequestPayload = {
       type: apiType as RequestFormValues["type"],
       title: data.title,
-      description: data.description?.trim() || undefined,
+      description: data.description || undefined,
       isAnonymous: data.isAnonymous,
       ...(data.type === "ISSUE"
         ? {
@@ -105,7 +105,7 @@ export default function NewRequestPage() {
             priority: data.issuePriority!,
             category: data.issueCategory!,
             otherCategoryDetails: data.issueCategory === "OTHER" ? data.otherCategoryDetails : undefined,
-            location: data.location?.trim() || undefined,
+            location: data.location || undefined,
           },
         }
         : {

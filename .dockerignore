@@ -4,6 +4,7 @@ node_modules
 .gitignore
 .env
 .env.*
+!.env.docker
 .next
 dist
 build
@@ -14,3 +15,8 @@ turbo
 **/.next
 **/dist
 **/build
+backups
+scripts
+README.md
+projectbrief.md
+*.md

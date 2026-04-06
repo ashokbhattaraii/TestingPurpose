@@ -35,14 +35,14 @@ const socialProviders: Record<
   google: {
     label: "Google",
     icon: <Mail className="h-4 w-4" />,
-    color: "bg-red-50 border-red-200",
-    textColor: "text-red-700",
+    color: "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800",
+    textColor: "text-blue-700 dark:text-blue-300",
   },
   slack: {
     label: "Slack",
     icon: <Slack className="h-4 w-4" />,
-    color: "bg-purple-50 border-purple-200",
-    textColor: "text-purple-700",
+    color: "bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800",
+    textColor: "text-purple-700 dark:text-purple-300",
   },
 };
 
