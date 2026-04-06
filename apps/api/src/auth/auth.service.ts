@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -74,6 +74,15 @@ export class AuthService {
       Buffer.from(id_token.split('.')[1], 'base64').toString(),
     );
     // console.log('Decoded JWT content:', jwtContent);
+
+    // Validate email domain
+    const allowedDomains = process.env.ALLOWED_DOMAINS?.split(',').map(d => d.trim().toLowerCase()).filter(Boolean);
+    if (allowedDomains && allowedDomains.length > 0) {
+      const emailDomain = jwtContent.email?.split('@')[1]?.toLowerCase();
+      if (!emailDomain || !allowedDomains.includes(emailDomain)) {
+        throw new ForbiddenException('Email domain is not allowed');
+      }
+    }
 
     const rsUser = rsAuthResultExtended?.user;
     const firstName = (rsUser?.name?.split(' ')[0] || jwtContent.given_name || '').trim();
