@@ -22,6 +22,7 @@ import {
   Ticket,
   Users,
   Send,
+  Sprout,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useState, useMemo } from "react";
@@ -57,7 +58,7 @@ export default function LunchTokenPage() {
     null,
   );
 
-  const { totalAttending, totalTokens, totalVegetarian, totalNonVegetarian } =
+  const { totalAttending, totalTokens, totalVegetarian, totalNonVegetarian, totalVegan } =
     useLunchContext();
 
   const isWeekend = new Date().getDay() === 0 || new Date().getDay() === 6;
@@ -79,6 +80,8 @@ export default function LunchTokenPage() {
       veg: allTokensToday.filter((t) => t.preferredLunchOption === "VEG")
         .length,
       nonVeg: allTokensToday.filter((t) => t.preferredLunchOption === "NON_VEG")
+        .length,
+      vegan: allTokensToday.filter((t) => t.preferredLunchOption === "VEGAN")
         .length,
     };
   }, [allTokensToday]);
@@ -198,15 +201,19 @@ export default function LunchTokenPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                 {collectedPreference === "VEG" ? (
                   <Leaf className="h-6 w-6 text-green-600" />
-                ) : (
+                ) : collectedPreference === "NON_VEG" ? (
                   <Drumstick className="h-6 w-6 text-orange-600" />
+                ) : (
+                  <Sprout className="h-6 w-6 text-emerald-600" />
                 )}
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground capitalize">
                   {collectedPreference === "VEG"
                     ? "Vegetarian"
-                    : "Non-Vegetarian"}
+                    : collectedPreference === "NON_VEG"
+                    ? "Non-Vegetarian"
+                    : "Vegan"}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Token collected for today
@@ -233,7 +240,7 @@ export default function LunchTokenPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() => setPreference("VEG")}
@@ -266,6 +273,22 @@ export default function LunchTokenPage() {
                   Non-Vegetarian
                 </span>
               </button>
+              <button
+                type="button"
+                onClick={() => setPreference("VEGAN")}
+                disabled={isPending}
+                className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors ${preferredLunchOption === "VEGAN"
+                  ? "border-emerald-500 bg-emerald-50"
+                  : "border-border hover:border-emerald-300"
+                  }`}
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
+                  <Sprout className="h-6 w-6 text-emerald-600" />
+                </div>
+                <span className="text-sm font-medium text-foreground">
+                  Vegan
+                </span>
+              </button>
             </div>
             <Button
               onClick={handleCollect}
@@ -287,7 +310,7 @@ export default function LunchTokenPage() {
       )}
 
       {/* ── Today's Lunch Overview ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
 
         {/* Total Attending */}
         <Card className="relative overflow-hidden">
@@ -331,6 +354,20 @@ export default function LunchTokenPage() {
             <p className="text-xs font-medium text-muted-foreground">Non-Veg</p>
           </CardContent>
           <div className="absolute inset-x-0 bottom-0 h-1 bg-orange-500" />
+        </Card>
+
+        {/* Vegan */}
+        <Card className="relative overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center p-4">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+              <Sprout className="h-5 w-5 text-emerald-600" />
+            </div>
+            <p className="text-3xl font-bold text-emerald-600">
+              {totalVegan}
+            </p>
+            <p className="text-xs font-medium text-muted-foreground">Vegan</p>
+          </CardContent>
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-emerald-500" />
         </Card>
       </div>
 

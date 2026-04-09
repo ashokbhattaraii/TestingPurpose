@@ -7,6 +7,7 @@ export interface LunchContextType {
   totalTokens: number;
   totalVegetarian: number;
   totalNonVegetarian: number;
+  totalVegan: number;
   attendanceSummary: any;
 }
 
@@ -38,6 +39,7 @@ export const LunchProvider = ({ children }: { children: React.ReactNode }) => {
         totalTokens: 0,
         totalVegetarian: 0,
         totalNonVegetarian: 0,
+        totalVegan: 0,
         attendanceSummary: null,
       };
     }
@@ -60,6 +62,11 @@ export const LunchProvider = ({ children }: { children: React.ReactNode }) => {
         attendance.preferredLunchOption === "NON_VEG",
     ).length;
 
+    const veganCount = activeAttendances.filter(
+      (attendance: any) =>
+        attendance.preferredLunchOption === "VEGAN",
+    ).length;
+
     const tokenCount = activeAttendances.length;
 
     return {
@@ -67,6 +74,7 @@ export const LunchProvider = ({ children }: { children: React.ReactNode }) => {
       totalTokens: tokenCount,
       totalVegetarian: vegCount,
       totalNonVegetarian: nonVegCount,
+      totalVegan: veganCount,
       attendanceSummary,
     };
   }, [attendanceSummary]);

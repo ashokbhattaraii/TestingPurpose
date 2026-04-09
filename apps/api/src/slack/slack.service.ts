@@ -13,8 +13,10 @@ export class SlackService {
     total: number;
     vegCount: number;
     nonVegCount: number;
+    veganCount: number;
     vegNames: string[];
     nonVegNames: string[];
+    veganNames: string[];
   }) {
     const botToken = this.configService.get<string>('SLACK_BOT_TOKEN');
     const channelId = this.configService.get<string>('SLACK_CHANNEL_ID');
@@ -29,12 +31,13 @@ export class SlackService {
       return this.sendLunchSummaryViaWebhook(data);
     }
 
-    const { date, total, vegCount, nonVegCount, vegNames, nonVegNames } = data;
+    const { date, total, vegCount, nonVegCount, veganCount, vegNames, nonVegNames, veganNames } = data;
 
     // Combine with tags and sort
     const allAttendees = [
       ...vegNames.map((name) => `• ${name} (Veg)`),
       ...nonVegNames.map((name) => `• ${name} (Non-Veg)`),
+      ...veganNames.map((name) => `• ${name} (Vegan)`),
     ].sort();
 
     const blocks = [
@@ -56,7 +59,7 @@ export class SlackService {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `*Veg: ${vegCount}*  |  *Non-Veg: ${nonVegCount}*`,
+          text: `*Veg: ${vegCount}*  |  *Non-Veg: ${nonVegCount}*  |  *Vegan: ${veganCount}*`,
         },
       },
       {
@@ -117,8 +120,10 @@ export class SlackService {
     total: number;
     vegCount: number;
     nonVegCount: number;
+    veganCount: number;
     vegNames: string[];
     nonVegNames: string[];
+    veganNames: string[];
   }) {
     const webhookUrl = this.configService.get<string>('SLACK_HOOK_URL');
     if (!webhookUrl) {
@@ -126,11 +131,12 @@ export class SlackService {
       return;
     }
 
-    const { date, total, vegCount, nonVegCount, vegNames, nonVegNames } = data;
+    const { date, total, vegCount, nonVegCount, veganCount, vegNames, nonVegNames, veganNames } = data;
 
     const allAttendees = [
       ...vegNames.map((name) => `• ${name} (Veg)`),
       ...nonVegNames.map((name) => `• ${name} (Non-Veg)`),
+      ...veganNames.map((name) => `• ${name} (Vegan)`),
     ].sort();
 
     const message = {
@@ -147,7 +153,7 @@ export class SlackService {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `*Veg: ${vegCount}*  |  *Non-Veg: ${nonVegCount}*`,
+            text: `*Veg: ${vegCount}*  |  *Non-Veg: ${nonVegCount}*  |  *Vegan: ${veganCount}*`,
           },
         },
         {

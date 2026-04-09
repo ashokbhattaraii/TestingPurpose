@@ -193,6 +193,7 @@ enum RequestType {
 enum LunchType {
   VEG
   NON_VEG
+  VEGAN
 }
 
 enum IssuePriority {

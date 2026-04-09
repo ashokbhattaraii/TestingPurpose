@@ -15,8 +15,8 @@ export class SlackCronService {
     this.logger.log('SlackCronService constructor called');
   }
   // Runs at 11:01 AM NPT (05:16 UTC) on weekdays (Mon-Fri)
-  @Cron('0 16 5 * * 1-5')
-  // @Cron('* * * * *')
+  // @Cron('0 16 5 * * 1-5')
+  @Cron('* * * * *')
   async handleDailyLunchSummary() {
     this.logger.log('⏰ Executing daily Slack lunch summary at 11:01 AM NPT...');
     await this.handleDailySlackJob();
@@ -59,17 +59,23 @@ export class SlackCronService {
       const nonVegPeople = records.filter(
         (r) => r.preferredLunchOption === LunchType.NON_VEG,
       );
+      const veganPeople = records.filter(
+        (r) => r.preferredLunchOption === LunchType.VEGAN,
+      );
 
       const vegNames = vegPeople.map((r) => r.user.name);
       const nonVegNames = nonVegPeople.map((r) => r.user.name);
+      const veganNames = veganPeople.map((r) => r.user.name);
 
       const data = {
         date: today.toISOString().split('T')[0],
         total: records.length,
         vegCount: vegPeople.length,
         nonVegCount: nonVegPeople.length,
+        veganCount: veganPeople.length,
         vegNames,
         nonVegNames,
+        veganNames,
       };
 
       await this.slackService.sendLunchSummary(data);

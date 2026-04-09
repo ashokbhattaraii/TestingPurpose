@@ -99,7 +99,7 @@ export interface Announcement {
   priority: string;
 }
 
-export type MealPreference = "VEG" | "NON_VEG";
+export type MealPreference = "VEG" | "NON_VEG" | "VEGAN";
 //types
 export interface LunchToken {
   id: string;
